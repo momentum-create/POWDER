@@ -212,7 +212,8 @@ header{background:var(--navy);border-bottom:1px solid var(--border);padding:0 16
 .view-top .top-date-wrap .date-label{font-size:10px;color:var(--text-dim);letter-spacing:2px;font-family:"Space Mono",monospace;margin-bottom:6px}
 .view-top .top-date-wrap .date-btns{display:flex;gap:6px;flex-wrap:wrap;overflow-x:auto;padding-bottom:2px}
 .view-top .top-date-wrap .date-btn{flex:1;min-width:52px}
-.view-top .top-sub{font-size:11px;color:var(--accent);font-family:"Space Mono",monospace;margin-top:14px;margin-bottom:12px}
+.view-top .top-sub{font-size:11px;color:var(--accent);font-family:"Space Mono",monospace;margin-top:14px;margin-bottom:4px}
+.view-top .top-updated{font-size:10px;color:var(--text-dim);font-family:"Space Mono",monospace;margin-bottom:12px}
 .view-top .top-ten-wrap{flex:1}
 .view-top .top-ten-list{display:flex;flex-direction:column;gap:10px}
 .view-top .top-card{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:14px;display:flex;align-items:center;gap:14px;transition:border-color .2s}
@@ -271,7 +272,8 @@ header{background:var(--navy);border-bottom:1px solid var(--border);padding:0 16
       <div class="date-label">ターゲット日</div>
       <div class="date-btns" id="top-date-btns"></div>
     </div>
-    <p class="top-sub" id="top-sub">選択日のパウダースコア TOP10（注目ゲレンデ）</p>
+    <p class="top-sub" id="top-sub">選択日のパウダースコア TOP10</p>
+    <p class="top-updated" id="top-updated"></p>
   </section>
   <div class="top-ten-wrap">
     <div class="top-ten-list" id="top-ten-list"></div>
@@ -816,9 +818,15 @@ function renderTop10(){
   const dateStr = `${d.getMonth()+1}月${d.getDate()}日`;
   const loading = Object.values(weatherCache).some(v=>v==="loading");
   const subEl = document.getElementById("top-sub");
-  if(subEl) subEl.textContent = loading
-    ? `${dateStr}のパウダースコア TOP10（サーチ中… 取得済み${withData.length}件）`
-    : `${dateStr}のパウダースコア TOP10`;
+  if(subEl) subEl.textContent = `${dateStr}のパウダースコア TOP10`;
+
+  const updEl = document.getElementById("top-updated");
+  if(updEl){
+    const now = new Date();
+    const hh = now.getHours().toString().padStart(2,"0");
+    const mm = now.getMinutes().toString().padStart(2,"0");
+    updEl.textContent = `最終更新: ${hh}:${mm} 時点`;
+  }
 
   const listEl = document.getElementById("top-ten-list");
   if(!listEl) return;
