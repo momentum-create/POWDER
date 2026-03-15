@@ -246,10 +246,13 @@ header{background:var(--navy);border-bottom:1px solid var(--border);padding:0 16
 @media(max-width:700px){
   /* マップ画面はスマホではフルスクリーンに近い形で表示し、サイドバーは非表示 */
   #view-map .sidebar{display:none}
-  #map{flex:1;min-height:calc(100vh - 52px)}
+  #map{flex:1;min-height:calc(100vh - 58px)}
   .map-overlay{display:none}
-  .view-top{padding:16px 12px 24px}
+  .view-top{padding:20px 12px 24px}
   .view-top .top-title{font-size:24px}
+  /* iPhone 等でノッチやブラウザUIと被らないよう、ヘッダーを少し下げる */
+  header{padding-top:6px;height:58px}
+  .view-map{height:calc(100vh - 58px)}
   /* 目標地点ポップアップ: スマホでコンパクトに（触っても閉じない・中はクリック可） */
   .leaflet-popup-content-wrapper{max-width:92vw!important}
   .leaflet-popup-content{margin:8px 10px!important;min-width:0!important;max-height:45vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
