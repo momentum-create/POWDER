@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ゲレンデナビ — パウダーハンター</title>
+<title>Ski Resort Guide</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=DM+Serif+Display:ital@0;1&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
@@ -22,9 +22,9 @@ body{font-family:"Noto Sans JP",sans-serif;background:var(--navy);color:var(--te
 
 /* Header */
 header{background:var(--navy);border-bottom:1px solid var(--border);padding:0 16px;height:52px;display:flex;align-items:center;justify-content:space-between;z-index:1000;flex-shrink:0}
-.logo{display:flex;align-items:baseline;gap:8px}
-.logo-main{font-family:"DM Serif Display",serif;font-size:20px;color:#fff}
-.logo-tag{font-family:"Space Mono",monospace;font-size:9px;color:var(--accent);letter-spacing:2px;background:rgba(77,217,196,.12);border:1px solid rgba(77,217,196,.3);padding:2px 8px;border-radius:10px}
+.logo{display:flex;align-items:center;gap:8px}
+.logo-main{font-family:"DM Serif Display",serif;font-size:20px;color:#fff;letter-spacing:1px}
+.logo-tag{display:none}
 .header-right{display:flex;align-items:center;gap:10px}
 .live-badge{display:flex;align-items:center;gap:5px;font-size:10px;color:#7ecb8a;font-family:"Space Mono",monospace}
 .live-dot{width:6px;height:6px;border-radius:50%;background:#7ecb8a;animation:pulse 2s infinite}
@@ -276,8 +276,8 @@ header{background:var(--navy);border-bottom:1px solid var(--border);padding:0 16
 
 <header>
   <div class="logo">
-    <span class="logo-main">ゲレンデナビ</span>
-    <span class="logo-tag">POWDER HUNTER</span>
+    <span class="logo-main">Ski Resort Guide</span>
+    <span class="logo-tag"></span>
   </div>
   <div class="header-right">
     <a href="#" class="header-link" id="link-to-top" style="display:none">トップ</a>
