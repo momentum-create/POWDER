@@ -244,13 +244,12 @@ header{background:var(--navy);border-bottom:1px solid var(--border);padding:0 16
 .map-mobile-back{display:none;position:absolute;z-index:950;left:10px;top:60px;padding:6px 10px;border-radius:999px;border:1px solid var(--border);background:rgba(11,22,40,.9);color:var(--text-dim);font-size:11px;font-family:\"Noto Sans JP\",sans-serif}
 
 @media(max-width:700px){
-  .sidebar{width:100%;position:absolute;bottom:0;height:46vh;z-index:900;border-top:1px solid var(--border)}
-  #map{flex:1;min-height:54vh}
+  /* マップ画面はスマホではフルスクリーンに近い形で表示し、サイドバーは非表示 */
+  #view-map .sidebar{display:none}
+  #map{flex:1;min-height:calc(100vh - 52px)}
   .map-overlay{display:none}
   .view-top{padding:16px 12px 24px}
   .view-top .top-title{font-size:24px}
-  /* モバイルのマップ画面では「いつ行く？」日付セレクタは省略（ランキング側で十分なため） */
-  #view-map .date-selector{display:none}
   /* 目標地点ポップアップ: スマホでコンパクトに（触っても閉じない・中はクリック可） */
   .leaflet-popup-content-wrapper{max-width:92vw!important}
   .leaflet-popup-content{margin:8px 10px!important;min-width:0!important;max-height:45vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
