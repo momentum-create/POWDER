@@ -241,6 +241,7 @@ header{background:var(--navy);border-bottom:1px solid var(--border);padding:0 16
 .header-link:hover{text-decoration:underline}
 .view-map{height:calc(100vh - 52px);display:flex;flex-direction:column;overflow:hidden}
 .view-map .main{flex:1}
+.map-mobile-back{display:none;position:absolute;z-index:950;left:10px;top:60px;padding:6px 10px;border-radius:999px;border:1px solid var(--border);background:rgba(11,22,40,.9);color:var(--text-dim);font-size:11px;font-family:\"Noto Sans JP\",sans-serif}
 
 @media(max-width:700px){
   .sidebar{width:100%;position:absolute;bottom:0;height:46vh;z-index:900;border-top:1px solid var(--border)}
@@ -248,6 +249,22 @@ header{background:var(--navy);border-bottom:1px solid var(--border);padding:0 16
   .map-overlay{display:none}
   .view-top{padding:16px 12px 24px}
   .view-top .top-title{font-size:24px}
+  /* 目標地点ポップアップ: スマホでコンパクトに（触っても閉じない・中はクリック可） */
+  .leaflet-popup-content-wrapper{max-width:92vw!important}
+  .leaflet-popup-content{margin:8px 10px!important;min-width:0!important;max-height:45vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
+  .popup-name{font-size:12px;margin-bottom:1px}
+  .popup-pref{font-size:9px;margin-bottom:4px}
+  .popup-pw{margin-bottom:4px}
+  .popup-pw-num{font-size:18px}
+  .popup-pw-label{font-size:9px}
+  .popup-detail-row{font-size:10px;margin-bottom:2px;flex-wrap:wrap}
+  .popup-nearby{margin-top:8px;padding-top:6px}
+  .popup-nearby-title{font-size:9px;margin-bottom:4px}
+  .popup-nearby-item{font-size:10px;margin-bottom:4px;padding:6px 6px}
+  .popup-nearby-item span:last-child{font-size:9px}
+  .popup-btns{margin-top:8px;gap:4px;flex-wrap:wrap}
+  .popup-btn{padding:6px 8px;font-size:10px}
+  .map-mobile-back{display:inline-flex;align-items:center;gap:4px}
 }
 </style>
 </head>
@@ -286,6 +303,7 @@ header{background:var(--navy);border-bottom:1px solid var(--border);padding:0 16
 
 <!-- マップビュー: サイドバー + 地図 -->
 <div id="view-map" class="view-map" style="display:none">
+<button type="button" class="map-mobile-back" id="btn-map-back-top">← ランキング</button>
 <div class="main">
 <div class="sidebar">
   <div class="sidebar-top">
@@ -846,7 +864,7 @@ function renderTop10(){
     const tempMin = Math.round(daily.temperature_2m_min[targetDayOffset]??0);
     const sw = ps.summitWind;
     const wDir = windDir(sw.summitDir);
-    return `<div class="top-card">
+    return `<div class="top-card" onclick="showMapView();selectResort(${r.id});">
       <div class="top-card-rank ${rankClass}">${rank}</div>
       <div class="top-card-body">
         <div class="top-card-name">${r.name}</div>
@@ -1068,7 +1086,8 @@ function selectResort(id, opts){
   const gmBtn=`<a class="popup-btn popup-btn-secondary" href="${gmUrl}" target="_blank">Googleマップ ↗</a>`;
   contentHtml+=`<div class="popup-btns"><button class="popup-btn popup-btn-primary" onclick="scrollToCard(${id})">詳細確認</button>${gmBtn}${urlBtn}</div>`;
 
-  currentPopup=L.popup({closeButton:true,maxWidth:260}).setLatLng([r.lat,r.lng]).setContent(contentHtml).openOn(map);
+  const popupMaxW = (typeof window!=="undefined"&&window.innerWidth<=700) ? 280 : 260;
+  currentPopup=L.popup({closeButton:true,maxWidth:popupMaxW}).setLatLng([r.lat,r.lng]).setContent(contentHtml).openOn(map);
   if(!noMove){
     map.flyTo([r.lat,r.lng],Math.max(map.getZoom(),10),{duration:0.7});
     // ポップアップが画面上部で切れないよう、少し上にずらす
@@ -1223,6 +1242,13 @@ document.getElementById("link-to-top").addEventListener("click",(e)=>{
   e.preventDefault();
   showTopView();
 });
+const backTopBtn=document.getElementById("btn-map-back-top");
+if(backTopBtn){
+  backTopBtn.addEventListener("click",function(e){
+    e.preventDefault();
+    showTopView();
+  });
+}
 
 // ─── Init ──────────────────────────────────────────────────────
 initDateButtons();
