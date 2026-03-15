@@ -423,6 +423,7 @@ const INITIAL_FETCH_IDS = [19, 324, 300, 203]; // ニセコHANAZONO, かぐら, 
 
 // ─── Weather cache ─────────────────────────────────────────────
 const weatherCache = {};   // id -> {daily:{time,snowfall_sum,wind_speed_10m_max,...}}
+let lastDataUpdated = null; // 表示用「最終更新」時刻（weather.json の Last-Modified または API 取得時）
 const fetchQueue = [];
 let fetchInFlight = 0;
 const MAX_CONCURRENT = 4;
@@ -521,9 +522,10 @@ function fetchWeather(resort){
   const url = useOwnApi
     ? `${SNOW_API_BASE.replace(/\/$/,"")}/api/forecast?lat=${resort.lat}&lng=${resort.lng}`
     : `https://api.open-meteo.com/v1/forecast?latitude=${resort.lat}&longitude=${resort.lng}`+
+      (resort.elevation?.top != null ? `&elevation=${resort.elevation.top}` : "")+
       `&daily=snowfall_sum,wind_speed_10m_max,wind_direction_10m_dominant,wind_gusts_10m_max,temperature_2m_min,temperature_2m_max,precipitation_hours`+
-`&hourly=wind_speed_850hPa,wind_direction_850hPa,snowfall`+
-    `&forecast_days=7&timezone=Asia%2FTokyo`;
+      `&hourly=wind_speed_850hPa,wind_direction_850hPa,snowfall`+
+      `&forecast_days=7&timezone=Asia%2FTokyo`;
 
   return fetch(url)
     .then(r=>r.json())
@@ -549,6 +551,7 @@ function fetchWeather(resort){
         if(data.hourly?.snowfall) daily.hourly_snowfall = data.hourly.snowfall;
       }
       weatherCache[resort.id]=daily;
+      lastDataUpdated = new Date();
       document.getElementById("fetched-count").textContent=Object.values(weatherCache).filter(v=>v&&v!=="loading").length;
       renderTop10();
       return weatherCache[resort.id];
@@ -845,9 +848,9 @@ function renderTop10(){
 
   const updEl = document.getElementById("top-updated");
   if(updEl){
-    const now = new Date();
-    const hh = now.getHours().toString().padStart(2,"0");
-    const mm = now.getMinutes().toString().padStart(2,"0");
+    const t = lastDataUpdated || new Date();
+    const hh = t.getHours().toString().padStart(2,"0");
+    const mm = t.getMinutes().toString().padStart(2,"0");
     updEl.textContent = `最終更新: ${hh}:${mm} 時点`;
   }
 
@@ -1267,7 +1270,11 @@ document.getElementById("view-map").style.display="none";
 // キャッシュファイルがあれば読み込み（GitHub Actions で1時間ごとに更新される data/weather.json）
 (function(){
   fetch("data/weather.json")
-    .then(r=>r.ok ? r.json() : Promise.reject())
+    .then(function(r){
+      var lm = r.headers.get("Last-Modified");
+      if(lm) lastDataUpdated = new Date(lm);
+      return r.ok ? r.json() : Promise.reject();
+    })
     .then(function(obj){
       if(!obj||typeof obj!=="object") return;
       let n=0;
