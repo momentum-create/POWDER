@@ -984,29 +984,31 @@ function renderList(){
 }
 
 // ─── Select resort ─────────────────────────────────────────────
-function selectResort(id){
+function selectResort(id, opts){
+  opts = opts || {};
+  const noPan = !!opts.noPan;
+  const noMove = !!opts.noMove; // 位置・ズームを変えない（元の画面のまま）
   selectedId=id;
   const r=RESORT_MAP[id];
   if(!r) return;
-
-  // もし nearby 情報が無ければ、このタイミングで簡易計算して3件付与
-  if(!r.nearby || !Array.isArray(r.nearby) || r.nearby.length===0){
-    const R = 6371;
-    const deg2rad = d=>d*Math.PI/180;
-    const lat1 = deg2rad(r.lat), lon1 = deg2rad(r.lng);
-    const arr=[];
-    RESORTS.forEach(o=>{
-      if(o.id===r.id) return;
-      const lat2=deg2rad(o.lat), lon2=deg2rad(o.lng);
-      const dlat=lat2-lat1, dlon=lon2-lon1;
-      const sa=Math.sin(dlat/2)**2 + Math.cos(lat1)*Math.cos(lat2)*Math.sin(dlon/2)**2;
-      const km=2*R*Math.asin(Math.sqrt(sa));
-      arr.push({id:o.id, km});
-    });
-    arr.sort((a,b)=>a.km-b.km);
-    r.nearby = arr.slice(0,3).map(n=>({id:n.id, km:Math.round(n.km)}));
-  }
+  if(markers[id] && !map.hasLayer(markers[id])) markers[id].addTo(map);
   if(currentPopup) map.closePopup(currentPopup);
+
+  // この場で「直線距離で近い3件」を毎回計算（必ず近隣が出るようにする）
+  const R = 6371;
+  const deg2rad = d=>d*Math.PI/180;
+  const lat1 = deg2rad(r.lat), lon1 = deg2rad(r.lng);
+  const nearbyArr=[];
+  RESORTS.forEach(o=>{
+    if(o.id===r.id) return;
+    const lat2=deg2rad(o.lat), lon2=deg2rad(o.lng);
+    const dlat=lat2-lat1, dlon=lon2-lon1;
+    const sa=Math.sin(dlat/2)**2 + Math.cos(lat1)*Math.cos(lat2)*Math.sin(dlon/2)**2;
+    const km=2*R*Math.asin(Math.sqrt(sa));
+    nearbyArr.push({id:o.id, km});
+  });
+  nearbyArr.sort((a,b)=>a.km-b.km);
+  const nearbyList = nearbyArr.slice(0,3).map(n=>({id:n.id, km:Math.round(n.km)}));
 
   const daily=weatherCache[id];
   const hasData=daily&&daily!=="loading"&&daily.snowfall_sum;
@@ -1043,9 +1045,9 @@ function selectResort(id){
     fetchWeather(r).then(()=>renderList());
   }
 
-  if(r.nearby&&Array.isArray(r.nearby)&&r.nearby.length>0){
+  if(nearbyList.length>0){
     contentHtml+=`<div class="popup-nearby"><div class="popup-nearby-title">車で近いゲレンデ（今日の予報）</div>`;
-    r.nearby.forEach(function(n){
+    nearbyList.forEach(function(n){
       const other=RESORT_MAP[n.id];
       const name=other?other.name:"?";
       let snowTxt="--";
@@ -1056,7 +1058,8 @@ function selectResort(id){
           if(psOther&&psOther.snow!=null) snowTxt=`${Math.round(psOther.snow)}cm`;
         }
       }
-      contentHtml+=`<div class="popup-nearby-item" onclick="selectResort(${n.id})"><span>${name}</span><span>${snowTxt} · 約${n.km}km</span></div>`;
+      const groupIds = [id].concat(nearbyList.map(x=>x.id));
+      contentHtml+=`<div class="popup-nearby-item" onclick="selectResortGroup(${n.id},[${groupIds.join(",")}])"><span>${name}</span><span>${snowTxt} · 約${n.km}km</span></div>`;
     });
     contentHtml+=`</div>`;
   }
@@ -1066,7 +1069,13 @@ function selectResort(id){
   contentHtml+=`<div class="popup-btns"><button class="popup-btn popup-btn-primary" onclick="scrollToCard(${id})">詳細確認</button>${gmBtn}${urlBtn}</div>`;
 
   currentPopup=L.popup({closeButton:true,maxWidth:260}).setLatLng([r.lat,r.lng]).setContent(contentHtml).openOn(map);
-  map.flyTo([r.lat,r.lng],Math.max(map.getZoom(),10),{duration:0.7});
+  if(!noMove){
+    map.flyTo([r.lat,r.lng],Math.max(map.getZoom(),10),{duration:0.7});
+    // ポップアップが画面上部で切れないよう、少し上にずらす
+    if(!noPan){
+      setTimeout(function(){ try{ map.panBy([0,-100]); }catch(e){} },750);
+    }
+  }
   renderList();
   setTimeout(()=>scrollToCard(id),100);
 }
@@ -1074,6 +1083,21 @@ function selectResort(id){
 function scrollToCard(id){
   const el=document.getElementById("card-"+id);
   if(el) el.scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+
+// 近隣リストをクリックしたとき: 対象を選択しつつ、グループ全体が入るようにマップをフィット
+function selectResortGroup(targetId, groupIds){
+  // 元の場所からの「距離感」を保ちたいので、地図の中心やズームは変えない
+  selectResort(targetId,{noMove:true});
+  const points=[];
+  (groupIds||[]).forEach(function(gid){
+    const rr=RESORT_MAP[gid];
+    if(rr){
+      points.push([rr.lat,rr.lng]);
+      if(markers[gid] && !map.hasLayer(markers[gid])) markers[gid].addTo(map);
+    }
+  });
+  // ピンだけ追加して「どこにあるか」を同じ画面内で見せる（地図は動かさない）
 }
 
 // ─── Map ───────────────────────────────────────────────────────
