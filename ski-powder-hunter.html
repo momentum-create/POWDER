@@ -1414,14 +1414,12 @@ function selectResort(id, opts){
     const depthDisplay = getDisplaySnowDepth(id, jma, daily, r);
     const snowDepthCm = depthDisplay.depthCm;
     const snowDepthTitle = depthDisplay.sourceTitle || "気象モデルによる現在の積雪深";
-    const precipTimeline = getPrecipTimeline(daily, targetDayOffset);
     contentHtml+=`
       <div class="popup-pw"><div class="popup-pw-num" style="color:${scoreColor(ps.score)}">${ps.score}</div><div class="popup-pw-label" style="color:${scoreColor(ps.score)}">${scoreGrade(ps.score)}</div></div>
       <div class="popup-detail-row">❄️ 予報降雪 <strong>${snowCm!=null?snowCm+"cm":"—"}${snowNote}</strong></div>
       ${snowDepthCm!=null ? `<div class="popup-detail-row" title="${snowDepthTitle}">📐 積雪 <strong>${snowDepthCm}cm</strong>${depthDisplay.sourceLabel?`<span class="snow-depth-source">（${depthDisplay.sourceLabel}）</span>`:""}</div>` : ""}
       ${jma&&jma.depth_max_today_cm!=null ? `<div class="popup-detail-row" title="気象庁・日最深積雪（${jma.station_name||""}）">📊 日最深積雪 <strong>${jma.depth_max_today_cm}cm</strong>${jma.depth_max_at_hhmm?`（${jma.depth_max_at_hhmm}）`:""}<span class="snow-depth-source">（気象庁）</span></div>` : ""}
       ${jma&&jma.snowfall_3h_cm!=null ? `<div class="popup-detail-row" title="気象庁観測・${jma.station_name||""}（${jma.snowfall_3h_observed_at||""}）">❄️ 直近3h観測降雪 <strong>${jma.snowfall_3h_cm}cm</strong><span class="snow-depth-source">（気象庁）</span></div>` : ""}
-      ${precipTimeline.length ? `<div class="popup-detail-row" style="flex-direction:column;align-items:flex-start;gap:2px"><div>🌧 降水の時間帯（モデル）</div>${precipTimeline.map(p=>`<div style="font-size:10px;color:var(--text-dim)">${p.label}: <strong style="color:var(--text)">${p.kind}</strong><span style="margin-left:2px">${p.probLabel}</span></div>`).join("")}</div>` : ""}
       <div class="popup-detail-row" style="flex-direction:column;align-items:flex-start;gap:2px">
         <div>💨 風速（${sw.has850?"850hPa補間":"冪乗則推定"}）</div>
         <div style="display:flex;gap:8px;margin-top:2px;font-size:12px">
