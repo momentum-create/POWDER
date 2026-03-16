@@ -913,7 +913,7 @@ function getPrecipTimeline(daily, dayOffset){
     else if(avgSnow>=0.1) kind = "雪";
     const label = `${h.toString().padStart(2,"0")}-${(h+step).toString().padStart(2,"0")}時`;
     const probLabel = maxProb!=null ? `（降水確率 ${Math.round(maxProb)}%）` : "";
-    res.push({label, kind, probLabel});
+    if(kind!=="降水なし") res.push({label, kind, probLabel});
   }
   return res;
 }
@@ -1455,7 +1455,10 @@ function selectResort(id, opts){
     });
     contentHtml+=`</div>`;
   }
-  contentHtml+=`<div class="popup-nearby popup-partner-shop"><div class="popup-nearby-title">おすすめショップ</div><a class="popup-nearby-item" href="${PARTNER_SHOP.url}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit;display:flex;justify-content:space-between;align-items:center;gap:8px;padding:4px 6px;border-radius:6px;"><span>${PARTNER_SHOP.name}</span><span style="color:var(--accent);font-size:10px">地図 ↗</span></a></div>`;
+  // おすすめショップは今のところ北海道だけに表示（本州は一旦非表示）
+  if(r.region==="hokkaido"){
+    contentHtml+=`<div class="popup-nearby popup-partner-shop"><div class="popup-nearby-title">おすすめショップ</div><a class="popup-nearby-item" href="${PARTNER_SHOP.url}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit;display:flex;justify-content:space-between;align-items:center;gap:8px;padding:4px 6px;border-radius:6px;"><span>${PARTNER_SHOP.name}</span><span style="color:var(--accent);font-size:10px">地図 ↗</span></a></div>`;
+  }
   const urlBtn=r.url?`<a class="popup-btn popup-btn-secondary" href="${r.url}" target="_blank">公式 ↗</a>`:"";
   const gmUrl=`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(r.name)}&query_place_id=&center=${r.lat},${r.lng}`;
   const gmBtn=`<a class="popup-btn popup-btn-secondary" href="${gmUrl}" target="_blank">Googleマップ ↗</a>`;
