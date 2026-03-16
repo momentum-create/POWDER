@@ -495,16 +495,19 @@ function nameToRomajiForEn(name){
     if(wk&&wk.toRomaji) s = wk.toRomaji(s);
   }catch(e){}
   s = s.replace(/([a-zA-Z])([A-Z][a-z])/g,"$1 $2"); // "ParkShiratori" → "Park Shiratori"
+  // 英語版タイトルでは日本語は使わないので削る
+  s = s.replace(/[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uffef\u4e00-\u9faf]/g,"");
   return s.trim();
 }
 function displayNameEn(r){
   if(!r) return "";
-  var en = resortNamesEn[r.id] || r.nameEn;
-  if(en) return en;
-  var name = r.name||"";
-  var romaji = nameToRomajiForEn(name);
-  if(hasLatin(romaji)) return romaji;
-  return name;
+  // 英語版タイトルは必ず resort-names-en.json の値を使う
+  if(resortNamesEn && resortNamesEn[r.id]) {
+    return String(resortNamesEn[r.id]).trim();
+  }
+  // 念のための保険（実際には到達しない想定）
+  if(r.nameEn) return String(r.nameEn).trim();
+  return r.name||"";
 }
 
 // ─── Weather cache ─────────────────────────────────────────────
