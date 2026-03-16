@@ -1679,7 +1679,17 @@ document.getElementById("view-map").style.display="none";
     if(resortSnow&&typeof resortSnow==="object"){ resortSnowCache=resortSnow; }
     if(liftTimes&&typeof liftTimes==="object"){ liftTimesCache=liftTimes; }
     if(operating&&typeof operating==="object"){ operatingCache=operating; }
-    if(namesEn&&typeof namesEn==="object"){ for(var k in namesEn) if(namesEn[k]) resortNamesEn[parseInt(k,10)]=namesEn[k]; renderList(); }
+    if(namesEn&&typeof namesEn==="object"){
+      for(var k in namesEn){
+        if(!namesEn[k]) continue;
+        var id=parseInt(k,10);
+        resortNamesEn[id]=namesEn[k];
+        // RESORTS 側にも英語名を保持しておく
+        var rr = RESORT_MAP[id];
+        if(rr) rr.nameEn = namesEn[k];
+      }
+      renderList();
+    }
     if(jma||resortSnow||operating) renderList();
   })
   .catch(function(){})
