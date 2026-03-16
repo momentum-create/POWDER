@@ -1684,9 +1684,12 @@ document.getElementById("view-map").style.display="none";
         if(!namesEn[k]) continue;
         var id=parseInt(k,10);
         resortNamesEn[id]=namesEn[k];
-        // RESORTS 側にも英語名を保持しておく
+        // RESORTS 側にも英語名を保持し、name も英語で上書きする
         var rr = RESORT_MAP[id];
-        if(rr) rr.nameEn = namesEn[k];
+        if(rr){
+          rr.nameEn = namesEn[k];
+          rr.name  = namesEn[k];
+        }
       }
       renderList();
     }
