@@ -609,7 +609,7 @@ function fetchWeather(resort){
     : `https://api.open-meteo.com/v1/forecast?latitude=${resort.lat}&longitude=${resort.lng}`+
       (resort.elevation?.top != null ? `&elevation=${resort.elevation.top}` : "")+
       `&daily=snowfall_sum,wind_speed_10m_max,wind_direction_10m_dominant,wind_gusts_10m_max,temperature_2m_min,temperature_2m_max,precipitation_hours`+
-      `&hourly=wind_speed_850hPa,wind_direction_850hPa,snowfall,snow_depth`+
+      `&hourly=wind_speed_850hPa,wind_direction_850hPa,snowfall,snow_depth,precipitation_probability,rain`+
       `&past_days=1&forecast_days=7&timezone=Asia%2FTokyo`;
 
   return fetch(url)
@@ -636,6 +636,8 @@ function fetchWeather(resort){
         }
         if(data.hourly?.snowfall) daily.hourly_snowfall = data.hourly.snowfall;
         if(data.hourly?.snow_depth) daily.hourly_snow_depth = data.hourly.snow_depth;
+        if(data.hourly?.precipitation_probability) daily.hourly_precip_prob = data.hourly.precipitation_probability;
+        if(data.hourly?.rain) daily.hourly_rain = data.hourly.rain;
       }
       weatherCache[resort.id]=daily;
       lastDataUpdated = new Date();
@@ -883,6 +885,39 @@ function qualityBadge(ps){
   return `<span class="badge-quality quality-dry">パウダー</span>`;
 }
 
+// 3時間刻みの「雨/雪タイムライン」を作る（ターゲット日の24hを 0–3,3–6,...21–24 時の8ブロックに集約）
+function getPrecipTimeline(daily, dayOffset){
+  if(!daily) return [];
+  const snowArr = daily.hourly_snowfall;
+  const depthArr = daily.hourly_snow_depth;
+  const probArr = daily.hourly_precip_prob;
+  const rainArr = daily.hourly_rain;
+  if(!snowArr && !probArr && !rainArr) return [];
+  const dayIdx = getDayIndex(daily, dayOffset);
+  const base = dayIdx*24;
+  const res = [];
+  const step = 3;
+  for(let h=0;h<24;h+=step){
+    const from = base+h, to = base+h+step;
+    const probs = probArr ? probArr.slice(from,to).filter(v=>v!=null) : [];
+    const rains = rainArr ? rainArr.slice(from,to).filter(v=>v!=null) : [];
+    const snows = snowArr ? snowArr.slice(from,to).filter(v=>v!=null) : [];
+    if(!probs.length && !rains.length && !snows.length) continue;
+    const maxProb = probs.length ? Math.max(...probs) : null;
+    const avgRain = rains.length ? rains.reduce((a,b)=>a+b,0)/rains.length : 0;
+    const avgSnow = snows.length ? snows.reduce((a,b)=>a+b,0)/snows.length : 0;
+    if(maxProb!==null && maxProb<30 && avgRain<0.1 && avgSnow<0.1) continue; // ほぼ降らない
+    let kind = "降水なし";
+    if(avgRain>0.1 && avgSnow<0.1) kind = "雨";
+    else if(avgRain>0.1 && avgSnow>=0.1) kind = "雨 / みぞれ";
+    else if(avgSnow>=0.1) kind = "雪";
+    const label = `${h.toString().padStart(2,"0")}-${(h+step).toString().padStart(2,"0")}時`;
+    const probLabel = maxProb!=null ? `（降水確率 ${Math.round(maxProb)}%）` : "";
+    res.push({label, kind, probLabel});
+  }
+  return res;
+}
+
 // ─── Wind direction ─────────────────────────────────────────────
 function windDir(deg){
   if(deg===null||deg===undefined) return "";
@@ -1096,41 +1131,55 @@ function renderList(){
         const dayIdx = getDayIndex(daily, targetDayOffset);
         const base = dayIdx*24;
         const seg = (arr,a,b)=>{ let s=0; for(let i=a;i<b&&i<arr.length;i++) s+=(arr[i]||0); return s; };
+        const snowArr = daily.hourly_snowfall;
+        const rainArr = daily.hourly_rain||[];
         // 前日 14-19時・19-24時（スキー終了〜就寝あたり）。今日選択時もAPIに前日があれば表示
         let prevSegsCm = [];
         let prevLabels = [];
+        let prevSnowMm = [];
+        let prevRainMm = [];
         if(dayIdx>=1){
-          const prevHours = daily.hourly_snowfall.slice((dayIdx-1)*24,(dayIdx-1)*24+24);
-          const pMm = [ seg(prevHours,14,19), seg(prevHours,19,24) ];
-          prevSegsCm = pMm.map(mm=>mm/10);
+          const prevSnowHours = snowArr.slice((dayIdx-1)*24,(dayIdx-1)*24+24);
+          const prevRainHours = rainArr.slice((dayIdx-1)*24,(dayIdx-1)*24+24);
+          prevSnowMm = [ seg(prevSnowHours,14,19), seg(prevSnowHours,19,24) ];
+          prevRainMm = [ seg(prevRainHours,14,19), seg(prevRainHours,19,24) ];
+          prevSegsCm = prevSnowMm.map(mm=>mm/10);
           prevLabels = ["前日14-19","前日19-24"];
         }
         // 当日 0-5, 6-10, 11-15, 16-20, 21-24
-        const dayHours = daily.hourly_snowfall.slice(base,base+24);
-        const segsMm = [ seg(dayHours,0,5), seg(dayHours,5,10), seg(dayHours,10,15), seg(dayHours,15,20), seg(dayHours,20,24) ];
+        const daySnowHours = snowArr.slice(base,base+24);
+        const dayRainHours = rainArr.slice(base,base+24);
+        const segsSnowMm = [ seg(daySnowHours,0,5), seg(daySnowHours,5,10), seg(daySnowHours,10,15), seg(daySnowHours,15,20), seg(daySnowHours,20,24) ];
+        const segsRainMm = [ seg(dayRainHours,0,5), seg(dayRainHours,5,10), seg(dayRainHours,10,15), seg(dayRainHours,15,20), seg(dayRainHours,20,24) ];
         const dailySnowCm = getSnowfallAdjusted(daily,r,targetDayOffset);
-        const totalMm = segsMm.reduce((a,b)=>a+b,0);
+        const totalMm = segsSnowMm.reduce((a,b)=>a+b,0);
         let segsCm;
         if(totalMm>0 && dailySnowCm!=null && dailySnowCm>=0){
           const scale = (dailySnowCm*10)/totalMm;
-          segsCm = segsMm.map(mm=> (mm*scale)/10 );
+          segsCm = segsSnowMm.map(mm=> (mm*scale)/10 );
         } else {
-          segsCm = segsMm.map(mm=>mm/10);
+          segsCm = segsSnowMm.map(mm=>mm/10);
         }
         const labels = ["0-5時","6-10時","11-15時","16-20時","21-24時"];
         // 翌日 0-5時・5-10時（ナイター後の続きなど）
         let nextSegsCm = [];
         let nextLabels = [];
+        let nextSnowMm = [];
+        let nextRainMm = [];
         if(dayIdx+1<(daily.hourly_snowfall.length/24)){
-          const nextHours = daily.hourly_snowfall.slice((dayIdx+1)*24,(dayIdx+1)*24+10);
-          const nMm = [ seg(nextHours,0,5), seg(nextHours,5,10) ];
-          nextSegsCm = nMm.map(mm=>mm/10);
+          const nextSnowHours = snowArr.slice((dayIdx+1)*24,(dayIdx+1)*24+10);
+          const nextRainHours = rainArr.slice((dayIdx+1)*24,(dayIdx+1)*24+10);
+          nextSnowMm = [ seg(nextSnowHours,0,5), seg(nextSnowHours,5,10) ];
+          nextRainMm = [ seg(nextRainHours,0,5), seg(nextRainHours,5,10) ];
+          nextSegsCm = nextSnowMm.map(mm=>mm/10);
           nextLabels = ["翌日0-5","翌日5-10"];
         }
         const totalDisplay = segsCm.reduce((a,b)=>a+b,0);
         const sumNote = dailySnowCm!=null && totalMm>0 ? `（当日合計 ${totalDisplay.toFixed(1)}cm ＝ 日別に比例）` : (totalMm===0 && dailySnowCm>0 ? "（時間帯別データなし・日別のみ）" : "");
         const allCm = [...prevSegsCm,...segsCm,...nextSegsCm];
         const allLabels = [...prevLabels,...labels,...nextLabels];
+        const allSnowMm = [...prevSnowMm,...segsSnowMm,...nextSnowMm];
+        const allRainMm = [...prevRainMm,...segsRainMm,...nextRainMm];
         const scaleBase = allCm.length ? Math.max(...allCm, 0.1) : 0.1;
         const dayStartIdx = prevLabels.length;
         const nextStartIdx = prevLabels.length + 5;
@@ -1139,8 +1188,20 @@ function renderList(){
             const h = scaleBase>0 ? Math.max(1, Math.round((cm/scaleBase)*16)) : 1;
             const txt = cm>=0.1 ? cm.toFixed(1) : "";
             const extraClass = i===dayStartIdx ? " day-start" : (i===nextStartIdx ? " next-start" : "");
+            const snowMm = allSnowMm[i]||0;
+            const rainMm = allRainMm[i]||0;
+            const totalMmSeg = snowMm+rainMm;
+            const snowBaseColor = snowColor(cm);
+            let fillStyle;
+            if(totalMmSeg>0 && rainMm/totalMmSeg>0.3){
+              const frac = Math.min(0.9, Math.max(0.1, rainMm/totalMmSeg));
+              const stop = Math.round(frac*100);
+              fillStyle = `background:linear-gradient(to top,#3b82f6 0%,#3b82f6 ${stop}%,${snowBaseColor} ${stop}%,${snowBaseColor} 100%)`;
+            } else {
+              fillStyle = `background:${snowBaseColor}`;
+            }
             return `<div class="hourly-snow-bar${extraClass}" title="${allLabels[i]}: ${cm>=0.1?cm.toFixed(1):"0"}cm">
-              <div class="hourly-snow-bar-bg"><div class="hourly-snow-bar-fill" style="height:${h}px;background:${snowColor(cm)}"></div><div class="hourly-snow-bar-val">${txt}</div></div>
+              <div class="hourly-snow-bar-bg"><div class="hourly-snow-bar-fill" style="height:${h}px;${fillStyle}"></div><div class="hourly-snow-bar-val">${txt}</div></div>
               <div class="hourly-snow-bar-label">${allLabels[i]}</div>
             </div>`;
           }).join("")+`</div></div>`;
@@ -1353,12 +1414,14 @@ function selectResort(id, opts){
     const depthDisplay = getDisplaySnowDepth(id, jma, daily, r);
     const snowDepthCm = depthDisplay.depthCm;
     const snowDepthTitle = depthDisplay.sourceTitle || "気象モデルによる現在の積雪深";
+    const precipTimeline = getPrecipTimeline(daily, targetDayOffset);
     contentHtml+=`
       <div class="popup-pw"><div class="popup-pw-num" style="color:${scoreColor(ps.score)}">${ps.score}</div><div class="popup-pw-label" style="color:${scoreColor(ps.score)}">${scoreGrade(ps.score)}</div></div>
       <div class="popup-detail-row">❄️ 予報降雪 <strong>${snowCm!=null?snowCm+"cm":"—"}${snowNote}</strong></div>
       ${snowDepthCm!=null ? `<div class="popup-detail-row" title="${snowDepthTitle}">📐 積雪 <strong>${snowDepthCm}cm</strong>${depthDisplay.sourceLabel?`<span class="snow-depth-source">（${depthDisplay.sourceLabel}）</span>`:""}</div>` : ""}
       ${jma&&jma.depth_max_today_cm!=null ? `<div class="popup-detail-row" title="気象庁・日最深積雪（${jma.station_name||""}）">📊 日最深積雪 <strong>${jma.depth_max_today_cm}cm</strong>${jma.depth_max_at_hhmm?`（${jma.depth_max_at_hhmm}）`:""}<span class="snow-depth-source">（気象庁）</span></div>` : ""}
       ${jma&&jma.snowfall_3h_cm!=null ? `<div class="popup-detail-row" title="気象庁観測・${jma.station_name||""}（${jma.snowfall_3h_observed_at||""}）">❄️ 直近3h観測降雪 <strong>${jma.snowfall_3h_cm}cm</strong><span class="snow-depth-source">（気象庁）</span></div>` : ""}
+      ${precipTimeline.length ? `<div class="popup-detail-row" style="flex-direction:column;align-items:flex-start;gap:2px"><div>🌧 降水の時間帯（モデル）</div>${precipTimeline.map(p=>`<div style="font-size:10px;color:var(--text-dim)">${p.label}: <strong style="color:var(--text)">${p.kind}</strong><span style="margin-left:2px">${p.probLabel}</span></div>`).join("")}</div>` : ""}
       <div class="popup-detail-row" style="flex-direction:column;align-items:flex-start;gap:2px">
         <div>💨 風速（${sw.has850?"850hPa補間":"冪乗則推定"}）</div>
         <div style="display:flex;gap:8px;margin-top:2px;font-size:12px">
