@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=DM+Serif+Display:ital@0;1&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/wanakana@5.3.1/umd/wanakana.min.js"></script>
 <style>
 :root{
   --navy:#0b1628;--navy-mid:#132238;--navy-light:#1d3454;
@@ -123,6 +124,7 @@ header{background:var(--navy);border-bottom:1px solid var(--border);padding:0 16
 .pw-card > *{position:relative;z-index:1}
 .pw-card-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
 .pw-name{font-size:13px;font-weight:700;color:#fff}
+.resort-name-signs{font-size:10px;color:var(--text-dim);opacity:.9}
 .pw-pref{font-size:10px;color:var(--text-dim);font-family:"Space Mono",monospace;margin-top:1px}
 
 /* Powder score badge */
@@ -197,6 +199,7 @@ header{background:var(--navy);border-bottom:1px solid var(--border);padding:0 16
 .leaflet-popup-tip{background:var(--navy-mid)!important}
 .leaflet-popup-content{margin:12px 14px!important;min-width:220px}
 .popup-name{font-size:13px;font-weight:700;color:#fff;margin-bottom:2px}
+.resort-name-signs{font-size:10px;color:var(--text-dim);margin-bottom:2px;opacity:.9}
 .popup-pref{font-size:10px;color:var(--text-dim);font-family:"Space Mono",monospace;margin-bottom:6px}
 .popup-pw{display:flex;align-items:baseline;gap:6px;margin-bottom:6px}
 .popup-pw-num{font-family:"Space Mono",monospace;font-size:24px;font-weight:700}
@@ -216,14 +219,7 @@ header{background:var(--navy);border-bottom:1px solid var(--border);padding:0 16
 .popup-nearby-item:hover{background:rgba(255,255,255,.06)}
 .popup-nearby-item span:first-child{color:var(--text);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .popup-nearby-item span:last-child{color:var(--accent);font-family:"Space Mono",monospace;font-size:10px;flex-shrink:0}
-.popup-nearby-wrap{margin-top:10px;padding-top:8px;border-top:1px solid var(--border)}
-.popup-nearby-tabs{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
-.popup-tab{font-size:10px;padding:4px 8px;border-radius:6px;border:1px solid var(--border);background:rgba(255,255,255,.05);color:var(--text-dim);font-family:"Noto Sans JP",sans-serif;cursor:pointer;transition:all .15s}
-.popup-tab:hover{background:rgba(255,255,255,.1);color:var(--text)}
-.popup-tab.active{background:rgba(77,217,196,.2);border-color:var(--accent);color:var(--accent)}
-.popup-nearby-panel{margin-top:0}
-.popup-nearby-panel .popup-shops:first-child{margin-top:0;padding-top:0;border-top:none}
-.popup-nearby-panel .popup-shops{margin-top:8px;padding-top:6px;border-top:1px solid var(--border)}
+.popup-shops{margin-top:10px;padding-top:8px;border-top:1px solid var(--border)}
 .popup-shops-title{font-size:10px;color:var(--text-dim);font-family:"Space Mono",monospace;letter-spacing:1px;margin-bottom:6px}
 .popup-shop-link{display:block;font-size:11px;color:var(--accent);text-decoration:none;margin-bottom:4px;padding:4px 0}
 .popup-shop-link:hover{color:#fff;text-decoration:underline}
@@ -331,88 +327,88 @@ header{background:var(--navy);border-bottom:1px solid var(--border);padding:0 16
     <span class="logo-tag"></span>
   </div>
   <div class="header-right">
-    <a href="ski-powder-hunter-en.html" class="header-link" title="English version">EN</a>
-    <a href="#" class="header-link" id="link-to-top" style="display:none">トップ</a>
-    <div class="live-badge"><div class="live-dot"></div> Open-Meteo リアルタイム</div>
+    <a href="ski-powder-hunter.html" class="header-link" title="Japanese version">日本語</a>
+    <a href="#" class="header-link" id="link-to-top" style="display:none">Top</a>
+    <div class="live-badge"><div class="live-dot"></div> Open-Meteo live</div>
   </div>
 </header>
 
 <!-- トップ: 日程 + その日のランキングTOP10（軽量） -->
 <div id="view-top" class="view-top">
   <section class="top-hero">
-    <h1 class="top-title">パウダーランキング</h1>
-    <p class="top-lead">いつ行く？ — 日付を選んでその日のTOP10をチェック</p>
+    <h1 class="top-title">Powder ranking</h1>
+    <p class="top-lead">When to go? — Pick a date and see that day's TOP 10</p>
     <div class="top-date-wrap">
-      <div class="date-label">ターゲット日</div>
+      <div class="date-label">Target date</div>
       <div class="date-btns" id="top-date-btns"></div>
     </div>
-    <p class="top-sub" id="top-sub">選択日のパウダースコア TOP10</p>
+    <p class="top-sub" id="top-sub">TOP 10 powder score for selected day</p>
     <p class="top-updated" id="top-updated"></p>
   </section>
   <div class="top-ten-wrap">
     <div class="top-ten-list" id="top-ten-list"></div>
   </div>
   <div class="top-cta-wrap">
-    <button type="button" class="top-cta-btn" id="btn-to-map">マップで全450ゲレンデを見る</button>
+    <button type="button" class="top-cta-btn" id="btn-to-map">View all 450 resorts on map</button>
   </div>
 </div>
 
 <!-- マップビュー: サイドバー + 地図 -->
 <div id="view-map" class="view-map" style="display:none">
-<button type="button" class="map-mobile-back" id="btn-map-back-top">← ランキング</button>
+<button type="button" class="map-mobile-back" id="btn-map-back-top">← Ranking</button>
 <div class="main">
 <div class="sidebar">
   <div class="sidebar-top">
 
     <!-- Target date selector -->
     <div class="date-selector">
-      <div class="date-label">いつ行く？ — ターゲット日を選択</div>
+      <div class="date-label">When to go? — Select target date</div>
       <div class="date-btns" id="date-btns"></div>
     </div>
 
     <!-- Search -->
     <div class="filter-row">
-      <input class="search-input" id="search-input" type="text" placeholder="ゲレンデ・都道府県…">
+      <input class="search-input" id="search-input" type="text" placeholder="Resort, prefecture…">
     </div>
 
     <!-- Region -->
     <div class="region-pills">
-      <div class="region-pill active" data-region="all">全国</div>
-      <div class="region-pill" data-region="hokkaido">北海道</div>
-      <div class="region-pill" data-region="tohoku">東北</div>
-      <div class="region-pill" data-region="niigata">新潟</div>
-      <div class="region-pill" data-region="nagano">長野</div>
-      <div class="region-pill" data-region="chubu">中部</div>
-      <div class="region-pill" data-region="kanto">関東</div>
-      <div class="region-pill" data-region="kansai">関西</div>
-      <div class="region-pill" data-region="chugoku">中国・四国</div>
+      <div class="region-pill active" data-region="all">All</div>
+      <div class="region-pill" data-region="hokkaido">Hokkaido</div>
+      <div class="region-pill" data-region="tohoku">Tohoku</div>
+      <div class="region-pill" data-region="niigata">Niigata</div>
+      <div class="region-pill" data-region="nagano">Nagano</div>
+      <div class="region-pill" data-region="chubu">Chubu</div>
+      <div class="region-pill" data-region="kanto">Kanto</div>
+      <div class="region-pill" data-region="kansai">Kansai</div>
+      <div class="region-pill" data-region="chugoku">Chugoku·Shikoku</div>
     </div>
 
   </div><!-- /sidebar-top -->
 
   <!-- Info banner（コンパクト＋折りたたみ） -->
   <div class="info-banner" id="info-banner">
-    <strong>❄️ パウダースコア</strong> = 予想降雪・風速・気温で算出。<strong>3〜4日後</strong>がおすすめ。予報は参考値。<span id="fetch-policy-desc">起動時は注目40件・地域50件</span>。<strong>「残りも取得」</strong>で追加可。
-    <div class="info-banner-detail">降雪は標高補正済み。各ゲレンデの緯度・経度・標高でOpen-Meteoを取得するため、2km先など近くでもグリッド差で数値が異なる場合があります。その場合は付近のゲレンデの予報を参照して表示します（「付近」表記）。警報・注意報は<a href="https://www.jma.go.jp/jma/kishou/know/kurashi/snow.html" target="_blank" rel="noopener" style="color:var(--accent)">気象庁</a>で確認。信頼度: 1〜2日先は安定、3〜5日先は目安、以降は変動しやすい。</div>
-    <div class="info-banner-toggle" id="info-banner-toggle">▼ 詳しく</div>
+    <strong>❄️ Powder score</strong> = from forecast snow, wind, temp. <strong>3–4 days ahead</strong> is a good target. Forecasts are indicative. <span id="fetch-policy-desc">We load 40 featured + 50 per region on start</span>. Use <strong>Fetch remaining</strong> to load more.
+    <div class="info-banner-detail">Snowfall is elevation-adjusted. We fetch Open-Meteo per resort (lat, lng, elevation), so nearby resorts can differ by grid; when they do we show the nearby resort’s forecast and mark it “(nearby)”. For warnings see <a href="https://www.jma.go.jp/jma/kishou/know/kurashi/snow.html" target="_blank" rel="noopener" style="color:var(--accent)">JMA</a>. Reliability: 1–2 days stable, 3–5 days indicative, beyond that more variable.</div>
+    <div class="info-banner-toggle" id="info-banner-toggle">▼ More</div>
   </div>
 
   <div class="sort-bar">
-    <div class="sort-count" title="未取得の理由: 起動時は注目40件のみ、地域選択時はその地域の先頭50件のみキューします。API負荷・表示速度のため全450件は自動では取りに行きません。"><span id="count">0</span> 件 · <span id="fetched-count">0</span> 件取得済</div>
-    <button type="button" class="sort-fetch-more" id="btn-fetch-remaining" title="表示中の未取得分をキューに追加">残りも取得</button>
+    <div class="sort-count" title="Why not all loaded: we queue 40 featured on start, 50 per region when you pick a region. We don't auto-fetch all 450 for API load and speed."><span id="count">0</span> resorts · <span id="fetched-count">0</span> fetched</div>
+    <button type="button" class="sort-fetch-more" id="btn-fetch-remaining" title="Queue remaining visible resorts for fetch">Fetch remaining</button>
     <select class="sort-select" id="sort-select">
-      <option value="powder">パウダースコア順</option>
-      <option value="snow">降雪量順</option>
-      <option value="depth">積雪量ランキング</option>
-      <option value="wind">風弱い順</option>
-      <option value="temp">気温低い順</option>
+      <option value="powder">By powder score</option>
+      <option value="snow">By snowfall</option>
+      <option value="depth">By snow depth</option>
+      <option value="wind">By wind (calm first)</option>
+      <option value="temp">By temp (cold first)</option>
     </select>
-    <span class="sort-depth-hint" id="sort-depth-hint" style="display:none" title="ゲレンデ公表(resort-snow.json/RESORTS)優先。未取得時は気象庁またはモデル値でランキング">（ゲレンデ公表優先・未取得時は気象庁/モデル）</span>
+    <span class="sort-depth-hint" id="sort-depth-hint" style="display:none" title="Resort report (resort-snow.json/RESORTS) preferred. Otherwise JMA or model for ranking">(Resort preferred; else JMA/model)</span>
   </div>
   <div class="map-pin-bar">
-    <span class="map-pin-label">地図のピン:</span>
-    <button type="button" class="map-pin-btn active" id="btn-map-featured" title="注目ゲレンデのみ表示">注目のみ</button>
-    <button type="button" class="map-pin-btn" id="btn-map-all" title="全ゲレンデを地図に表示">全ゲレンデ表示</button>
+    <span class="map-pin-label">Map pins:</span>
+    <button type="button" class="map-pin-btn active" id="btn-map-featured" title="Show featured resorts only">Featured</button>
+    <button type="button" class="map-pin-btn" id="btn-map-all" title="Show all resorts on map">All resorts</button>
   </div>
 
   <div class="resort-list" id="resort-list"></div>
@@ -421,16 +417,16 @@ header{background:var(--navy);border-bottom:1px solid var(--border);padding:0 16
 <div id="map"></div>
 
 <div class="map-overlay">
-  <div class="overlay-title">積雪ランキング（ピンの色）</div>
-  <div class="overlay-row"><div class="overlay-dot" style="background:#5a6a80"></div>0cm・データなし</div>
-  <div class="overlay-row"><div class="overlay-dot" style="background:#7ECB8A"></div>積雪多い → 緑</div>
+  <div class="overlay-title">Depth ranking (pin color)</div>
+  <div class="overlay-row"><div class="overlay-dot" style="background:#5a6a80"></div>0cm / no data</div>
+  <div class="overlay-row"><div class="overlay-dot" style="background:#7ECB8A"></div>High depth → green</div>
   <div style="border-top:1px solid var(--border);margin:8px 0 6px"></div>
-  <div class="overlay-title">山頂風速（補間）</div>
-  <div class="overlay-row"><div class="overlay-dot" style="background:var(--wind-calm)"></div>〜20km/h 穏やか</div>
-  <div class="overlay-row"><div class="overlay-dot" style="background:var(--wind-light)"></div>20–35km/h 弱風</div>
-  <div class="overlay-row"><div class="overlay-dot" style="background:var(--wind-mod)"></div>35–55km/h やや強</div>
-  <div class="overlay-row"><div class="overlay-dot" style="background:var(--wind-strong)"></div>55km/h超 強風</div>
-  <div style="margin-top:6px;font-size:9px;color:var(--text-dim);line-height:1.5">麓10m実測 ↔ 850hPa(1500m)<br>高層風を標高で線形補間</div>
+  <div class="overlay-title">Summit wind (interp)</div>
+  <div class="overlay-row"><div class="overlay-dot" style="background:var(--wind-calm)"></div>~20km/h Calm</div>
+  <div class="overlay-row"><div class="overlay-dot" style="background:var(--wind-light)"></div>20–35km/h Light</div>
+  <div class="overlay-row"><div class="overlay-dot" style="background:var(--wind-mod)"></div>35–55km/h Moderate</div>
+  <div class="overlay-row"><div class="overlay-dot" style="background:var(--wind-strong)"></div>55km/h+ Strong</div>
+  <div style="margin-top:6px;font-size:9px;color:var(--text-dim);line-height:1.5">Base 10m obs ↔ 850hPa(1500m)<br>Wind interpolated by elevation</div>
 </div>
 </div><!-- /main -->
 </div><!-- /view-map -->
@@ -473,18 +469,56 @@ const FETCH_ALL_ON_LOAD = true;
 // 起動時に最初に取得する4件（トップ表示で見せたいゲレンデ）
 const INITIAL_FETCH_IDS = [19, 324, 300, 203]; // ニセコHANAZONO, かぐら, 白馬47, 丸沼
 
+// Prefecture name in English (for cards and popup)
+const PREF_EN = { "北海道":"Hokkaido","青森県":"Aomori","岩手県":"Iwate","宮城県":"Miyagi","秋田県":"Akita","山形県":"Yamagata","福島県":"Fukushima","茨城県":"Ibaraki","栃木県":"Tochigi","群馬県":"Gunma","埼玉県":"Saitama","千葉県":"Chiba","東京都":"Tokyo","神奈川県":"Kanagawa","新潟県":"Niigata","富山県":"Toyama","石川県":"Ishikawa","福井県":"Fukui","山梨県":"Yamanashi","長野県":"Nagano","岐阜県":"Gifu","静岡県":"Shizuoka","愛知県":"Aichi","三重県":"Mie","滋賀県":"Shiga","京都府":"Kyoto","大阪府":"Osaka","兵庫県":"Hyogo","奈良県":"Nara","和歌山県":"Wakayama","鳥取県":"Tottori","島根県":"Shimane","岡山県":"Okayama","広島県":"Hiroshima","山口県":"Yamaguchi","徳島県":"Tokushima","香川県":"Kagawa","愛媛県":"Ehime","高知県":"Kochi","福岡県":"Fukuoka","佐賀県":"Saga","長崎県":"Nagasaki","熊本県":"Kumamoto","大分県":"Oita","宮崎県":"Miyazaki","鹿児島県":"Kagoshima","沖縄県":"Okinawa" };
+function getPrefEn(p){ return p ? (PREF_EN[p] || p) : ""; }
+// Resort display name in English: nameEn from data, or romaji via wanakana + kanji map, or fallback.
+let resortNamesEn = {};  // id -> nameEn (optional override from data/resort-names-en.json)
+function hasLatin(s){ return /[a-zA-Z]/.test(s||""); }
+// Common kanji/kana phrases in resort names → romaji (longer first so "白鳥高原" before "白鳥")
+const NAME_ROMAJI = [
+  ["スノーウェーブパーク","Snow Wave Park"],["ウイングヒルズ白鳥リゾート","Wing Hills Shiratori Resort"],
+  ["ホワイトピアたかす","Whitepia Takasu"],["高鷲スノーパーク","Takasu Snow Park"],
+  ["白鳥高原","Shiratori Kogen"],["白鳥リゾート","Shiratori Resort"],
+  ["スノーパーク","Snow Park"],["スキー場","Ski Resort"],["スキー","Ski"],
+  ["リゾート","Resort"],["高原","Kogen"],["パーク","Park"],["スノー","Snow"],
+  ["白鳥","Shiratori"],["高鷲","Takasu"],["町民","Municipal"],["市","City"],
+  ["国際","International"],["国定","Quasi-National"],["県営","Prefectural"],
+  ["町営","Town"],["村営","Village"],["公営","Public"],["民営","Private"]
+];
+function nameToRomajiForEn(name){
+  if(!name) return "";
+  var s = String(name);
+  for(var i=0;i<NAME_ROMAJI.length;i++) s = s.split(NAME_ROMAJI[i][0]).join(NAME_ROMAJI[i][1]);
+  try {
+    var wk = typeof wanakana!=="undefined" ? wanakana : (typeof window!=="undefined"&&window.wanakana) ? window.wanakana : null;
+    if(wk&&wk.toRomaji) s = wk.toRomaji(s);
+  }catch(e){}
+  s = s.replace(/([a-zA-Z])([A-Z][a-z])/g,"$1 $2"); // "ParkShiratori" → "Park Shiratori"
+  return s.trim();
+}
+function displayNameEn(r){
+  if(!r) return "";
+  var en = resortNamesEn[r.id] || r.nameEn;
+  if(en) return en;
+  var name = r.name||"";
+  var romaji = nameToRomajiForEn(name);
+  if(hasLatin(romaji)) return romaji;
+  return name;
+}
+
 // ─── Weather cache ─────────────────────────────────────────────
 const weatherCache = {};   // id -> {daily:{time,snowfall_sum,wind_speed_10m_max,...}}
 let jmaSnowCache = {};     // id -> { depth_cm, station_name, observed_at }（気象庁・日1回取得の積雪）
 let resortSnowCache = {};  // id -> { depth_cm, updated_at }（ゲレンデ公表・data/resort-snow.json または RESORTS.snowDepth）
-let liftTimesCache = {};   // id -> "8:00"（リフト開始時刻・data/lift-times.json または RESORTS[].liftStart）
-let operatingCache = {};   // id -> { open: "12-01", close: "04-30" }（営業期間・data/resort-operating.json または RESORTS[].openDate/closeDate）
+let liftTimesCache = {};   // id -> "8:00"（リフト開始・data/lift-times.json or RESORTS[].liftStart）
+let operatingCache = {};   // id -> { open: "12-01", close: "04-30" }（営業期間・data/resort-operating.json or RESORTS）
 let lastDataUpdated = null; // 表示用「最終更新」時刻（weather.json の Last-Modified または API 取得時）
 const fetchQueue = [];
 let fetchInFlight = 0;
 const MAX_CONCURRENT = 4;
 
-// ─── 営業期間（openDate/closeDate は "MM-DD" または "MM/DD"。年末年始をまたぐ場合は open > close で判定）────────────────────
+// ─── Operating season (openDate/closeDate "MM-DD" or "MM/DD"; cross-year when open > close) ───
 function getResortOperating(r){
   const fromResort = r.openDate != null && r.closeDate != null ? { open: String(r.openDate).replace("/","-"), close: String(r.closeDate).replace("/","-") } : null;
   const fromCache = operatingCache[r.id];
@@ -510,7 +544,7 @@ function isResortInSeason(r, date){
 function formatOperatingPeriod(open, close){
   if(!open||!close) return "";
   const o=String(open).replace("-","/"), c=String(close).replace("-","/");
-  return `${o}〜${c}`;
+  return `${o}–${c}`;
 }
 
 // ─── State ─────────────────────────────────────────────────────
@@ -558,11 +592,11 @@ function getRegionSnowfallForDay(dayOffset){
 
 function renderDateButtonsInto(containerId){
   const dates = getDates();
-  const dayNames = ["日","月","火","水","木","金","土"];
+  const dayNames = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
   const container = document.getElementById(containerId);
   if(!container) return;
   container.innerHTML = dates.map((d,i)=>{
-    const label = i===0?"今日":i===1?"明日":`+${i}日`;
+    const label = i===0?"Today":i===1?"Tomorrow":`+${i}d`;
     const dayName = dayNames[d.getDay()];
     const mm = (d.getMonth()+1).toString().padStart(2,"0");
     const dd = d.getDate().toString().padStart(2,"0");
@@ -725,22 +759,22 @@ function windDirQuality(deg, region){
   const isE  = deg>=45&&deg<135;                         // 東〜南東
   const isSW = deg>=180&&deg<270;                        // 南〜南西
 
-  // 北海道・東北日本海側: NW/W = シベリア寒気 = 極ドライ粉雪
+  // Hokkaido/Tohoku Japan Sea: NW/W = Siberian dry = excellent powder
   if(["hokkaido","tohoku"].includes(region)){
-    if(isNW) return {label:"極ドライ風↑", color:"var(--pw-excellent)", hint:"シベリア寒気NW"};
-    if(isW)  return {label:"乾燥風↑", color:"var(--pw-good)", hint:"西よりで良質"};
-    if(isE||isSW) return {label:"湿雪注意", color:"var(--pw-fair)", hint:"太平洋湿気流入"};
+    if(isNW) return {label:"Very dry wind ↑", color:"var(--pw-excellent)", hint:"Siberian NW"};
+    if(isW)  return {label:"Dry wind ↑", color:"var(--pw-good)", hint:"Westerly quality"};
+    if(isE||isSW) return {label:"Wet snow caution", color:"var(--pw-fair)", hint:"Pacific moisture"};
   }
-  // 新潟・北陸: NW = 日本海からの降雪帯直撃 = 大雪だが湿りやすい
+  // Niigata/Chubu: NW = Japan Sea snow band
   if(["niigata","chubu"].includes(region)){
-    if(isNW) return {label:"大雪NW↑", color:"var(--pw-good)", hint:"日本海降雪帯"};
-    if(isW)  return {label:"降雪あり", color:"var(--pw-good)", hint:"西風降雪帯"};
-    if(isE)  return {label:"湿雪注意", color:"var(--pw-fair)", hint:"東風=太平洋湿気"};
+    if(isNW) return {label:"Heavy snow NW ↑", color:"var(--pw-good)", hint:"Japan Sea band"};
+    if(isW)  return {label:"Snow likely", color:"var(--pw-good)", hint:"Westerly band"};
+    if(isE)  return {label:"Wet snow caution", color:"var(--pw-fair)", hint:"E = Pacific moisture"};
   }
-  // 長野・関東: NW/N = 比較的ドライ、SE = 太平洋低気圧 = 重雪
+  // Nagano/Kanto: NW = relatively dry, SE = Pacific low = heavy wet
   if(["nagano","kanto"].includes(region)){
-    if(isNW) return {label:"ドライ風↑", color:"var(--pw-good)", hint:"北西の乾燥気流"};
-    if(isE||isSW) return {label:"重雪注意", color:"var(--pw-fair)", hint:"南岸低気圧の湿雪"};
+    if(isNW) return {label:"Dry wind ↑", color:"var(--pw-good)", hint:"NW dry flow"};
+    if(isE||isSW) return {label:"Heavy wet caution", color:"var(--pw-fair)", hint:"Pacific low"};
   }
   return null;
 }
@@ -766,7 +800,6 @@ function getSnowfallAdjusted(daily, resort, dayOffset){
   const raw = daily.snowfall_sum[idx]||0;
   return raw * elevationFactor(resort);
 }
-// 表示用：自データが無い/0で近くに降雪予報がある場合は付近の値を標高補正して参照（2kmで24cm vs 0cm のような差を緩和）
 const NEARBY_FALLBACK_KM = 5;
 const NEARBY_FALLBACK_MIN_CM = 5;
 function getSnowfallForDisplay(resortId, dayOffset){
@@ -841,10 +874,10 @@ function scoreClass(s){
   return "pw-score-poor";
 }
 function scoreGrade(s){
-  if(s>=90) return "極上";
-  if(s>=70) return "良質";
-  if(s>=40) return "まあまあ";
-  return "期待薄";
+  if(s>=90) return "Excellent";
+  if(s>=70) return "Good";
+  if(s>=40) return "Fair";
+  return "Low";
 }
 function scoreColor(s){
   if(s>=90) return "var(--pw-excellent)";
@@ -859,10 +892,10 @@ function windClass(kmh){
   return "badge-wind-strong";
 }
 function windLabel(kmh){
-  if(kmh<10) return "穏やか";
-  if(kmh<20) return "弱風";
-  if(kmh<35) return "やや強";
-  return "強風";
+  if(kmh<10) return "Calm";
+  if(kmh<20) return "Light";
+  if(kmh<35) return "Moderate";
+  return "Strong";
 }
 function snowColor(cm){
   if(cm>=30) return "var(--pw-excellent)";
@@ -875,12 +908,12 @@ function qualityBadge(ps){
   if(!ps) return "";
   const {tempMin,tempMax,summitWind,snow} = ps;
   const sw = summitWind?.summit||0;
-  if(snow<1) return `<span class="badge-quality quality-ice">降雪なし</span>`;
-  if(tempMax>3) return `<span class="badge-quality quality-wet">湿雪</span>`;
-  if(tempMax>0) return `<span class="badge-quality quality-wet">やや湿</span>`;
-  if(tempMin<-8&&sw<25) return `<span class="badge-quality quality-dry">極ドライ❄️</span>`;
-  if(tempMin<-5&&sw<35) return `<span class="badge-quality quality-dry">ドライ❄️</span>`;
-  return `<span class="badge-quality quality-dry">パウダー</span>`;
+  if(snow<1) return `<span class="badge-quality quality-ice">No snow</span>`;
+  if(tempMax>3) return `<span class="badge-quality quality-wet">Wet</span>`;
+  if(tempMax>0) return `<span class="badge-quality quality-wet">Slightly wet</span>`;
+  if(tempMin<-8&&sw<25) return `<span class="badge-quality quality-dry">Very dry ❄️</span>`;
+  if(tempMin<-5&&sw<35) return `<span class="badge-quality quality-dry">Dry ❄️</span>`;
+  return `<span class="badge-quality quality-dry">Powder</span>`;
 }
 
 // ─── Wind direction ─────────────────────────────────────────────
@@ -891,16 +924,16 @@ function windDir(deg){
   return ["N","↗","E","↘","S","↙","W","↖"][idx];
 }
 
-// 現在の積雪表示用: ゲレンデ公表優先 > 気象庁 > モデル（公表値を入れている場合はその値を表示）
+// 現在の積雪表示用: ゲレンデ公表優先 > 気象庁 > モデル
 function getDisplaySnowDepth(resortId, jma, daily, resort){
   const rs = resortSnowCache[resortId];
-  if(rs&&rs.depth_cm!=null) return { depthCm: rs.depth_cm, sourceLabel: "ゲレンデ公表", sourceTitle: "ゲレンデ公式発表"+(rs.updated_at?"（"+rs.updated_at+"）":"")+"。※"+GELENDE_SNOW_NOTE };
-  if(resort&&resort.snowDepth!=null) return { depthCm: resort.snowDepth, sourceLabel: "ゲレンデ公表", sourceTitle: "ゲレンデ公式（RESORTSの値）。※"+GELENDE_SNOW_NOTE };
-  if(jma&&jma.depth_cm!=null) return { depthCm: jma.depth_cm, sourceLabel: "近隣気象庁観測値", sourceTitle: "近隣の気象庁観測点・"+(jma.station_name||"")+"（"+(jma.observed_at||"")+")" };
-  if(daily&&daily!=="loading"&&daily.hourly_snow_depth?.[0]!=null) return { depthCm: Math.round(daily.hourly_snow_depth[0]*100), sourceLabel: "モデル推定", sourceTitle: "気象モデルによる現在の積雪深" };
+  if(rs&&rs.depth_cm!=null) return { depthCm: rs.depth_cm, sourceLabel: "Resort", sourceTitle: "Resort report"+(rs.updated_at?" ("+rs.updated_at+")":"")+". *"+GELENDE_SNOW_NOTE };
+  if(resort&&resort.snowDepth!=null) return { depthCm: resort.snowDepth, sourceLabel: "Resort", sourceTitle: "Resort (RESORTS value). *"+GELENDE_SNOW_NOTE };
+  if(jma&&jma.depth_cm!=null) return { depthCm: jma.depth_cm, sourceLabel: "Nearby JMA", sourceTitle: "Nearby JMA observation "+(jma.station_name||"")+" ("+(jma.observed_at||"")+")" };
+  if(daily&&daily!=="loading"&&daily.hourly_snow_depth?.[0]!=null) return { depthCm: Math.round(daily.hourly_snow_depth[0]*100), sourceLabel: "Model", sourceTitle: "Model snow depth" };
   return { depthCm: null, sourceLabel: null, sourceTitle: null };
 }
-// 積雪量ランキング用の数値: ゲレンデ公表優先 > 気象庁(日最深優先) > モデル
+// 積雪量ランキング用: ゲレンデ公表優先 > 気象庁 > モデル
 function getDepthForRanking(resortId, jma, daily, resort){
   const rs = resortSnowCache[resortId];
   if(rs&&rs.depth_cm!=null) return rs.depth_cm;
@@ -916,7 +949,8 @@ function getFiltered(){
     const rMatch = activeRegion==="all"||r.region===activeRegion||
       (activeRegion==="chugoku"&&(r.region==="chugoku"||r.region==="shikoku"));
     const q = searchQuery;
-    const sMatch = !q||r.name.includes(q)||r.pref.includes(q);
+    const ql = q ? q.toLowerCase() : "";
+    const sMatch = !q||r.name.includes(q)||(displayNameEn(r)&&displayNameEn(r).toLowerCase().includes(ql))||r.pref.includes(q)||(getPrefEn(r.pref)&&getPrefEn(r.pref).toLowerCase().includes(ql));
     return rMatch&&sMatch;
   });
 
@@ -994,24 +1028,24 @@ function renderTop10(){
 
   const dates = getDates();
   const d = dates[targetDayOffset];
-  const dateStr = `${d.getMonth()+1}月${d.getDate()}日`;
+  const dateStr = `${d.getMonth()+1}/${d.getDate()}`;
   const loading = Object.values(weatherCache).some(v=>v==="loading");
   const subEl = document.getElementById("top-sub");
-  if(subEl) subEl.textContent = `${dateStr}のパウダースコア TOP10`;
+  if(subEl) subEl.textContent = `TOP 10 powder score for ${dateStr}`;
 
   const updEl = document.getElementById("top-updated");
   if(updEl){
     const t = lastDataUpdated || new Date();
     const hh = t.getHours().toString().padStart(2,"0");
     const mm = t.getMinutes().toString().padStart(2,"0");
-    updEl.textContent = `最終更新: ${hh}:${mm} 時点`;
+    updEl.textContent = `Updated: ${hh}:${mm}`;
   }
 
   const listEl = document.getElementById("top-ten-list");
   if(!listEl) return;
   if(top10.length===0){
     listEl.innerHTML = loading
-      ? `<div class="loading-row"><div class="loading-spinner"></div>気象データ取得中…</div>`
+      ? `<div class="loading-row"><div class="loading-spinner"></div>Fetching weather…</div>`
       : `<div class="no-results">データ取得後に表示されます</div>`;
     return;
   }
@@ -1029,9 +1063,10 @@ function renderTop10(){
     return `<div class="top-card ${inSeason?"":"operating-closed"}" onclick="showMapView(${r.id})">
       <div class="top-card-rank ${rankClass}">${rank}</div>
       <div class="top-card-body">
-        <div class="top-card-name">${r.name}${inSeason?"":' <span class="badge-closed">営業期間外</span>'}</div>
-        <div class="top-card-pref">${r.pref} · TOP ${r.elevation?.top||"-"}m</div>
-        <div class="top-card-meta">❄️ ${snowCm!=null?snowCm+"cm":"—"} · 💨 山頂~${sw.summit}km/h${wDir?" "+wDir:""} · 🌡️ ${tempMin}°C</div>
+        <div class="top-card-name">${displayNameEn(r)}${inSeason?"":' <span class="badge-closed">Closed</span>'}</div>
+        ${r.name&&displayNameEn(r)!==r.name ? `<div class="resort-name-signs" title="As on road signs in Japan">As on road signs: ${r.name}</div>` : ""}
+        <div class="top-card-pref">${getPrefEn(r.pref)} · TOP ${r.elevation?.top||"-"}m</div>
+        <div class="top-card-meta">❄️ ${snowCm!=null?snowCm+"cm":"—"} · 💨 Summit ~${sw.summit}km/h${wDir?" "+wDir:""} · 🌡️ ${tempMin}°C</div>
       </div>
       <div class="top-card-score ${scoreClass(ps.score)}">
         <div class="top-card-score-num">${ps.score}</div>
@@ -1073,16 +1108,16 @@ function renderList(){
     // Snow bars（いまの日付を「今日」として、今日〜6日後の各日予想降雪）
     let barsHtml="";
     const dates = getDates();
-    const todayStr = `${dates[0].getMonth()+1}月${dates[0].getDate()}日`;
-    const DLABELS=["今日","明日","明後日","+3日","+4日","+5日","+6日"];
+    const todayStr = `${dates[0].getMonth()+1}/${dates[0].getDate()}`;
+    const DLABELS=["Today","Tomorrow","+2d","+3d","+4d","+5d","+6d"];
     if(hasData&&daily.snowfall_sum){
       const adjusted = Array.from({length:7},(_,i)=>{ const v=getSnowfallAdjusted(daily,r,i); return v!=null?v:0; });
       const maxS = Math.max(...adjusted,1);
-      barsHtml=`<div class="snow-bars-wrap"><div class="snow-bars-caption">各日の予想降雪（棒・数字＝cm）<span class="snow-bars-today-hint">※今日＝${todayStr}（ページを開いた日）</span></div><div class="snow-bars">`+
+      barsHtml=`<div class="snow-bars-wrap"><div class="snow-bars-caption">Daily forecast snow (bar & number = cm)<span class="snow-bars-today-hint">Today = ${todayStr} (page open date)</span></div><div class="snow-bars">`+
         adjusted.map((cm,i)=>{
           const h=Math.max(2,Math.round((cm/maxS)*26));
           const isTarget=i===targetDayOffset;
-          return`<div class="snow-bar-wrap" title="${DLABELS[i]}の予想降雪: ${Math.round(adjusted[i])}cm">
+          return`<div class="snow-bar-wrap" title="${DLABELS[i]} forecast: ${Math.round(adjusted[i])}cm">
             <div class="snow-bar-bg${isTarget?" snow-bar-target":""}">
               <div class="snow-bar-fill" style="height:${h}px;background:${snowColor(cm)}"></div>
               <div class="snow-bar-val">${cm>=0.5?Math.round(cm):""}</div>
@@ -1103,7 +1138,7 @@ function renderList(){
           const prevHours = daily.hourly_snowfall.slice((dayIdx-1)*24,(dayIdx-1)*24+24);
           const pMm = [ seg(prevHours,14,19), seg(prevHours,19,24) ];
           prevSegsCm = pMm.map(mm=>mm/10);
-          prevLabels = ["前日14-19","前日19-24"];
+          prevLabels = ["Prev 14-19","Prev 19-24"];
         }
         // 当日 0-5, 6-10, 11-15, 16-20, 21-24
         const dayHours = daily.hourly_snowfall.slice(base,base+24);
@@ -1117,7 +1152,7 @@ function renderList(){
         } else {
           segsCm = segsMm.map(mm=>mm/10);
         }
-        const labels = ["0-5時","6-10時","11-15時","16-20時","21-24時"];
+        const labels = ["0-5h","6-10h","11-15h","16-20h","21-24h"];
         // 翌日 0-5時・5-10時（ナイター後の続きなど）
         let nextSegsCm = [];
         let nextLabels = [];
@@ -1125,16 +1160,16 @@ function renderList(){
           const nextHours = daily.hourly_snowfall.slice((dayIdx+1)*24,(dayIdx+1)*24+10);
           const nMm = [ seg(nextHours,0,5), seg(nextHours,5,10) ];
           nextSegsCm = nMm.map(mm=>mm/10);
-          nextLabels = ["翌日0-5","翌日5-10"];
+          nextLabels = ["Next 0-5","Next 5-10"];
         }
         const totalDisplay = segsCm.reduce((a,b)=>a+b,0);
-        const sumNote = dailySnowCm!=null && totalMm>0 ? `（当日合計 ${totalDisplay.toFixed(1)}cm ＝ 日別に比例）` : (totalMm===0 && dailySnowCm>0 ? "（時間帯別データなし・日別のみ）" : "");
+        const sumNote = dailySnowCm!=null && totalMm>0 ? `(day total ${totalDisplay.toFixed(1)}cm, scaled)` : (totalMm===0 && dailySnowCm>0 ? "(hourly N/A, daily only)" : "");
         const allCm = [...prevSegsCm,...segsCm,...nextSegsCm];
         const allLabels = [...prevLabels,...labels,...nextLabels];
         const scaleBase = allCm.length ? Math.max(...allCm, 0.1) : 0.1;
         const dayStartIdx = prevLabels.length;
         const nextStartIdx = prevLabels.length + 5;
-        barsHtml+=`<div class="hourly-snow-wrap"><div class="hourly-snow-caption">${DLABELS[targetDayOffset]}の前後＋時間帯別予想降雪 ${sumNote}</div><div class="hourly-snow-bars">`+
+        barsHtml+=`<div class="hourly-snow-wrap"><div class="hourly-snow-caption">${DLABELS[targetDayOffset]} hourly forecast snow ${sumNote}</div><div class="hourly-snow-bars">`+
           allCm.map((cm,i)=>{
             const h = scaleBase>0 ? Math.max(1, Math.round((cm/scaleBase)*16)) : 1;
             const txt = cm>=0.1 ? cm.toFixed(1) : "";
@@ -1146,9 +1181,9 @@ function renderList(){
           }).join("")+`</div></div>`;
       }
     } else if(loading){
-      barsHtml=`<div class="loading-row"><div class="loading-spinner"></div>気象データ取得中…</div>`;
+      barsHtml=`<div class="loading-row"><div class="loading-spinner"></div>Fetching weather…</div>`;
     } else {
-      barsHtml=`<div class="loading-row" style="opacity:.5">データ未取得</div>`;
+      barsHtml=`<div class="loading-row" style="opacity:.5">No data</div>`;
     }
 
     // Weather badges
@@ -1166,12 +1201,12 @@ function renderList(){
       const wdq=windDirQuality(sw.summitDir, r.region);
       const summitWindClass=windClass(sw.summit);
       weatherHtml=`<div class="weather-row">
-        <span class="weather-badge badge-snow">❄️ ${snowCm!=null?snowCm+"cm":"—"}${snowD.fromNearby?" <span class=\"snow-depth-source\" title=\"付近のゲレンデの予報を参照\">(付近)</span>":""}</span>
-        ${snowDepthCm!=null ? `<span class="weather-badge badge-snow" title="${snowDisplay.sourceTitle||snowDepthSource||""}">積雪 ${snowDepthCm}cm${snowDepthSource?`<span class="snow-depth-source">（${snowDepthSource}）</span>`:""}</span>` : ""}
-        ${jma&&jma.depth_max_today_cm!=null ? `<span class="weather-badge badge-snow" title="気象庁・日最深積雪（${jma.station_name||""}${jma.depth_max_at_hhmm?" "+jma.depth_max_at_hhmm:""}）">日最深 ${jma.depth_max_today_cm}cm<span class="snow-depth-source">（気象庁）</span></span>` : ""}
-        ${jma&&jma.snowfall_3h_cm!=null ? `<span class="weather-badge badge-snow" title="気象庁観測・直近3時間降雪（${jma.snowfall_3h_observed_at||""}）">3h観測 ${jma.snowfall_3h_cm}cm<span class="snow-depth-source">（気象庁）</span></span>` : ""}
-        <span class="weather-badge ${summitWindClass}" title="麓${sw.surface}km/h→山頂補間">
-          💨 麓${sw.surface}<span style="opacity:.6;font-size:9px">→</span>山頂~${sw.summit}km/h${wDir?" "+wDir:""}${sw.has850?'<sup style="font-size:8px;opacity:.7">850</sup>':''}
+        <span class="weather-badge badge-snow">❄️ ${snowCm!=null?snowCm+"cm":"—"}${snowD.fromNearby?" <span class=\"snow-depth-source\" title=\"From nearby resort forecast\">(nearby)</span>":""}</span>
+        ${snowDepthCm!=null ? `<span class="weather-badge badge-snow" title="${snowDisplay.sourceTitle||snowDepthSource||""}">Depth ${snowDepthCm}cm${snowDepthSource?`<span class="snow-depth-source">(${snowDepthSource})</span>`:""}</span>` : ""}
+        ${jma&&jma.depth_max_today_cm!=null ? `<span class="weather-badge badge-snow" title="JMA max depth (${jma.station_name||""}${jma.depth_max_at_hhmm?" "+jma.depth_max_at_hhmm:""})">Max ${jma.depth_max_today_cm}cm<span class="snow-depth-source">(JMA)</span></span>` : ""}
+        ${jma&&jma.snowfall_3h_cm!=null ? `<span class="weather-badge badge-snow" title="JMA 3h obs (${jma.snowfall_3h_observed_at||""})">3h ${jma.snowfall_3h_cm}cm<span class="snow-depth-source">(JMA)</span></span>` : ""}
+        <span class="weather-badge ${summitWindClass}" title="Base ${sw.surface}km/h → summit">
+          💨 Base ${sw.surface}<span style="opacity:.6;font-size:9px">→</span>Summit ~${sw.summit}km/h${wDir?" "+wDir:""}${sw.has850?'<sup style="font-size:8px;opacity:.7">850</sup>':''}
         </span>
         <span class="weather-badge badge-temp-${tempMin<-8?"cold":tempMin<0?"cool":"warm"}">🌡️ ${tempMin}°C</span>
         ${qualityBadge(ps)}
@@ -1195,8 +1230,9 @@ function renderList(){
     return`<div class="pw-card${sel?" selected":""}${inSeason?"":" operating-closed"}" id="card-${r.id}" onclick="selectResort(${r.id})">
       <div class="pw-card-header">
         <div>
-          <div class="pw-name">${r.name}${inSeason?"":' <span class="badge-closed">営業期間外</span>'}</div>
-          <div class="pw-pref">${r.pref} · TOP ${r.elevation.top}m</div>
+          <div class="pw-name">${displayNameEn(r)}${inSeason?"":' <span class="badge-closed">Closed</span>'}</div>
+          ${r.name&&displayNameEn(r)!==r.name ? `<div class="resort-name-signs" title="As on road signs in Japan">As on road signs: ${r.name}</div>` : ""}
+          <div class="pw-pref">${getPrefEn(r.pref)} · TOP ${r.elevation.top}m</div>
         </div>
         ${scoreBadge}
       </div>
@@ -1206,33 +1242,31 @@ function renderList(){
   }).join("");
 
   if(filtered.length>60){
-    list.innerHTML+=`<div style="padding:10px;text-align:center;font-size:11px;color:var(--text-dim)">他 ${filtered.length-60} 件 — エリアを絞り込むと全件表示</div>`;
+    list.innerHTML+=`<div style="padding:10px;text-align:center;font-size:11px;color:var(--text-dim)">${filtered.length-60} more — narrow region to see all</div>`;
   }
   renderDateButtonsInto("date-btns");
   renderDateButtonsInto("top-date-btns");
 }
 
-// 付近の飲食・病院・スキーショップ・温泉（収益化用）。BY_RESORT[id] / BY_REGION[region] で上書き可能
-var NEARBY_FOOD_BY_RESORT = {};
-var NEARBY_FOOD_BY_REGION = {};
-var NEARBY_MEDICAL_BY_RESORT = {};
-var NEARBY_MEDICAL_BY_REGION = {};
-// 仲の良いショップ: マップ上で別色ピン表示＋ゲレンデポップアップの近隣欄にリンク
+// Partner shop: show on map (different pin) and in resort popup "nearby" section
 const PARTNER_SHOP = { lat: 43.7701294, lng: 142.3904421, name: "スプレイ", nameEn: "Spray", url: "https://www.google.com/maps/place/%E3%82%B9%E3%83%97%E3%83%AC%E3%82%A4/@43.7701332,142.3878672,599m/data=!3m3!1e3!4b1!5s0x5f0ce66769346d15:0x33ecd1de8e3d3379!4m6!3m5!1s0x5f0ce6676bd14c2b:0xb1a612acbcfadd13!8m2!3d43.7701294!4d142.3904421!16s%2Fg%2F1tgb_kvb?entry=ttu" };
 
+// Nearby shops & medical (monetization). Override via NEARBY_SHOPS_BY_RESORT/BY_REGION, NEARBY_MEDICAL_BY_RESORT/BY_REGION
 var NEARBY_SHOPS_BY_RESORT = {};
 var NEARBY_SHOPS_BY_REGION = {};
-var NEARBY_ONSEN_BY_RESORT = {};
-var NEARBY_ONSEN_BY_REGION = {};
-function getNearbyFoodLinks(r){
-  const byId = NEARBY_FOOD_BY_RESORT[r.id];
+var NEARBY_MEDICAL_BY_RESORT = {};
+var NEARBY_MEDICAL_BY_REGION = {};
+function getNearbyShopLinks(r){
+  const byId = NEARBY_SHOPS_BY_RESORT[r.id];
   if(byId&&byId.length) return byId;
-  const byRegion = NEARBY_FOOD_BY_REGION[r.region];
+  const byRegion = NEARBY_SHOPS_BY_REGION[r.region];
   if(byRegion&&byRegion.length) return byRegion;
-  const q = encodeURIComponent(r.name+" ");
+  const q = encodeURIComponent(displayNameEn(r)+" ");
   return [
-    { name: "飲食を検索", url: "https://www.google.com/search?q="+q+"飲食" },
-    { name: "宿泊を検索", url: "https://www.google.com/search?q="+q+"宿泊" }
+    { name: "Search ski rental", url: "https://www.google.com/search?q="+q+"ski+rental" },
+    { name: "Search snowboard rental", url: "https://www.google.com/search?q="+q+"snowboard+rental" },
+    { name: "Search ski/snowboard repair & lost", url: "https://www.google.com/search?q="+q+"ski+repair+lost" },
+    { name: "Search accommodation", url: "https://www.google.com/search?q="+q+"accommodation" }
   ];
 }
 function getNearbyMedicalLinks(r){
@@ -1240,33 +1274,11 @@ function getNearbyMedicalLinks(r){
   if(byId&&byId.length) return byId;
   const byRegion = NEARBY_MEDICAL_BY_REGION[r.region];
   if(byRegion&&byRegion.length) return byRegion;
-  const q = encodeURIComponent(r.name+" ");
+  const q = encodeURIComponent(displayNameEn(r)+" ");
   return [
-    { name: "外科を検索", url: "https://www.google.com/search?q="+q+"外科" },
-    { name: "内科を検索", url: "https://www.google.com/search?q="+q+"内科" },
-    { name: "総合病院を検索", url: "https://www.google.com/search?q="+q+"総合病院" }
-  ];
-}
-function getNearbyShopLinks(r){
-  const byId = NEARBY_SHOPS_BY_RESORT[r.id];
-  if(byId&&byId.length) return byId;
-  const byRegion = NEARBY_SHOPS_BY_REGION[r.region];
-  if(byRegion&&byRegion.length) return byRegion;
-  const q = encodeURIComponent(r.name+" ");
-  return [
-    { name: "スキーレンタルを検索", url: "https://www.google.com/search?q="+q+"スキーレンタル" },
-    { name: "スノボレンタルを検索", url: "https://www.google.com/search?q="+q+"スノボレンタル" },
-    { name: "スキー・スノボ 修理・紛失を検索", url: "https://www.google.com/search?q="+q+"スキー+修理+紛失" }
-  ];
-}
-function getNearbyOnsenLinks(r){
-  const byId = NEARBY_ONSEN_BY_RESORT[r.id];
-  if(byId&&byId.length) return byId;
-  const byRegion = NEARBY_ONSEN_BY_REGION[r.region];
-  if(byRegion&&byRegion.length) return byRegion;
-  const q = encodeURIComponent(r.name+" ");
-  return [
-    { name: "温泉を検索", url: "https://www.google.com/search?q="+q+"温泉" }
+    { name: "Search surgery / orthopedic", url: "https://www.google.com/search?q="+q+"surgery+hospital" },
+    { name: "Search general practice", url: "https://www.google.com/search?q="+q+"general+practice+clinic" },
+    { name: "Search general hospital", url: "https://www.google.com/search?q="+q+"general+hospital" }
   ];
 }
 var NEARBY_CONVENIENCE_BY_RESORT = {};
@@ -1276,24 +1288,11 @@ function getNearbyConvenienceLinks(r){
   if(byId&&byId.length) return byId;
   const byRegion = NEARBY_CONVENIENCE_BY_REGION[r.region];
   if(byRegion&&byRegion.length) return byRegion;
-  const q = encodeURIComponent(r.name+" ");
+  const q = encodeURIComponent(displayNameEn(r)+" ");
   return [
-    { name: "コンビニを検索", url: "https://www.google.com/search?q="+q+"コンビニ" }
+    { name: "Search convenience store", url: "https://www.google.com/search?q="+q+"convenience+store" }
   ];
 }
-function renderNearbyLinkList(links){
-  return links.map(function(s){
-    const rel = (s.sponsored ? " nofollow sponsored" : "") + " noopener";
-    return '<a class="popup-shop-link" href="'+s.url+'" target="_blank" rel="'+rel.trim()+'" onclick="event.stopPropagation()">'+s.name+' ↗</a>';
-  }).join("");
-}
-window._pnTab=function(btn){
-  var tab=btn.getAttribute("data-tab");
-  var wrap=btn.closest(".leaflet-popup-content");
-  if(!wrap) return;
-  wrap.querySelectorAll(".popup-tab").forEach(function(t){ t.classList.toggle("active",t.getAttribute("data-tab")===tab); });
-  wrap.querySelectorAll(".popup-nearby-panel").forEach(function(p){ p.style.display=p.getAttribute("data-panel")===tab?"block":"none"; });
-};
 
 // ─── Select resort ─────────────────────────────────────────────
 function selectResort(id, opts){
@@ -1326,17 +1325,17 @@ function selectResort(id, opts){
   const hasData=daily&&daily!=="loading"&&daily.snowfall_sum;
   const ps=hasData?calcPowderScore(daily,r,targetDayOffset):null;
 
-  const LIFT_DISCLAIMER = "正確な時間は公式HP・お問い合わせでご確認ください";
+  const LIFT_DISCLAIMER = "Confirm exact times on the resort's official site or by contact.";
   const liftStart = r.liftStart || (typeof liftTimesCache[r.id]!=="undefined" ? liftTimesCache[r.id] : null);
   const operating = getResortOperating(r);
   const inSeason = isResortInSeason(r);
-  let contentHtml=`<div class="popup-name">${r.name}</div><div class="popup-pref">${r.pref} · TOP ${r.elevation.top}m</div>`;
+  let contentHtml=`<div class="popup-name">${displayNameEn(r)}</div>${r.name&&displayNameEn(r)!==r.name ? `<div class="resort-name-signs" title="As on road signs in Japan">As on road signs: ${r.name}</div>` : ""}<div class="popup-pref">${getPrefEn(r.pref)} · TOP ${r.elevation.top}m</div>`;
   if(operating){
     const periodStr = formatOperatingPeriod(operating.open, operating.close);
-    contentHtml+=`<div class="popup-detail-row popup-operating-row">📅 営業期間 <strong>${periodStr}</strong>${!inSeason?' <span class="badge-closed">営業期間外</span>':""}</div>`;
+    contentHtml+=`<div class="popup-detail-row popup-operating-row">📅 Operating <strong>${periodStr}</strong>${!inSeason?' <span class="badge-closed">Closed</span>':""}</div>`;
   }
   if(liftStart){
-    contentHtml+=`<div class="popup-detail-row popup-lift-row" title="${LIFT_DISCLAIMER}">🕐 リフト <strong>${liftStart}</strong><span class="popup-lift-note" title="${LIFT_DISCLAIMER}">※</span></div>`;
+    contentHtml+=`<div class="popup-detail-row popup-lift-row" title="${LIFT_DISCLAIMER}">🕐 Lift <strong>${liftStart}</strong><span class="popup-lift-note" title="${LIFT_DISCLAIMER}">*</span></div>`;
   }
   if(ps){
     const sw=ps.summitWind;
@@ -1344,7 +1343,7 @@ function selectResort(id, opts){
     const tempMax=Math.round(daily.temperature_2m_max[getDayIndex(daily,targetDayOffset)]??0);
     const snowDisplay = getSnowfallForDisplay(id, targetDayOffset);
     const snowCm = snowDisplay.cm!=null ? Math.round(snowDisplay.cm) : null;
-    const snowNote = snowDisplay.fromNearby ? " <span class=\"snow-depth-source\">（付近の予報を参照）</span>" : "";
+    const snowNote = snowDisplay.fromNearby ? " <span class=\"snow-depth-source\">(from nearby forecast)</span>" : "";
     const wdq=windDirQuality(sw.summitDir, r.region);
     const wDir=windDir(sw.summitDir);
     const gust=daily.wind_gusts_10m_max?.[getDayIndex(daily,targetDayOffset)];
@@ -1352,52 +1351,52 @@ function selectResort(id, opts){
     const jma = jmaSnowCache[id];
     const depthDisplay = getDisplaySnowDepth(id, jma, daily, r);
     const snowDepthCm = depthDisplay.depthCm;
-    const snowDepthTitle = depthDisplay.sourceTitle || "気象モデルによる現在の積雪深";
+    const snowDepthTitle = depthDisplay.sourceTitle || "Model snow depth";
     contentHtml+=`
       <div class="popup-pw"><div class="popup-pw-num" style="color:${scoreColor(ps.score)}">${ps.score}</div><div class="popup-pw-label" style="color:${scoreColor(ps.score)}">${scoreGrade(ps.score)}</div></div>
-      <div class="popup-detail-row">❄️ 予報降雪 <strong>${snowCm!=null?snowCm+"cm":"—"}${snowNote}</strong></div>
-      ${snowDepthCm!=null ? `<div class="popup-detail-row" title="${snowDepthTitle}">📐 積雪 <strong>${snowDepthCm}cm</strong>${depthDisplay.sourceLabel?`<span class="snow-depth-source">（${depthDisplay.sourceLabel}）</span>`:""}</div>` : ""}
-      ${jma&&jma.depth_max_today_cm!=null ? `<div class="popup-detail-row" title="気象庁・日最深積雪（${jma.station_name||""}）">📊 日最深積雪 <strong>${jma.depth_max_today_cm}cm</strong>${jma.depth_max_at_hhmm?`（${jma.depth_max_at_hhmm}）`:""}<span class="snow-depth-source">（気象庁）</span></div>` : ""}
-      ${jma&&jma.snowfall_3h_cm!=null ? `<div class="popup-detail-row" title="気象庁観測・${jma.station_name||""}（${jma.snowfall_3h_observed_at||""}）">❄️ 直近3h観測降雪 <strong>${jma.snowfall_3h_cm}cm</strong><span class="snow-depth-source">（気象庁）</span></div>` : ""}
+      <div class="popup-detail-row">❄️ Forecast snow <strong>${snowCm!=null?snowCm+"cm":"—"}${snowNote}</strong></div>
+      ${snowDepthCm!=null ? `<div class="popup-detail-row" title="${snowDepthTitle}">📐 Snow depth <strong>${snowDepthCm}cm</strong>${depthDisplay.sourceLabel?`<span class="snow-depth-source">(${depthDisplay.sourceLabel})</span>`:""}</div>` : ""}
+      ${jma&&jma.depth_max_today_cm!=null ? `<div class="popup-detail-row" title="JMA max depth (${jma.station_name||""})">📊 Max depth today <strong>${jma.depth_max_today_cm}cm</strong>${jma.depth_max_at_hhmm?` (${jma.depth_max_at_hhmm})`:""}<span class="snow-depth-source">(JMA)</span></div>` : ""}
+      ${jma&&jma.snowfall_3h_cm!=null ? `<div class="popup-detail-row" title="JMA 3h obs · ${jma.station_name||""} (${jma.snowfall_3h_observed_at||""})">❄️ 3h observed <strong>${jma.snowfall_3h_cm}cm</strong><span class="snow-depth-source">(JMA)</span></div>` : ""}
       <div class="popup-detail-row" style="flex-direction:column;align-items:flex-start;gap:2px">
-        <div>💨 風速（${sw.has850?"850hPa補間":"冪乗則推定"}）</div>
+        <div>💨 Wind (${sw.has850?"850hPa interp":"power-law est."})</div>
         <div style="display:flex;gap:8px;margin-top:2px;font-size:12px">
-          <span style="color:var(--text-dim)">麓 <strong style="color:var(--text)">${sw.surface}km/h</strong></span>
-          <span style="color:var(--text-dim)">→ 山頂(${sw.elev}m) <strong style="color:${windClass(sw.summit)==='badge-wind-calm'?'var(--wind-calm)':windClass(sw.summit)==='badge-wind-light'?'var(--wind-light)':windClass(sw.summit)==='badge-wind-mod'?'var(--wind-mod)':'var(--wind-strong)'}">${sw.summit}km/h</strong></span>
+          <span style="color:var(--text-dim)">Base <strong style="color:var(--text)">${sw.surface}km/h</strong></span>
+          <span style="color:var(--text-dim)">→ Summit(${sw.elev}m) <strong style="color:${windClass(sw.summit)==='badge-wind-calm'?'var(--wind-calm)':windClass(sw.summit)==='badge-wind-light'?'var(--wind-light)':windClass(sw.summit)==='badge-wind-mod'?'var(--wind-mod)':'var(--wind-strong)'}">${sw.summit}km/h</strong></span>
           ${wDir?`<span>${wDir}</span>`:""}
         </div>
-        ${summitGust?`<div style="font-size:10px;color:var(--text-dim)">山頂瞬間最大推定 <strong style="color:var(--accent2)">${summitGust}km/h</strong></div>`:""}
+        ${summitGust?`<div style="font-size:10px;color:var(--text-dim)">Summit gust est. <strong style="color:var(--accent2)">${summitGust}km/h</strong></div>`:""}
         ${wdq?`<div style="margin-top:3px"><span style="font-size:10px;font-weight:700;color:${wdq.color}">${wdq.label}</span> <span style="font-size:10px;color:var(--text-dim)">${wdq.hint}</span></div>`:""}
       </div>
-      <div class="popup-detail-row">🌡️ 最低/最高気温 <strong>${tempMin}°C / ${tempMax}°C</strong> ${qualityBadge(ps)}</div>`;
+      <div class="popup-detail-row">🌡️ Min/Max temp <strong>${tempMin}°C / ${tempMax}°C</strong> ${qualityBadge(ps)}</div>`;
   } else if(daily==="loading"){
-    contentHtml+=`<div class="loading-row"><div class="loading-spinner"></div>データ取得中…</div>`;
+    contentHtml+=`<div class="loading-row"><div class="loading-spinner"></div>Fetching…</div>`;
   } else {
-    contentHtml+=`<div style="font-size:11px;color:var(--text-dim);margin:6px 0">データ未取得 — クリックで取得します</div>`;
+    contentHtml+=`<div style="font-size:11px;color:var(--text-dim);margin:6px 0">No data — click to fetch</div>`;
     fetchWeather(r).then(()=>renderList());
   }
 
   if(nearbyList.length>0){
-    contentHtml+=`<div class="popup-nearby"><div class="popup-nearby-title">車で近いゲレンデ（今日の予報）</div>`;
+    contentHtml+=`<div class="popup-nearby"><div class="popup-nearby-title">Nearby by car (today's forecast)</div>`;
     nearbyList.forEach(function(n){
       const other=RESORT_MAP[n.id];
-      const name=other?other.name:"?";
+      const name=other?displayNameEn(other):"?";
       let snowTxt="--";
       if(other){
         const snowD = getSnowfallForDisplay(other.id, targetDayOffset);
-        if(snowD.cm!=null) snowTxt=`${Math.round(snowD.cm)}cm${snowD.fromNearby?"(付近)":""}`;
+        if(snowD.cm!=null) snowTxt=`${Math.round(snowD.cm)}cm${snowD.fromNearby?" (nearby)":""}`;
       }
       const groupIds = [id].concat(nearbyList.map(x=>x.id));
-      contentHtml+=`<div class="popup-nearby-item" onclick="selectResortGroup(${n.id},[${groupIds.join(",")}])"><span>${name}</span><span>${snowTxt} · 約${n.km}km</span></div>`;
+      contentHtml+=`<div class="popup-nearby-item" onclick="selectResortGroup(${n.id},[${groupIds.join(",")}])"><span>${name}</span><span>${snowTxt} · ~${n.km}km</span></div>`;
     });
     contentHtml+=`</div>`;
   }
-  contentHtml+=`<div class="popup-nearby popup-partner-shop"><div class="popup-nearby-title">おすすめショップ</div><a class="popup-nearby-item" href="${PARTNER_SHOP.url}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit;display:flex;justify-content:space-between;align-items:center;gap:8px;padding:4px 6px;border-radius:6px;"><span>${PARTNER_SHOP.name}</span><span style="color:var(--accent);font-size:10px">地図 ↗</span></a></div>`;
-  const urlBtn=r.url?`<a class="popup-btn popup-btn-secondary" href="${r.url}" target="_blank">公式 ↗</a>`:"";
-  const gmUrl=`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(r.name)}&query_place_id=&center=${r.lat},${r.lng}`;
-  const gmBtn=`<a class="popup-btn popup-btn-secondary" href="${gmUrl}" target="_blank">Googleマップ ↗</a>`;
-  contentHtml+=`<div class="popup-feedback"><button class="popup-feedback-btn" onclick="openFeedback('closed',${id})">営業してなかった</button><button class="popup-feedback-btn" onclick="openFeedback('low-snow',${id})">積雪がもっと少なかった</button></div>`;
-  contentHtml+=`<div class="popup-btns"><button class="popup-btn popup-btn-primary" onclick="scrollToCard(${id})">詳細確認</button>${gmBtn}${urlBtn}</div>`;
+  contentHtml+=`<div class="popup-nearby popup-partner-shop"><div class="popup-nearby-title">Partner shop</div><a class="popup-nearby-item" href="${PARTNER_SHOP.url}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit;display:flex;justify-content:space-between;align-items:center;gap:8px;padding:4px 6px;border-radius:6px;"><span>${PARTNER_SHOP.nameEn}</span><span style="color:var(--accent);font-size:10px">Map ↗</span></a></div>`;
+  const urlBtn=r.url?`<a class="popup-btn popup-btn-secondary" href="${r.url}" target="_blank">Official ↗</a>`:"";
+  const gmUrl=`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(displayNameEn(r))}&query_place_id=&center=${r.lat},${r.lng}`;
+  const gmBtn=`<a class="popup-btn popup-btn-secondary" href="${gmUrl}" target="_blank">Google Maps ↗</a>`;
+  contentHtml+=`<div class="popup-feedback"><button class="popup-feedback-btn" onclick="openFeedback('closed',${id})">Was closed / lifts stopped</button><button class="popup-feedback-btn" onclick="openFeedback('low-snow',${id})">Much less snow than shown</button></div>`;
+  contentHtml+=`<div class="popup-btns"><button class="popup-btn popup-btn-primary" onclick="scrollToCard(${id})">Details</button>${gmBtn}${urlBtn}</div>`;
 
   const popupMaxW = (typeof window!=="undefined"&&window.innerWidth<=700) ? 280 : 260;
   currentPopup=L.popup({closeButton:true,maxWidth:popupMaxW}).setLatLng([r.lat,r.lng]).setContent(contentHtml).openOn(map);
@@ -1450,16 +1449,16 @@ L.control.zoom({position:"bottomright"}).addTo(map);
 L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",{
   attribution:"&copy; OpenStreetMap &copy; CARTO",subdomains:"abcd",maxZoom:17
 }).addTo(map);
-// 仲の良いショップ用ピン（ゲレンデと別色で表示）
+// Partner shop pin (different color so it stands out from resort pins)
 (function(){
   var s=PARTNER_SHOP;
-  var html='<div class="custom-marker custom-marker-shop" title="'+s.name+'"><div class="m-pin m-pin-shop" style="background:#e8b84c22;border-color:#e8b84c99"><span class="m-pin-inner" style="color:#e8b84c;font-size:14px">★</span></div></div>';
+  var html='<div class="custom-marker custom-marker-shop" title="'+s.nameEn+'"><div class="m-pin m-pin-shop" style="background:#e8b84c22;border-color:#e8b84c99"><span class="m-pin-inner" style="color:#e8b84c;font-size:14px">★</span></div></div>';
   var icon=L.divIcon({html:html,className:"",iconSize:[32,40],iconAnchor:[16,38]});
   var m=L.marker([s.lat,s.lng],{icon:icon});
   m.on("click",function(){ window.open(s.url,"_blank"); });
   m.addTo(map);
 })();
-// 都道府県→エリア（県境で地図を色分け）。ボタンと地図で同じ色を使う
+// Region colors: map polygons and region pills use the same palette
 const REGION_COLORS = { hokkaido:"#E07C3C", tohoku:"#6B9BD1", niigata:"#7ECB8A", nagano:"#4DD9C4", chubu:"#9B7EDE", kanto:"#E8B84C", kansai:"#E85C5C", chugoku:"#5CB8E8", shikoku:"#B85CE8", kyushu:"#E87C9C" };
 const PREF_TO_REGION = {"北海道":"hokkaido","青森県":"tohoku","岩手県":"tohoku","宮城県":"tohoku","秋田県":"tohoku","山形県":"tohoku","福島県":"tohoku","茨城県":"kanto","栃木県":"kanto","群馬県":"kanto","埼玉県":"kanto","千葉県":"kanto","東京都":"kanto","神奈川県":"kanto","新潟県":"niigata","富山県":"chubu","石川県":"chubu","福井県":"chubu","山梨県":"chubu","長野県":"nagano","岐阜県":"chubu","静岡県":"chubu","愛知県":"chubu","三重県":"chubu","滋賀県":"kansai","京都府":"kansai","大阪府":"kansai","兵庫県":"kansai","奈良県":"kansai","和歌山県":"kansai","鳥取県":"chugoku","島根県":"chugoku","岡山県":"chugoku","広島県":"chugoku","山口県":"chugoku","徳島県":"shikoku","香川県":"shikoku","愛媛県":"shikoku","高知県":"shikoku","福岡県":"kyushu","佐賀県":"kyushu","長崎県":"kyushu","熊本県":"kyushu","大分県":"kyushu","宮崎県":"kyushu","鹿児島県":"kyushu","沖縄県":"kyushu"};
 let regionLayer = null;
@@ -1480,7 +1479,7 @@ function addRegionLayer(){
 }
 setTimeout(addRegionLayer, 500);
 
-// ピン色をランキング表示（積雪深）に連動。0・未データは共通の控えめな色
+// Pin color by ranking depth (same scale as list). Zero / no data = single muted color
 const PIN_COLOR_ZERO = "#5a6a80";
 const DEPTH_COLOR_MAX = 300;
 function depthToPinColor(depth){
@@ -1587,26 +1586,26 @@ setInterval(()=>{
 },5000);
 
 // ─── View switch (トップ ⇔ マップ) ─────────────────────────────
-const GELENDE_SNOW_NOTE = "更新が遅れている場合があります。正確な値は公式HPでご確認ください。";
-const FEEDBACK_EMAIL = "your-email@example.com"; // TODO: フィードバック受信用のメールアドレスに変更してください
+const GELENDE_SNOW_NOTE = "May be outdated. Confirm on the resort's official site.";
+const FEEDBACK_EMAIL = "your-email@example.com"; // TODO: set to your feedback inbox
 function openFeedback(kind, resortId){
   try{
     const r = RESORT_MAP[resortId];
     if(!r) return;
-    const name = r.name||"";
+    const name = displayNameEn(r)||r.name||"";
     const status = isResortInSeason(r) ? "in-season" : "out-of-season";
     const subject = encodeURIComponent(`[JapawSearch] ${kind} / id=${resortId} ${name}`);
     const bodyLines = [
       `Resort id: ${resortId}`,
       `Name: ${name}`,
-      `Pref: ${r.pref||""}`,
+      `Pref: ${getPrefEn(r.pref)||r.pref||""}`,
       `Lat/Lng: ${r.lat},${r.lng}`,
       `Status flag (app view): ${status}`,
       "",
-      "見た状況:",
-      kind==="closed" ? "現地では営業していませんでした（リフト運転なし／クローズ）。" : "実際のゲレンデ上の積雪は、表示よりかなり少なく感じました。",
+      "What I saw:",
+      kind==="closed" ? "Resort was NOT operating / lifts stopped." : "Actual snow on piste seemed LESS than shown.",
       "",
-      "メモがあればここに書いてから送ってください:",
+      "Optional notes (edit before sending):",
       ""
     ];
     const body = encodeURIComponent(bodyLines.join("\n"));
@@ -1661,21 +1660,23 @@ renderList();
 // トップ表示時はマップを非表示に（初期表示）
 document.getElementById("view-map").style.display="none";
 
-// キャッシュファイルがあれば読み込み（weather.json、jma-snow.json、resort-snow.json、lift-times.json、resort-operating.json）
+// キャッシュファイルがあれば読み込み（weather.json、jma-snow.json、resort-snow.json＝ゲレンデ公表積雪）
 (function(){
   Promise.all([
     fetch("data/weather.json").then(function(r){ var lm=r.headers.get("Last-Modified"); if(lm) lastDataUpdated=new Date(lm); return r.ok?r.json():Promise.reject(); }).catch(function(){ return null; }),
     fetch("data/jma-snow.json").then(function(r){ return r.ok?r.json():Promise.reject(); }).catch(function(){ return null; }),
     fetch("data/resort-snow.json").then(function(r){ return r.ok?r.json():Promise.reject(); }).catch(function(){ return null; }),
     fetch("data/lift-times.json").then(function(r){ return r.ok?r.json():Promise.reject(); }).catch(function(){ return null; }),
-    fetch("data/resort-operating.json").then(function(r){ return r.ok?r.json():Promise.reject(); }).catch(function(){ return null; })
+    fetch("data/resort-operating.json").then(function(r){ return r.ok?r.json():Promise.reject(); }).catch(function(){ return null; }),
+    fetch("data/resort-names-en.json").then(function(r){ return r.ok?r.json():Promise.reject(); }).catch(function(){ return null; })
   ]).then(function(arr){
-    var obj=arr[0], jma=arr[1], resortSnow=arr[2], liftTimes=arr[3], operating=arr[4];
+    var obj=arr[0], jma=arr[1], resortSnow=arr[2], liftTimes=arr[3], operating=arr[4], namesEn=arr[5];
     if(obj&&typeof obj==="object"){ let n=0; for(var id in obj) if(obj[id]){ weatherCache[id]=obj[id]; n++; } if(n>0){ document.getElementById("fetched-count").textContent=Object.values(weatherCache).filter(v=>v&&v!=="loading").length; renderTop10(); renderList(); } }
     if(jma&&typeof jma==="object"){ jmaSnowCache=jma; }
     if(resortSnow&&typeof resortSnow==="object"){ resortSnowCache=resortSnow; }
     if(liftTimes&&typeof liftTimes==="object"){ liftTimesCache=liftTimes; }
     if(operating&&typeof operating==="object"){ operatingCache=operating; }
+    if(namesEn&&typeof namesEn==="object"){ for(var k in namesEn) if(namesEn[k]) resortNamesEn[parseInt(k,10)]=namesEn[k]; renderList(); }
     if(jma||resortSnow||operating) renderList();
   })
   .catch(function(){})
@@ -1684,8 +1685,8 @@ document.getElementById("view-map").style.display="none";
       queueFetch(FETCH_ALL_ON_LOAD ? [...INITIAL_FETCH_IDS,...RESORTS.map(r=>r.id).filter(id=>!INITIAL_FETCH_IDS.includes(id))] : [...FEATURED_IDS]);
     });
 })();
-var el=document.getElementById("fetch-policy-desc");if(el) el.textContent=FETCH_ALL_ON_LOAD?"起動時から全450件をキューし":"起動時は注目40件・地域50件";
-(function(){var b=document.getElementById("info-banner"),t=document.getElementById("info-banner-toggle");if(b&&t){t.addEventListener("click",function(){b.classList.toggle("open");t.textContent=b.classList.contains("open")?"▲ 閉じる":"▼ 詳しく";});}})();
+var el=document.getElementById("fetch-policy-desc");if(el) el.textContent=FETCH_ALL_ON_LOAD?"We queue all 450 on start":"We load 40 featured + 50 per region on start";
+(function(){var b=document.getElementById("info-banner"),t=document.getElementById("info-banner-toggle");if(b&&t){t.addEventListener("click",function(){b.classList.toggle("open");t.textContent=b.classList.contains("open")?"▲ Close":"▼ More";});}})();
 </script>
 </body>
 </html>
