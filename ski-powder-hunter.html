@@ -325,6 +325,10 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
 .view-top .top-card-score{text-align:right;flex-shrink:0}
 .view-top .top-card-score-num{font-family:"Space Mono",monospace;font-size:26px;font-weight:700;line-height:1}
 .view-top .top-card-score-label{font-size:9px;letter-spacing:1px}
+.top-sort-row{display:flex;align-items:center;gap:6px;margin-bottom:8px;font-size:11px;color:var(--text-dim)}
+.top-sort-label{white-space:nowrap}
+.top-sort-select{background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--text-dim);font-size:11px;font-family:"Noto Sans JP",sans-serif;padding:4px 8px;outline:none;cursor:pointer}
+.top-sort-select option{background:var(--navy-mid)}
 .view-top .top-card-score.pw-score-excellent .top-card-score-num,.view-top .top-card-score.pw-score-excellent .top-card-score-label{color:var(--pw-excellent)}
 .view-top .top-card-score.pw-score-good .top-card-score-num,.view-top .top-card-score.pw-score-good .top-card-score-label{color:var(--pw-good)}
 .view-top .top-card-score.pw-score-fair .top-card-score-num,.view-top .top-card-score.pw-score-fair .top-card-score-label{color:var(--pw-fair)}
@@ -439,6 +443,16 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
     <div class="top-date-wrap">
       <div class="date-label">ターゲット日</div>
       <div class="date-btns" id="top-date-btns"></div>
+    </div>
+    <div class="top-sort-row">
+      <label for="top-sort-select" class="top-sort-label">並び替え:</label>
+      <select id="top-sort-select" class="top-sort-select">
+        <option value="powder">パウダースコア順</option>
+        <option value="snow">降雪量順</option>
+        <option value="depth">積雪量ランキング</option>
+        <option value="wind">風弱い順</option>
+        <option value="temp">気温低い順</option>
+      </select>
     </div>
     <div class="top-region-pills region-pills" id="top-region-pills">
       <div class="region-pill active" data-region="all">全国</div>
@@ -625,6 +639,7 @@ let topActiveRegion = "all";  // トップ画面用エリア絞り
 const REGION_LABELS = { all:"全国", hokkaido:"北海道", tohoku:"東北", niigata:"新潟", nagano:"長野", chubu:"中部", kanto:"関東", kansai:"関西", chugoku:"中国・四国" };
 let searchQuery = "";
 let sortMode = "powder";
+let topSortMode = "powder";
 let selectedId = null;
 let markers = {};
 let currentPopup = null;
@@ -710,6 +725,14 @@ function initDateButtons(){
 }
 function initTopDateButtons(){
   renderDateButtonsInto("top-date-btns");
+  const topSortEl = document.getElementById("top-sort-select");
+  if(topSortEl){
+    topSortEl.value = topSortMode;
+    topSortEl.addEventListener("change",e=>{
+      topSortMode = e.target.value;
+      renderTop10();
+    });
+  }
 }
 
 // ─── Open-Meteo fetch ──────────────────────────────────────────
@@ -1151,9 +1174,45 @@ function renderTop10(){
     return d&&d!=="loading"&&d.snowfall_sum;
   });
   const sorted = withData.slice().sort((a,b)=>{
-    const sa = calcPowderScore(weatherCache[a.id],a,targetDayOffset);
-    const sb = calcPowderScore(weatherCache[b.id],b,targetDayOffset);
-    return (sb&&sa)?(sb.score-sa.score):0;
+    const da = weatherCache[a.id], db = weatherCache[b.id];
+    if(topSortMode==="powder"){
+      const sa = da&&da!=="loading"?calcPowderScore(da,a,targetDayOffset):null;
+      const sb = db&&db!=="loading"?calcPowderScore(db,b,targetDayOffset):null;
+      if(sa&&sb) return sb.score-sa.score;
+      if(sa) return -1;
+      if(sb) return 1;
+      return 0;
+    } else if(topSortMode==="snow"){
+      const sa = da&&da!=="loading"?getSnowfallAdjusted(da,a,targetDayOffset):null;
+      const sb = db&&db!=="loading"?getSnowfallAdjusted(db,b,targetDayOffset):null;
+      if(sa==null&&sb==null) return 0;
+      if(sa!=null&&sb!=null) return sb-sa;
+      if(sa!=null) return -1;
+      if(sb!=null) return 1;
+      return 0;
+    } else if(topSortMode==="depth"){
+      const depthA=getDepthForRanking(a.id,jmaSnowCache[a.id],da,a);
+      const depthB=getDepthForRanking(b.id,jmaSnowCache[b.id],db,b);
+      if(depthA!=null&&depthB!=null) return depthB-depthA;
+      if(depthA!=null) return -1;
+      if(depthB!=null) return 1;
+      return 0;
+    } else if(topSortMode==="wind"){
+      const wa=da&&da!=="loading"?(da.wind_speed_10m_max?.[getDayIndex(da,targetDayOffset)]||999):null;
+      const wb=db&&db!=="loading"?(db.wind_speed_10m_max?.[getDayIndex(db,targetDayOffset)]||999):null;
+      if(wa!=null&&wb!=null) return wa-wb;
+      if(wa!=null) return -1;
+      if(wb!=null) return 1;
+      return 0;
+    } else if(topSortMode==="temp"){
+      const ta=da&&da!=="loading"?(da.temperature_2m_min?.[getDayIndex(da,targetDayOffset)]??999):null;
+      const tb=db&&db!=="loading"?(db.temperature_2m_min?.[getDayIndex(db,targetDayOffset)]??999):null;
+      if(ta!=null&&tb!=null) return ta-tb;
+      if(ta!=null) return -1;
+      if(tb!=null) return 1;
+      return 0;
+    }
+    return 0;
   });
   const top10 = sorted.slice(0,10);
 
@@ -1163,7 +1222,12 @@ function renderTop10(){
   const regionLabel = REGION_LABELS[topActiveRegion]||"全国";
   const loading = Object.values(weatherCache).some(v=>v==="loading");
   const subEl = document.getElementById("top-sub");
-  if(subEl) subEl.textContent = `${dateStr}のパウダースコア TOP10（${regionLabel}）`;
+  const modeLabel = topSortMode==="powder" ? "パウダースコア"
+    : topSortMode==="snow" ? "降雪量"
+    : topSortMode==="depth" ? "積雪量"
+    : topSortMode==="wind" ? "風弱い"
+    : "気温低い";
+  if(subEl) subEl.textContent = `${dateStr}の${modeLabel} TOP10（${regionLabel}）`;
 
   const updEl = document.getElementById("top-updated");
   if(updEl){
