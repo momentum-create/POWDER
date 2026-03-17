@@ -2,13 +2,14 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>JapawSearch</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=DM+Serif+Display:ital@0;1&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/wanakana@5.3.1/umd/wanakana.min.js"></script>
+<script src="data/resort-names-en.js"></script>
 <style>
 :root{
   --navy:#0b1628;--navy-mid:#132238;--navy-light:#1d3454;
@@ -19,10 +20,11 @@
   --wind-calm:#4dd9c4;--wind-light:#7ecb8a;--wind-mod:#f5a623;--wind-strong:#e05c6a;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:"Noto Sans JP",sans-serif;background:var(--navy);color:var(--text);height:100vh;overflow:hidden;display:flex;flex-direction:column}
+body{font-family:"Noto Sans JP",sans-serif;background:var(--navy);color:var(--text);height:100vh;min-height:100dvh;overflow:hidden;overflow-x:hidden;display:flex;flex-direction:column}
 
-/* Header */
-header{background:var(--navy);border-bottom:1px solid var(--border);padding:0 16px;height:52px;display:flex;align-items:center;justify-content:space-between;z-index:1000;flex-shrink:0}
+/* Header: notch/Dynamic Island = decoration only; touch targets below */
+header{background:var(--navy);border-bottom:1px solid var(--border);padding:0 max(16px,env(safe-area-inset-left)) 0 max(16px,env(safe-area-inset-right));padding-top:env(safe-area-inset-top);min-height:calc(52px + env(safe-area-inset-top));display:flex;align-items:flex-end;justify-content:center;z-index:1000;flex-shrink:0}
+header .header-inner{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:52px}
 .logo{display:flex;align-items:center;gap:8px}
 .logo-main{font-family:"DM Serif Display",serif;font-size:20px;color:#fff;letter-spacing:1px}
 .logo-tag{display:none}
@@ -288,23 +290,37 @@ header{background:var(--navy);border-bottom:1px solid var(--border);padding:0 16
 .header-link{font-size:12px;color:var(--accent);text-decoration:none;margin-right:8px}
 .header-link:hover{text-decoration:underline}
 .view-map{height:calc(100vh - 52px);display:flex;flex-direction:column;overflow:hidden}
-.view-map .main{flex:1}
+.view-map .main{flex:1;min-width:0}
 .map-mobile-back{display:none;position:absolute;z-index:950;left:10px;top:60px;padding:6px 10px;border-radius:999px;border:1px solid var(--border);background:rgba(11,22,40,.9);color:var(--text-dim);font-size:11px;font-family:\"Noto Sans JP\",sans-serif}
 
+@media(max-width:900px){
+  .sidebar{width:300px;min-width:280px}
+  .map-overlay{left:320px;font-size:10px;padding:8px 10px}
+}
 @media(max-width:700px){
-  /* マップ画面はスマホではフルスクリーンに近い形で表示し、サイドバーは非表示 */
   #view-map .sidebar{display:none}
-  #map{flex:1;min-height:calc(100vh - 58px)}
+  #map{flex:1;min-height:calc(100vh - 58px);min-height:calc(100dvh - 58px)}
   .map-overlay{display:none}
-  .view-top{padding:20px 12px 24px}
+  .view-top{padding:16px 12px 24px;padding-left:max(12px,env(safe-area-inset-left));padding-right:max(12px,env(safe-area-inset-right));padding-bottom:max(24px,env(safe-area-inset-bottom))}
   .view-top .top-title{font-size:24px}
-  /* iPhone 等でノッチやブラウザUIと被らないよう、ヘッダーを少し下げる */
-  header{padding-top:6px;height:58px}
-  .view-map{height:calc(100vh - 58px)}
-  /* 目標地点ポップアップ: スマホでコンパクトに（触っても閉じない・中はクリック可） */
-  .leaflet-popup-content-wrapper{max-width:92vw!important}
-  .leaflet-popup-content{margin:8px 10px!important;min-width:0!important;max-height:45vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
-  .popup-name{font-size:12px;margin-bottom:1px}
+  .view-top .top-lead{font-size:12px}
+  .view-top .top-date-wrap .date-btns{gap:4px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .view-top .top-date-wrap .date-btns::-webkit-scrollbar{display:none}
+  .view-top .top-date-wrap .date-btn{min-width:44px;flex:0 0 auto}
+  .view-top .top-card{flex-wrap:wrap;gap:10px;padding:12px}
+  .view-top .top-card-body{min-width:0}
+  .view-top .top-card-name{font-size:13px;word-break:keep-all;overflow-wrap:break-word}
+  .view-top .top-card-meta{font-size:12px;gap:8px}
+  .view-top .top-card-score-num{font-size:22px}
+  .view-top .top-cta-wrap{padding-top:16px;margin-top:20px}
+  .view-top .top-cta-btn{width:100%;max-width:100%;padding:12px 16px;font-size:13px;min-height:44px}
+  header .header-inner{min-height:58px}
+  header{min-height:calc(58px + env(safe-area-inset-top))}
+  .view-map{height:calc(100dvh - 58px - env(safe-area-inset-top))}
+  .map-mobile-back{display:inline-flex;align-items:center;gap:4px;top:calc(58px + env(safe-area-inset-top) + 6px);left:max(10px,env(safe-area-inset-left));min-height:40px;padding:8px 14px;pointer-events:auto}
+  .leaflet-popup-content-wrapper{max-width:min(92vw,320px)!important}
+  .leaflet-popup-content{margin:8px 10px!important;min-width:0!important;max-height:50vh;max-height:50dvh;overflow-y:auto;-webkit-overflow-scrolling:touch}
+  .popup-name{font-size:12px;margin-bottom:1px;word-break:keep-all;overflow-wrap:break-word}
   .popup-pref{font-size:9px;margin-bottom:4px}
   .popup-pw{margin-bottom:4px}
   .popup-pw-num{font-size:18px}
@@ -312,25 +328,46 @@ header{background:var(--navy);border-bottom:1px solid var(--border);padding:0 16
   .popup-detail-row{font-size:10px;margin-bottom:2px;flex-wrap:wrap}
   .popup-nearby{margin-top:8px;padding-top:6px}
   .popup-nearby-title{font-size:9px;margin-bottom:4px}
-  .popup-nearby-item{font-size:10px;margin-bottom:4px;padding:6px 6px}
+  .popup-nearby-item{font-size:10px;margin-bottom:4px;padding:6px}
   .popup-nearby-item span:last-child{font-size:9px}
   .popup-btns{margin-top:8px;gap:4px;flex-wrap:wrap}
-  .popup-btn{padding:6px 8px;font-size:10px}
-  .map-mobile-back{display:inline-flex;align-items:center;gap:4px}
+  .popup-btn{padding:8px 10px;font-size:10px;min-height:40px}
+  .popup-feedback-btn{min-height:36px}
+}
+@media(max-width:480px){
+  .view-top .top-title{font-size:20px}
+  .view-top .top-card-rank{font-size:16px;width:24px}
+  .view-top .top-card-name{font-size:12px}
+  .logo-main{font-size:16px}
+  .header-right{gap:6px}
+  .live-badge{font-size:9px}
+  .pw-card{padding:10px}
+  .pw-name{font-size:12px;word-break:keep-all;overflow-wrap:break-word}
+  .pw-card-header{flex-wrap:wrap;gap:6px}
+  .hourly-snow-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:thin;margin:0 -4px}
+  .hourly-snow-bars{min-width:min-content;padding:0 4px}
+  .hourly-snow-bar{min-width:28px;flex:0 0 auto}
+  .hourly-snow-bar-label{font-size:6px}
+  .snow-bars{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .snow-bar-wrap{min-width:32px;flex:0 0 auto}
+  .weather-row{gap:6px;font-size:10px}
+  .weather-badge{font-size:10px;padding:2px 6px}
 }
 </style>
 </head>
 <body>
 
 <header>
-  <div class="logo">
-    <span class="logo-main">JapawSearch</span>
-    <span class="logo-tag"></span>
-  </div>
-  <div class="header-right">
-    <a href="ski-powder-hunter.html" class="header-link" title="Japanese version">日本語</a>
-    <a href="#" class="header-link" id="link-to-top" style="display:none">Top</a>
-    <div class="live-badge"><div class="live-dot"></div> Open-Meteo live</div>
+  <div class="header-inner">
+    <div class="logo">
+      <span class="logo-main">JapawSearch</span>
+      <span class="logo-tag"></span>
+    </div>
+    <div class="header-right">
+      <a href="ski-powder-hunter.html" class="header-link" title="Japanese version">日本語</a>
+      <a href="#" class="header-link" id="link-to-top" style="display:none">Top</a>
+      <div class="live-badge"><div class="live-dot"></div> Open-Meteo live</div>
+    </div>
   </div>
 </header>
 
@@ -474,7 +511,7 @@ const INITIAL_FETCH_IDS = [19, 324, 300, 203]; // ニセコHANAZONO, かぐら, 
 const PREF_EN = { "北海道":"Hokkaido","青森県":"Aomori","岩手県":"Iwate","宮城県":"Miyagi","秋田県":"Akita","山形県":"Yamagata","福島県":"Fukushima","茨城県":"Ibaraki","栃木県":"Tochigi","群馬県":"Gunma","埼玉県":"Saitama","千葉県":"Chiba","東京都":"Tokyo","神奈川県":"Kanagawa","新潟県":"Niigata","富山県":"Toyama","石川県":"Ishikawa","福井県":"Fukui","山梨県":"Yamanashi","長野県":"Nagano","岐阜県":"Gifu","静岡県":"Shizuoka","愛知県":"Aichi","三重県":"Mie","滋賀県":"Shiga","京都府":"Kyoto","大阪府":"Osaka","兵庫県":"Hyogo","奈良県":"Nara","和歌山県":"Wakayama","鳥取県":"Tottori","島根県":"Shimane","岡山県":"Okayama","広島県":"Hiroshima","山口県":"Yamaguchi","徳島県":"Tokushima","香川県":"Kagawa","愛媛県":"Ehime","高知県":"Kochi","福岡県":"Fukuoka","佐賀県":"Saga","長崎県":"Nagasaki","熊本県":"Kumamoto","大分県":"Oita","宮崎県":"Miyazaki","鹿児島県":"Kagoshima","沖縄県":"Okinawa" };
 function getPrefEn(p){ return p ? (PREF_EN[p] || p) : ""; }
 // Resort display name in English: nameEn from data, or romaji via wanakana + kanji map, or fallback.
-let resortNamesEn = {};  // id -> nameEn (optional override from data/resort-names-en.json)
+let resortNamesEn = (typeof window.__RESORT_NAMES_EN__ !== "undefined" && window.__RESORT_NAMES_EN__) ? window.__RESORT_NAMES_EN__ : {};  // embedded or from data/resort-names-en.json
 function hasLatin(s){ return /[a-zA-Z]/.test(s||""); }
 // Common kanji/kana phrases in resort names → romaji (longer first so "白鳥高原" before "白鳥")
 const NAME_ROMAJI = [
@@ -502,13 +539,11 @@ function nameToRomajiForEn(name){
 }
 function displayNameEn(r){
   if(!r) return "";
-  // 英語版タイトルは必ず resort-names-en.json の値を使う
   if(resortNamesEn && resortNamesEn[r.id]) {
     return String(resortNamesEn[r.id]).trim();
   }
-  // 念のための保険（実際には到達しない想定）
   if(r.nameEn) return String(r.nameEn).trim();
-  return r.name||"";
+  return r.name || "";
 }
 
 // ─── Weather cache ─────────────────────────────────────────────
@@ -647,7 +682,7 @@ function fetchWeather(resort){
     : `https://api.open-meteo.com/v1/forecast?latitude=${resort.lat}&longitude=${resort.lng}`+
       (resort.elevation?.top != null ? `&elevation=${resort.elevation.top}` : "")+
       `&daily=snowfall_sum,wind_speed_10m_max,wind_direction_10m_dominant,wind_gusts_10m_max,temperature_2m_min,temperature_2m_max,precipitation_hours`+
-      `&hourly=wind_speed_850hPa,wind_direction_850hPa,snowfall,snow_depth`+
+      `&hourly=wind_speed_850hPa,wind_direction_850hPa,snowfall,snow_depth,precipitation_probability,rain,precipitation`+
       `&past_days=1&forecast_days=7&timezone=Asia%2FTokyo`;
 
   return fetch(url)
@@ -674,6 +709,12 @@ function fetchWeather(resort){
         }
         if(data.hourly?.snowfall) daily.hourly_snowfall = data.hourly.snowfall;
         if(data.hourly?.snow_depth) daily.hourly_snow_depth = data.hourly.snow_depth;
+        if(data.hourly?.precipitation_probability) daily.hourly_precip_prob = data.hourly.precipitation_probability;
+        if(data.hourly?.rain) daily.hourly_rain = data.hourly.rain;
+        else if(data.hourly?.precipitation && data.hourly?.snowfall) {
+          const prec = data.hourly.precipitation, snow = data.hourly.snowfall;
+          daily.hourly_rain = prec.map((p,i)=> Math.max(0, (p||0) - (snow[i]!=null ? snow[i] : 0)));
+        }
       }
       weatherCache[resort.id]=daily;
       lastDataUpdated = new Date();
@@ -1130,83 +1171,86 @@ function renderList(){
           </div>`;
         }).join("")+`</div></div>`;
 
-      // 選択日の時間帯別降雪：前日10h(5h×2)＋当日24h(5区間)＋翌日10h(5h×2)。新雪は「前日終了から降り続き」「ナイター後も」が重要なので前後を追加
+      // 選択日の時間帯別降雪：前日＋当日5区間＋翌日。雪・雨・混合を区間ごとに表示
       if(daily.hourly_snowfall&&Array.isArray(daily.hourly_snowfall)){
         const dayIdx = getDayIndex(daily, targetDayOffset);
         const base = dayIdx*24;
         const seg = (arr,a,b)=>{ let s=0; for(let i=a;i<b&&i<arr.length;i++) s+=(arr[i]||0); return s; };
-        // 前日 14-19時・19-24時（スキー終了〜就寝あたり）。今日選択時もAPIに前日があれば表示
-        let prevSegsCm = [];
-        let prevLabels = [];
+        const snowArr = daily.hourly_snowfall;
+        const rainArr = daily.hourly_rain||[];
+        let prevSegsCm = [], prevLabels = [], prevSnowMm = [], prevRainMm = [];
         if(dayIdx>=1){
-          const prevHours = daily.hourly_snowfall.slice((dayIdx-1)*24,(dayIdx-1)*24+24);
-          const pMm = [ seg(prevHours,14,19), seg(prevHours,19,24) ];
-          prevSegsCm = pMm.map(mm=>mm/10);
+          const prevSnowHours = snowArr.slice((dayIdx-1)*24,(dayIdx-1)*24+24);
+          const prevRainHours = rainArr.slice((dayIdx-1)*24,(dayIdx-1)*24+24);
+          prevSnowMm = [ seg(prevSnowHours,14,19), seg(prevSnowHours,19,24) ];
+          prevRainMm = [ seg(prevRainHours,14,19), seg(prevRainHours,19,24) ];
+          prevSegsCm = prevSnowMm.map(mm=>mm/10);
           prevLabels = ["Prev 14-19","Prev 19-24"];
         }
-        // 当日 0-5, 6-10, 11-15, 16-20, 21-24
-        const dayHours = daily.hourly_snowfall.slice(base,base+24);
-        const segsMm = [ seg(dayHours,0,5), seg(dayHours,5,10), seg(dayHours,10,15), seg(dayHours,15,20), seg(dayHours,20,24) ];
+        const daySnowHours = snowArr.slice(base,base+24);
+        const dayRainHours = rainArr.slice(base,base+24);
+        const segsSnowMm = [ seg(daySnowHours,0,5), seg(daySnowHours,5,10), seg(daySnowHours,10,15), seg(daySnowHours,15,20), seg(daySnowHours,20,24) ];
+        const segsRainMm = [ seg(dayRainHours,0,5), seg(dayRainHours,5,10), seg(dayRainHours,10,15), seg(dayRainHours,15,20), seg(dayRainHours,20,24) ];
         const dailySnowCm = getSnowfallAdjusted(daily,r,targetDayOffset);
-        const totalMm = segsMm.reduce((a,b)=>a+b,0);
+        const totalMm = segsSnowMm.reduce((a,b)=>a+b,0);
         let segsCm;
         if(totalMm>0 && dailySnowCm!=null && dailySnowCm>=0){
           const scale = (dailySnowCm*10)/totalMm;
-          segsCm = segsMm.map(mm=> (mm*scale)/10 );
+          segsCm = segsSnowMm.map(mm=> (mm*scale)/10 );
         } else {
-          segsCm = segsMm.map(mm=>mm/10);
+          segsCm = segsSnowMm.map(mm=>mm/10);
         }
         const labels = ["0-5h","6-10h","11-15h","16-20h","21-24h"];
-        // 翌日 0-5時・5-10時（ナイター後の続きなど）
-        let nextSegsCm = [];
-        let nextLabels = [];
+        let nextSegsCm = [], nextLabels = [], nextSnowMm = [], nextRainMm = [];
         if(dayIdx+1<(daily.hourly_snowfall.length/24)){
-          const nextHours = daily.hourly_snowfall.slice((dayIdx+1)*24,(dayIdx+1)*24+10);
-          const nMm = [ seg(nextHours,0,5), seg(nextHours,5,10) ];
-          nextSegsCm = nMm.map(mm=>mm/10);
+          const nextSnowHours = snowArr.slice((dayIdx+1)*24,(dayIdx+1)*24+10);
+          const nextRainHours = rainArr.slice((dayIdx+1)*24,(dayIdx+1)*24+10);
+          nextSnowMm = [ seg(nextSnowHours,0,5), seg(nextSnowHours,5,10) ];
+          nextRainMm = [ seg(nextRainHours,0,5), seg(nextRainHours,5,10) ];
+          nextSegsCm = nextSnowMm.map(mm=>mm/10);
           nextLabels = ["Next 0-5","Next 5-10"];
         }
         const totalDisplay = segsCm.reduce((a,b)=>a+b,0);
         const sumNote = dailySnowCm!=null && totalMm>0 ? `(day total ${totalDisplay.toFixed(1)}cm, scaled)` : (totalMm===0 && dailySnowCm>0 ? "(hourly N/A, daily only)" : "");
         const allCm = [...prevSegsCm,...segsCm,...nextSegsCm];
         const allLabels = [...prevLabels,...labels,...nextLabels];
+        const allSnowMm = [...prevSnowMm,...segsSnowMm,...nextSnowMm];
+        const allRainMm = [...prevRainMm,...segsRainMm,...nextRainMm];
         const scaleBase = allCm.length ? Math.max(...allCm, 0.1) : 0.1;
         const dayStartIdx = prevLabels.length;
         const nextStartIdx = prevLabels.length + 5;
         barsHtml+=`<div class="hourly-snow-wrap"><div class="hourly-snow-caption">${DLABELS[targetDayOffset]} hourly forecast snow ${sumNote}</div><div class="hourly-snow-bars">`+
           allCm.map((cm,i)=>{
-            const h = scaleBase>0 ? Math.max(1, Math.round((cm/scaleBase)*16)) : 1;
-            const txt = cm>=0.1 ? cm.toFixed(1) : "";
-            const extraClass = i===dayStartIdx ? " day-start" : (i===nextStartIdx ? " next-start" : "");
-
-            // 当日部分だけ、3時間ごとの降水タイプを計算
-            let kind = "none";
-            const stepHours = 3;
-            const blockIdx = i - dayStartIdx;
-            if(blockIdx>=0 && blockIdx<24/stepHours){
-              const baseHour = getDayIndex(daily,targetDayOffset)*24 + blockIdx*stepHours;
-              const snowArr = daily.hourly_snowfall;
-              const rainArr = daily.hourly_rain;
-              const from = baseHour;
-              const to = baseHour + stepHours;
-              const snows = snowArr ? snowArr.slice(from,to).filter(v=>v!=null) : [];
-              const rains = rainArr ? rainArr.slice(from,to).filter(v=>v!=null) : [];
-              const snowAvg = snows.length ? snows.reduce((a,b)=>a+b,0)/snows.length : 0;
-              const rainAvg = rains.length ? rains.reduce((a,b)=>a+b,0)/rains.length : 0;
-              if(rainAvg>0.1 && snowAvg<0.1) kind="rain";
-              else if(snowAvg>=0.1 && rainAvg<0.1) kind="snow";
-              else if(snowAvg>=0.1 && rainAvg>0.1) kind="mixed";
-            }
+            const snowMm = allSnowMm[i]||0;
+            const rainMm = allRainMm[i]||0;
+            const totalWater = snowMm + rainMm;
+            const rainRatio = totalWater > 0 ? rainMm / totalWater : 0;
             let icon = "";
-            if(kind==="snow") icon="❄";
-            else if(kind==="rain") icon="🌧";
-            else if(kind==="mixed") icon="❄🌧";
-            const kindClass = kind!=="none" ? ` bar-${kind}` : "";
-
-            return `<div class="hourly-snow-bar${extraClass}${kindClass}" title="${allLabels[i]}: ${cm>=0.1?cm.toFixed(1):"0"}cm">
+            if(totalWater >= 0.1){
+              if(rainRatio > 0.7) icon = "🌧";
+              else if(rainRatio > 0.3) icon = "❄🌧";
+              else if(snowMm > 0) icon = "❄";
+              else icon = "🌧";
+            }
+            const displayCm = cm >= 0.1 ? cm : (icon ? 0.1 : 0);
+            const h = scaleBase>0 ? Math.max(icon ? 2 : 1, Math.round((displayCm/scaleBase)*16)) : (icon ? 2 : 1);
+            const txt = cm>=0.1 ? cm.toFixed(1) : (icon && cm<0.1 ? (rainMm>=0.1 ? rainMm.toFixed(1)+"mm" : "") : "");
+            const extraClass = i===dayStartIdx ? " day-start" : (i===nextStartIdx ? " next-start" : "");
+            const kindClass = icon ? (icon==="🌧" ? " bar-rain" : icon==="❄🌧" ? " bar-mixed" : " bar-snow") : "";
+            const snowBaseColor = snowColor(Math.max(cm,0.1));
+            let fillStyle;
+            if(totalWater>0 && rainRatio>0.3){
+              const frac = Math.min(0.9, Math.max(0.1, rainRatio));
+              const stop = Math.round(frac*100);
+              fillStyle = `background:linear-gradient(to top,#3b82f6 0%,#3b82f6 ${stop}%,${snowBaseColor} ${stop}%,${snowBaseColor} 100%)`;
+            } else {
+              fillStyle = `background:${snowBaseColor}`;
+            }
+            const titleStr = totalWater>=0.1 ? `${allLabels[i]}: snow ${snowMm.toFixed(1)}cm eq · rain ${rainMm.toFixed(1)}mm` : allLabels[i];
+            return `<div class="hourly-snow-bar${extraClass}${kindClass}" title="${titleStr}">
               <div class="hourly-snow-bar-bg">
                 ${icon?`<span class="hourly-snow-icon">${icon}</span>`:""}
-                <div class="hourly-snow-bar-fill" style="height:${h}px;background:${snowColor(cm)}"></div>
+                <div class="hourly-snow-bar-fill" style="height:${h}px;${fillStyle}"></div>
                 <div class="hourly-snow-bar-val">${txt}</div>
               </div>
               <div class="hourly-snow-bar-label">${allLabels[i]}</div>
@@ -1432,25 +1476,25 @@ function selectResort(id, opts){
   contentHtml+=`<div class="popup-btns"><button class="popup-btn popup-btn-primary" onclick="scrollToCard(${id})">Details</button>${gmBtn}${urlBtn}</div>`;
 
   const popupMaxW = (typeof window!=="undefined"&&window.innerWidth<=700) ? 280 : 260;
-  currentPopup=L.popup({closeButton:true,maxWidth:popupMaxW}).setLatLng([r.lat,r.lng]).setContent(contentHtml).openOn(map);
-  if(!noMove){
-    map.flyTo([r.lat,r.lng],Math.max(map.getZoom(),10),{duration:0.7});
-    // ポップアップが画面上部で切れないよう、少し上にずらす
-    if(!noPan){
-      setTimeout(function(){ try{ map.panBy([0,-100]); }catch(e){} },750);
-    }
-    // ポップアップが画面外にはみ出ていないか補正（マップ表示直後など）
-    setTimeout(function panToShowPopup(){
-      if(!currentPopup||!map.hasLayer(currentPopup)) return;
-      const popupEl=document.querySelector(".leaflet-popup");
-      const mapEl=map.getContainer();
-      if(!popupEl||!mapEl) return;
-      const pr=popupEl.getBoundingClientRect(), mr=mapEl.getBoundingClientRect();
-      let dy=0;
-      if(pr.top<mr.top) dy=mr.top-pr.top;
-      else if(pr.bottom>mr.bottom) dy=mr.bottom-pr.bottom;
-      if(dy!==0) try{ map.panBy([0,dy]); }catch(e){}
-    },900);
+  const latlng = [r.lat,r.lng];
+  const openPopup = function(){
+    if(!map) return;
+    currentPopup=L.popup({
+      closeButton:true,
+      maxWidth:popupMaxW,
+      autoPan:true,
+      autoPanPaddingTopLeft:[0,40],
+      autoPanPaddingBottomRight:[0,40]
+    }).setLatLng(latlng).setContent(contentHtml).openOn(map);
+  };
+
+  if(noMove){
+    openPopup();
+  } else {
+    const targetZoom = Math.max(map.getZoom(),10);
+    // フライ完了後に 1 回だけポップアップを開き、Leaflet の autoPan に任せる
+    map.once("moveend",openPopup);
+    map.flyTo(latlng,targetZoom,{duration:0.7});
   }
   renderList();
   setTimeout(()=>scrollToCard(id),100);
@@ -1704,26 +1748,22 @@ document.getElementById("view-map").style.display="none";
     fetch("data/resort-names-en.json").then(function(r){ return r.ok?r.json():Promise.reject(); }).catch(function(){ return null; })
   ]).then(function(arr){
     var obj=arr[0], jma=arr[1], resortSnow=arr[2], liftTimes=arr[3], operating=arr[4], namesEn=arr[5];
-    if(obj&&typeof obj==="object"){ let n=0; for(var id in obj) if(obj[id]){ weatherCache[id]=obj[id]; n++; } if(n>0){ document.getElementById("fetched-count").textContent=Object.values(weatherCache).filter(v=>v&&v!=="loading").length; renderTop10(); renderList(); } }
-    if(jma&&typeof jma==="object"){ jmaSnowCache=jma; }
-    if(resortSnow&&typeof resortSnow==="object"){ resortSnowCache=resortSnow; }
-    if(liftTimes&&typeof liftTimes==="object"){ liftTimesCache=liftTimes; }
-    if(operating&&typeof operating==="object"){ operatingCache=operating; }
+    // Apply English names first so displayNameEn() is correct on first paint
     if(namesEn&&typeof namesEn==="object"){
       for(var k in namesEn){
         if(!namesEn[k]) continue;
         var id=parseInt(k,10);
         resortNamesEn[id]=namesEn[k];
-        // RESORTS 側にも英語名を保持し、name も英語で上書きする
         var rr = RESORT_MAP[id];
-        if(rr){
-          rr.nameEn = namesEn[k];
-          rr.name  = namesEn[k];
-        }
+        if(rr){ rr.nameEn = namesEn[k]; }
       }
-      renderList();
     }
-    if(jma||resortSnow||operating) renderList();
+    if(jma&&typeof jma==="object"){ jmaSnowCache=jma; }
+    if(resortSnow&&typeof resortSnow==="object"){ resortSnowCache=resortSnow; }
+    if(liftTimes&&typeof liftTimes==="object"){ liftTimesCache=liftTimes; }
+    if(operating&&typeof operating==="object"){ operatingCache=operating; }
+    if(obj&&typeof obj==="object"){ var n=0; for(var id in obj) if(obj[id]){ weatherCache[id]=obj[id]; n++; } if(n>0){ var el=document.getElementById("fetched-count"); if(el) el.textContent=Object.values(weatherCache).filter(function(v){ return v&&v!=="loading"; }).length; renderTop10(); } }
+    renderList();
   })
   .catch(function(){})
   .finally(function(){

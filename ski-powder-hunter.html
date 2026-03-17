@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>JapawSearch</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=DM+Serif+Display:ital@0;1&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -18,10 +18,11 @@
   --wind-calm:#4dd9c4;--wind-light:#7ecb8a;--wind-mod:#f5a623;--wind-strong:#e05c6a;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:"Noto Sans JP",sans-serif;background:var(--navy);color:var(--text);height:100vh;overflow:hidden;display:flex;flex-direction:column}
+body{font-family:"Noto Sans JP",sans-serif;background:var(--navy);color:var(--text);height:100vh;min-height:100dvh;overflow:hidden;overflow-x:hidden;display:flex;flex-direction:column}
 
-/* Header */
-header{background:var(--navy);border-bottom:1px solid var(--border);padding:0 16px;height:52px;display:flex;align-items:center;justify-content:space-between;z-index:1000;flex-shrink:0}
+/* Header: ノッチ/Dynamic Island は飾り幕のみ。タッチ操作はその下に配置 */
+header{background:var(--navy);border-bottom:1px solid var(--border);padding:0 max(16px,env(safe-area-inset-left)) 0 max(16px,env(safe-area-inset-right));padding-top:env(safe-area-inset-top);min-height:calc(52px + env(safe-area-inset-top));display:flex;align-items:flex-end;justify-content:center;z-index:1000;flex-shrink:0}
+header .header-inner{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:52px}
 .logo{display:flex;align-items:center;gap:8px}
 .logo-main{font-family:"DM Serif Display",serif;font-size:20px;color:#fff;letter-spacing:1px}
 .logo-tag{display:none}
@@ -292,23 +293,40 @@ header{background:var(--navy);border-bottom:1px solid var(--border);padding:0 16
 .header-link{font-size:12px;color:var(--accent);text-decoration:none;margin-right:8px}
 .header-link:hover{text-decoration:underline}
 .view-map{height:calc(100vh - 52px);display:flex;flex-direction:column;overflow:hidden}
-.view-map .main{flex:1}
+.view-map .main{flex:1;min-width:0}
 .map-mobile-back{display:none;position:absolute;z-index:950;left:10px;top:60px;padding:6px 10px;border-radius:999px;border:1px solid var(--border);background:rgba(11,22,40,.9);color:var(--text-dim);font-size:11px;font-family:\"Noto Sans JP\",sans-serif}
 
+@media(max-width:900px){
+  .sidebar{width:300px;min-width:280px}
+  .map-overlay{left:320px;font-size:10px;padding:8px 10px}
+}
 @media(max-width:700px){
   /* マップ画面はスマホではフルスクリーンに近い形で表示し、サイドバーは非表示 */
   #view-map .sidebar{display:none}
-  #map{flex:1;min-height:calc(100vh - 58px)}
+  #map{flex:1;min-height:calc(100vh - 58px);min-height:calc(100dvh - 58px)}
   .map-overlay{display:none}
-  .view-top{padding:20px 12px 24px}
+  .view-top{padding:16px 12px 24px;padding-left:max(12px,env(safe-area-inset-left));padding-right:max(12px,env(safe-area-inset-right));padding-bottom:max(24px,env(safe-area-inset-bottom))}
   .view-top .top-title{font-size:24px}
-  /* iPhone 等でノッチやブラウザUIと被らないよう、ヘッダーを少し下げる */
-  header{padding-top:6px;height:58px}
-  .view-map{height:calc(100vh - 58px)}
-  /* 目標地点ポップアップ: スマホでコンパクトに（触っても閉じない・中はクリック可） */
-  .leaflet-popup-content-wrapper{max-width:92vw!important}
-  .leaflet-popup-content{margin:8px 10px!important;min-width:0!important;max-height:45vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
-  .popup-name{font-size:12px;margin-bottom:1px}
+  .view-top .top-lead{font-size:12px}
+  .view-top .top-date-wrap .date-btns{gap:4px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .view-top .top-date-wrap .date-btns::-webkit-scrollbar{display:none}
+  .view-top .top-date-wrap .date-btn{min-width:44px;flex:0 0 auto}
+  .view-top .top-card{flex-wrap:wrap;gap:10px;padding:12px}
+  .view-top .top-card-body{min-width:0}
+  .view-top .top-card-name{font-size:13px;word-break:keep-all;overflow-wrap:break-word}
+  .view-top .top-card-meta{font-size:12px;gap:8px}
+  .view-top .top-card-score-num{font-size:22px}
+  .view-top .top-cta-wrap{padding-top:16px;margin-top:20px}
+  .view-top .top-cta-btn{width:100%;max-width:100%;padding:12px 16px;font-size:13px;min-height:44px}
+  /* ノッチ上は飾り幕のみ。操作エリアはその下 */
+  header .header-inner{min-height:58px}
+  header{min-height:calc(58px + env(safe-area-inset-top))}
+  .view-map{height:calc(100dvh - 58px - env(safe-area-inset-top))}
+  .map-mobile-back{display:inline-flex;align-items:center;gap:4px;top:calc(58px + env(safe-area-inset-top) + 6px);left:max(10px,env(safe-area-inset-left));min-height:40px;padding:8px 14px;pointer-events:auto}
+  /* 目標地点ポップアップ: スマホでコンパクトに */
+  .leaflet-popup-content-wrapper{max-width:min(92vw,320px)!important}
+  .leaflet-popup-content{margin:8px 10px!important;min-width:0!important;max-height:50vh;max-height:50dvh;overflow-y:auto;-webkit-overflow-scrolling:touch}
+  .popup-name{font-size:12px;margin-bottom:1px;word-break:keep-all;overflow-wrap:break-word}
   .popup-pref{font-size:9px;margin-bottom:4px}
   .popup-pw{margin-bottom:4px}
   .popup-pw-num{font-size:18px}
@@ -316,25 +334,46 @@ header{background:var(--navy);border-bottom:1px solid var(--border);padding:0 16
   .popup-detail-row{font-size:10px;margin-bottom:2px;flex-wrap:wrap}
   .popup-nearby{margin-top:8px;padding-top:6px}
   .popup-nearby-title{font-size:9px;margin-bottom:4px}
-  .popup-nearby-item{font-size:10px;margin-bottom:4px;padding:6px 6px}
+  .popup-nearby-item{font-size:10px;margin-bottom:4px;padding:6px}
   .popup-nearby-item span:last-child{font-size:9px}
   .popup-btns{margin-top:8px;gap:4px;flex-wrap:wrap}
-  .popup-btn{padding:6px 8px;font-size:10px}
-  .map-mobile-back{display:inline-flex;align-items:center;gap:4px}
+  .popup-btn{padding:8px 10px;font-size:10px;min-height:40px}
+  .popup-feedback-btn{min-height:36px}
+}
+@media(max-width:480px){
+  .view-top .top-title{font-size:20px}
+  .view-top .top-card-rank{font-size:16px;width:24px}
+  .view-top .top-card-name{font-size:12px}
+  .logo-main{font-size:16px}
+  .header-right{gap:6px}
+  .live-badge{font-size:9px}
+  .pw-card{padding:10px}
+  .pw-name{font-size:12px;word-break:keep-all;overflow-wrap:break-word}
+  .pw-card-header{flex-wrap:wrap;gap:6px}
+  .hourly-snow-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:thin;margin:0 -4px}
+  .hourly-snow-bars{min-width:min-content;padding:0 4px}
+  .hourly-snow-bar{min-width:28px;flex:0 0 auto}
+  .hourly-snow-bar-label{font-size:6px}
+  .snow-bars{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .snow-bar-wrap{min-width:32px;flex:0 0 auto}
+  .weather-row{gap:6px;font-size:10px}
+  .weather-badge{font-size:10px;padding:2px 6px}
 }
 </style>
 </head>
 <body>
 
 <header>
-  <div class="logo">
-    <span class="logo-main">JapawSearch</span>
-    <span class="logo-tag"></span>
-  </div>
-  <div class="header-right">
-    <a href="ski-powder-hunter-en.html" class="header-link" title="English version">EN</a>
-    <a href="#" class="header-link" id="link-to-top" style="display:none">トップ</a>
-    <div class="live-badge"><div class="live-dot"></div> Open-Meteo リアルタイム</div>
+  <div class="header-inner">
+    <div class="logo">
+      <span class="logo-main">JapawSearch</span>
+      <span class="logo-tag"></span>
+    </div>
+    <div class="header-right">
+      <a href="ski-powder-hunter-en.html" class="header-link" title="English version">EN</a>
+      <a href="#" class="header-link" id="link-to-top" style="display:none">トップ</a>
+      <div class="live-badge"><div class="live-dot"></div> Open-Meteo リアルタイム</div>
+    </div>
   </div>
 </header>
 
@@ -610,7 +649,7 @@ function fetchWeather(resort){
     : `https://api.open-meteo.com/v1/forecast?latitude=${resort.lat}&longitude=${resort.lng}`+
       (resort.elevation?.top != null ? `&elevation=${resort.elevation.top}` : "")+
       `&daily=snowfall_sum,wind_speed_10m_max,wind_direction_10m_dominant,wind_gusts_10m_max,temperature_2m_min,temperature_2m_max,precipitation_hours`+
-      `&hourly=wind_speed_850hPa,wind_direction_850hPa,snowfall,snow_depth,precipitation_probability,rain`+
+      `&hourly=wind_speed_850hPa,wind_direction_850hPa,snowfall,snow_depth,precipitation_probability,rain,precipitation`+
       `&past_days=1&forecast_days=7&timezone=Asia%2FTokyo`;
 
   return fetch(url)
@@ -639,6 +678,10 @@ function fetchWeather(resort){
         if(data.hourly?.snow_depth) daily.hourly_snow_depth = data.hourly.snow_depth;
         if(data.hourly?.precipitation_probability) daily.hourly_precip_prob = data.hourly.precipitation_probability;
         if(data.hourly?.rain) daily.hourly_rain = data.hourly.rain;
+        else if(data.hourly?.precipitation && data.hourly?.snowfall) {
+          const prec = data.hourly.precipitation, snow = data.hourly.snowfall;
+          daily.hourly_rain = prec.map((p,i)=> Math.max(0, (p||0) - (snow[i]!=null ? snow[i] : 0)));
+        }
       }
       weatherCache[resort.id]=daily;
       lastDataUpdated = new Date();
@@ -1186,28 +1229,32 @@ function renderList(){
         const nextStartIdx = prevLabels.length + 5;
         barsHtml+=`<div class="hourly-snow-wrap"><div class="hourly-snow-caption">${DLABELS[targetDayOffset]}の前後＋時間帯別予想降雪 ${sumNote}</div><div class="hourly-snow-bars">`+
           allCm.map((cm,i)=>{
-            const h = scaleBase>0 ? Math.max(1, Math.round((cm/scaleBase)*16)) : 1;
-            const txt = cm>=0.1 ? cm.toFixed(1) : "";
-            const extraClass = i===dayStartIdx ? " day-start" : (i===nextStartIdx ? " next-start" : "");
             const snowMm = allSnowMm[i]||0;
             const rainMm = allRainMm[i]||0;
-            const totalMmSeg = snowMm+rainMm;
-            const snowBaseColor = snowColor(cm);
+            const totalWater = snowMm + rainMm;
+            const rainRatio = totalWater > 0 ? rainMm / totalWater : 0;
+            let icon = "";
+            if(totalWater >= 0.1){
+              if(rainRatio > 0.7) icon = "🌧";
+              else if(rainRatio > 0.3) icon = "❄🌧";
+              else if(snowMm > 0) icon = "❄";
+              else icon = "🌧";
+            }
+            const displayCm = cm >= 0.1 ? cm : (icon ? 0.1 : 0);
+            const h = scaleBase>0 ? Math.max(icon ? 2 : 1, Math.round((displayCm/scaleBase)*16)) : (icon ? 2 : 1);
+            const txt = cm>=0.1 ? cm.toFixed(1) : (icon && cm<0.1 ? (rainMm>=0.1 ? rainMm.toFixed(1)+"mm" : "") : "");
+            const extraClass = i===dayStartIdx ? " day-start" : (i===nextStartIdx ? " next-start" : "");
+            const snowBaseColor = snowColor(Math.max(cm,0.1));
             let fillStyle;
-            if(totalMmSeg>0 && rainMm/totalMmSeg>0.3){
-              const frac = Math.min(0.9, Math.max(0.1, rainMm/totalMmSeg));
+            if(totalWater>0 && rainRatio>0.3){
+              const frac = Math.min(0.9, Math.max(0.1, rainRatio));
               const stop = Math.round(frac*100);
               fillStyle = `background:linear-gradient(to top,#3b82f6 0%,#3b82f6 ${stop}%,${snowBaseColor} ${stop}%,${snowBaseColor} 100%)`;
             } else {
               fillStyle = `background:${snowBaseColor}`;
             }
-            let icon = "";
-            if(totalMmSeg>0){
-              if(rainMm/totalMmSeg>0.7) icon="🌧";
-              else if(rainMm/totalMmSeg>0.3) icon="❄🌧";
-              else if(snowMm>0) icon="❄";
-            }
-            return `<div class="hourly-snow-bar${extraClass}" title="${allLabels[i]}: ${cm>=0.1?cm.toFixed(1):"0"}cm">
+            const titleStr = totalWater>=0.1 ? `${allLabels[i]}: 雪${snowMm.toFixed(1)}cm 雨${rainMm.toFixed(1)}mm` : allLabels[i];
+            return `<div class="hourly-snow-bar${extraClass}" title="${titleStr}">
               <div class="hourly-snow-bar-bg">
                 ${icon?`<span class="hourly-snow-icon">${icon}</span>`:""}
                 <div class="hourly-snow-bar-fill" style="height:${h}px;${fillStyle}"></div><div class="hourly-snow-bar-val">${txt}</div></div>
@@ -1473,25 +1520,25 @@ function selectResort(id, opts){
   contentHtml+=`<div class="popup-btns"><button class="popup-btn popup-btn-primary" onclick="scrollToCard(${id})">詳細確認</button>${gmBtn}${urlBtn}</div>`;
 
   const popupMaxW = (typeof window!=="undefined"&&window.innerWidth<=700) ? 280 : 260;
-  currentPopup=L.popup({closeButton:true,maxWidth:popupMaxW}).setLatLng([r.lat,r.lng]).setContent(contentHtml).openOn(map);
-  if(!noMove){
-    map.flyTo([r.lat,r.lng],Math.max(map.getZoom(),10),{duration:0.7});
-    // ポップアップが画面上部で切れないよう、少し上にずらす
-    if(!noPan){
-      setTimeout(function(){ try{ map.panBy([0,-100]); }catch(e){} },750);
-    }
-    // ポップアップが画面外にはみ出ていないか補正（マップ表示直後など）
-    setTimeout(function panToShowPopup(){
-      if(!currentPopup||!map.hasLayer(currentPopup)) return;
-      const popupEl=document.querySelector(".leaflet-popup");
-      const mapEl=map.getContainer();
-      if(!popupEl||!mapEl) return;
-      const pr=popupEl.getBoundingClientRect(), mr=mapEl.getBoundingClientRect();
-      let dy=0;
-      if(pr.top<mr.top) dy=mr.top-pr.top;
-      else if(pr.bottom>mr.bottom) dy=mr.bottom-pr.bottom;
-      if(dy!==0) try{ map.panBy([0,dy]); }catch(e){}
-    },900);
+  const latlng = [r.lat,r.lng];
+  const openPopup = function(){
+    if(!map) return;
+    currentPopup=L.popup({
+      closeButton:true,
+      maxWidth:popupMaxW,
+      autoPan:true,
+      autoPanPaddingTopLeft:[0,40],
+      autoPanPaddingBottomRight:[0,40]
+    }).setLatLng(latlng).setContent(contentHtml).openOn(map);
+  };
+
+  if(noMove){
+    openPopup();
+  } else {
+    const targetZoom = Math.max(map.getZoom(),10);
+    // フライ完了後に 1 回だけポップアップを開き、Leaflet の autoPan に任せる
+    map.once("moveend",openPopup);
+    map.flyTo(latlng,targetZoom,{duration:0.7});
   }
   renderList();
   setTimeout(()=>scrollToCard(id),100);
