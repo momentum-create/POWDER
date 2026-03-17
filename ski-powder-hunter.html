@@ -204,6 +204,9 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
 .popup-pw-num{font-family:"Space Mono",monospace;font-size:24px;font-weight:700}
 .popup-pw-label{font-size:10px}
 .popup-detail-row{font-size:11px;color:var(--text-dim);margin-bottom:3px;display:flex;align-items:center;gap:4px}
+.popup-nav{display:flex;justify-content:space-between;gap:8px;margin-bottom:10px}
+.popup-nav-btn{flex:1;min-height:36px;padding:6px 10px;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,.08);color:var(--text);font-family:"Noto Sans JP",sans-serif;font-size:11px;cursor:pointer;transition:opacity .2s}
+.popup-nav-btn:hover{opacity:.9}
 .popup-btns{display:flex;gap:6px;margin-top:10px}
 .popup-btn{flex:1;padding:7px;border:none;border-radius:8px;font-family:"Noto Sans JP",sans-serif;font-size:11px;font-weight:700;cursor:pointer;transition:opacity .2s;text-decoration:none;text-align:center;display:block}
 .popup-btn-primary{background:var(--accent);color:var(--navy)}
@@ -213,6 +216,13 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
 .popup-feedback-btn{flex:1;min-width:0;padding:4px 6px;border-radius:6px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:var(--text-dim);font-size:9px;cursor:pointer;text-align:center}
 .popup-feedback-btn:hover{background:rgba(255,255,255,.12);color:var(--text)}
 .popup-nearby{margin-top:12px;padding-top:10px;border-top:1px solid var(--border)}
+.popup-nearby-header{font-size:10px;color:var(--text-dim);font-family:"Space Mono",monospace;letter-spacing:1px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:6px;padding:2px 0;user-select:none;-webkit-tap-highlight-color:transparent}
+.popup-nearby-header:hover{color:var(--text)}
+.popup-nearby-chevron{display:inline-block;transition:transform .2s ease;flex-shrink:0;opacity:.8}
+.popup-nearby .popup-nearby-chevron{transform:rotate(-90deg)}
+.popup-nearby.is-expanded .popup-nearby-chevron{transform:rotate(0deg)}
+.popup-nearby-body{max-height:0;overflow:hidden;transition:max-height .25s ease-out}
+.popup-nearby.is-expanded .popup-nearby-body{max-height:220px;margin-top:6px}
 .popup-nearby-title{font-size:10px;color:var(--text-dim);font-family:"Space Mono",monospace;letter-spacing:1px;margin-bottom:6px}
 .popup-nearby-item{font-size:11px;margin-bottom:5px;display:flex;justify-content:space-between;align-items:center;gap:8px;cursor:pointer;padding:4px 6px;border-radius:6px;transition:background .15s}
 .popup-nearby-item:hover{background:rgba(255,255,255,.06)}
@@ -266,6 +276,9 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
 .view-top .top-date-wrap .date-label{font-size:10px;color:var(--text-dim);letter-spacing:2px;font-family:"Space Mono",monospace;margin-bottom:6px}
 .view-top .top-date-wrap .date-btns{display:flex;gap:6px;flex-wrap:wrap;overflow-x:auto;padding-bottom:2px}
 .view-top .top-date-wrap .date-btn{flex:1;min-width:52px}
+.top-region-pills{display:flex;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:thin;padding-bottom:4px;margin-bottom:8px}
+.top-region-pills::-webkit-scrollbar{height:4px}
+.top-region-pills .region-pill{flex-shrink:0}
 .view-top .top-sub{font-size:11px;color:var(--accent);font-family:"Space Mono",monospace;margin-top:14px;margin-bottom:4px}
 .view-top .top-updated{font-size:10px;color:var(--text-dim);font-family:"Space Mono",monospace;margin-bottom:12px}
 .view-top .top-ten-wrap{flex:1}
@@ -385,6 +398,17 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
     <div class="top-date-wrap">
       <div class="date-label">ターゲット日</div>
       <div class="date-btns" id="top-date-btns"></div>
+    </div>
+    <div class="top-region-pills region-pills" id="top-region-pills">
+      <div class="region-pill active" data-region="all">全国</div>
+      <div class="region-pill" data-region="hokkaido">北海道</div>
+      <div class="region-pill" data-region="tohoku">東北</div>
+      <div class="region-pill" data-region="niigata">新潟</div>
+      <div class="region-pill" data-region="nagano">長野</div>
+      <div class="region-pill" data-region="chubu">中部</div>
+      <div class="region-pill" data-region="kanto">関東</div>
+      <div class="region-pill" data-region="kansai">関西</div>
+      <div class="region-pill" data-region="chugoku">中国・四国</div>
     </div>
     <p class="top-sub" id="top-sub">選択日のパウダースコア TOP10</p>
     <p class="top-updated" id="top-updated"></p>
@@ -556,6 +580,8 @@ function formatOperatingPeriod(open, close){
 // ─── State ─────────────────────────────────────────────────────
 let targetDayOffset = 3;  // default: 3 days from now
 let activeRegion = "all";
+let topActiveRegion = "all";  // トップ画面用エリア絞り
+const REGION_LABELS = { all:"全国", hokkaido:"北海道", tohoku:"東北", niigata:"新潟", nagano:"長野", chubu:"中部", kanto:"関東", kansai:"関西", chugoku:"中国・四国" };
 let searchQuery = "";
 let sortMode = "powder";
 let selectedId = null;
@@ -564,6 +590,17 @@ let currentPopup = null;
 let mapShowAll = false;  // false=地図は注目のみ, true=全ゲレンデ表示
 
 // ─── Dates ─────────────────────────────────────────────────────
+function setTargetDayOffset(offset){
+  const n = parseInt(offset);
+  if(Number.isNaN(n) || n<0 || n>6) return;
+  if(n===targetDayOffset) return;
+  targetDayOffset = n;
+  syncDateButtonsActive();
+  renderTop10();
+  renderList();
+  refreshMarkers();
+}
+
 function getDates(){
   const today = new Date();
   const dates = [];
@@ -608,7 +645,7 @@ function renderDateButtonsInto(containerId){
     const dd = d.getDate().toString().padStart(2,"0");
     const snowCm = getRegionSnowfallForDay(i);
     const isZero = snowCm==null || snowCm===0;
-    const snowHtml = !isZero ? `<span class="date-snow">❄${snowCm}cm</span>` : `<span class="date-snow">—</span>`;
+    const snowHtml = !isZero ? `<span class="date-snow">❄${snowCm}cm</span>` : `<span class::"date-snow">—</span>`;
     const extraClass = isZero ? " zero" : "";
     return `<button class="date-btn${i===targetDayOffset?" active":""}${extraClass}" data-offset="${i}">
       <span class="date-num">${mm}/${dd}</span>
@@ -618,10 +655,7 @@ function renderDateButtonsInto(containerId){
   }).join("");
   container.querySelectorAll(".date-btn").forEach(btn=>{
     btn.addEventListener("click",()=>{
-      targetDayOffset = parseInt(btn.dataset.offset);
-      syncDateButtonsActive();
-      renderTop10();
-      renderList();
+      setTargetDayOffset(btn.dataset.offset);
     });
   });
 }
@@ -1060,7 +1094,12 @@ function getFiltered(){
 // ─── Top 10 ranking (トップ用) ─────────────────────────────────
 // マップと同一: 取得済みの全ゲレンデからパウダースコアでTOP10を算出（注目40件に限定しない）
 function renderTop10(){
-  const withData = RESORTS.filter(r=>{
+  const regionFiltered = RESORTS.filter(r=>{
+    if(topActiveRegion==="all") return true;
+    if(topActiveRegion==="chugoku") return r.region==="chugoku"||r.region==="shikoku";
+    return r.region===topActiveRegion;
+  });
+  const withData = regionFiltered.filter(r=>{
     const d = weatherCache[r.id];
     return d&&d!=="loading"&&d.snowfall_sum;
   });
@@ -1074,9 +1113,10 @@ function renderTop10(){
   const dates = getDates();
   const d = dates[targetDayOffset];
   const dateStr = `${d.getMonth()+1}月${d.getDate()}日`;
+  const regionLabel = REGION_LABELS[topActiveRegion]||"全国";
   const loading = Object.values(weatherCache).some(v=>v==="loading");
   const subEl = document.getElementById("top-sub");
-  if(subEl) subEl.textContent = `${dateStr}のパウダースコア TOP10`;
+  if(subEl) subEl.textContent = `${dateStr}のパウダースコア TOP10（${regionLabel}）`;
 
   const updEl = document.getElementById("top-updated");
   if(updEl){
@@ -1412,6 +1452,11 @@ window._pnTab=function(btn){
   wrap.querySelectorAll(".popup-nearby-panel").forEach(function(p){ p.style.display=p.getAttribute("data-panel")===tab?"block":"none"; });
 };
 
+function togglePopupNearby(){
+  const el = document.getElementById("popup-nearby-section");
+  if(el) el.classList.toggle("is-expanded");
+}
+
 // ─── Select resort ─────────────────────────────────────────────
 function selectResort(id, opts){
   opts = opts || {};
@@ -1420,6 +1465,10 @@ function selectResort(id, opts){
   selectedId=id;
   const r=RESORT_MAP[id];
   if(!r) return;
+  const filtered = getFiltered();
+  const currentIndex = filtered.findIndex(rr=>rr.id===id);
+  const prevId = currentIndex > 0 ? filtered[currentIndex - 1].id : null;
+  const nextId = currentIndex >= 0 && currentIndex < filtered.length - 1 ? filtered[currentIndex + 1].id : null;
   if(markers[id] && !map.hasLayer(markers[id])) markers[id].addTo(map);
   if(currentPopup) map.closePopup(currentPopup);
 
@@ -1447,7 +1496,8 @@ function selectResort(id, opts){
   const liftStart = r.liftStart || (typeof liftTimesCache[r.id]!=="undefined" ? liftTimesCache[r.id] : null);
   const operating = getResortOperating(r);
   const inSeason = isResortInSeason(r);
-  let contentHtml=`<div class="popup-name">${r.name}</div><div class="popup-pref">${r.pref} · TOP ${r.elevation.top}m</div>`;
+  const popupNavHtml = `<div class="popup-nav">${prevId!=null?`<button type="button" class="popup-nav-btn" onclick="selectResort(${prevId},{noMove:true})">← 前</button>`:""}${nextId!=null?`<button type="button" class="popup-nav-btn" onclick="selectResort(${nextId},{noMove:true})">次 →</button>`:""}</div>`;
+  let contentHtml=popupNavHtml+`<div class="popup-name">${r.name}</div><div class="popup-pref">${r.pref} · TOP ${r.elevation.top}m</div>`;
   if(operating){
     const periodStr = formatOperatingPeriod(operating.open, operating.close);
     contentHtml+=`<div class="popup-detail-row popup-operating-row">📅 営業期間 <strong>${periodStr}</strong>${!inSeason?' <span class="badge-closed">営業期間外</span>':""}</div>`;
@@ -1495,7 +1545,7 @@ function selectResort(id, opts){
   }
 
   if(nearbyList.length>0){
-    contentHtml+=`<div class="popup-nearby"><div class="popup-nearby-title">車で近いゲレンデ（今日の予報）</div>`;
+    contentHtml+=`<div class="popup-nearby" id="popup-nearby-section"><div class="popup-nearby-header" onclick="togglePopupNearby()" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' ')togglePopupNearby()">車で近いゲレンデ（今日の予報）<span class="popup-nearby-chevron" aria-hidden="true">▼</span></div><div class="popup-nearby-body">`;
     nearbyList.forEach(function(n){
       const other=RESORT_MAP[n.id];
       const name=other?other.name:"?";
@@ -1507,7 +1557,7 @@ function selectResort(id, opts){
       const groupIds = [id].concat(nearbyList.map(x=>x.id));
       contentHtml+=`<div class="popup-nearby-item" onclick="selectResortGroup(${n.id},[${groupIds.join(",")}])"><span>${name}</span><span>${snowTxt} · 約${n.km}km</span></div>`;
     });
-    contentHtml+=`</div>`;
+    contentHtml+=`</div></div>`;
   }
   // おすすめショップは今のところ北海道だけに表示（本州は一旦非表示）
   if(r.region==="hokkaido"){
@@ -1644,9 +1694,19 @@ function refreshMarkers(){
 }
 
 // ─── Events ────────────────────────────────────────────────────
-document.querySelectorAll(".region-pill").forEach(p=>{
+document.querySelectorAll("#top-region-pills .region-pill").forEach(p=>{
   p.addEventListener("click",()=>{
-    document.querySelectorAll(".region-pill").forEach(x=>x.classList.remove("active"));
+    document.querySelectorAll("#top-region-pills .region-pill").forEach(x=>x.classList.remove("active"));
+    p.classList.add("active");
+    topActiveRegion = p.dataset.region;
+    renderTop10();
+  });
+});
+document.querySelectorAll(".region-pill").forEach(p=>{
+  if(p.closest("#top-region-pills")) return;
+  p.addEventListener("click",()=>{
+    const container = p.closest(".region-pills");
+    if(container) container.querySelectorAll(".region-pill").forEach(x=>x.classList.remove("active"));
     p.classList.add("active");
     activeRegion=p.dataset.region;
 
