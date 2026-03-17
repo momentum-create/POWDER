@@ -169,6 +169,8 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
 .three-day-label{font-size:9px;color:var(--text-dim);margin-bottom:2px}
 .three-day-snow{font-size:10px;font-family:"Space Mono",monospace;margin-bottom:2px}
 .three-day-rain,.three-day-wind{font-size:11px;line-height:1}
+.popup-close-btn{position:absolute;top:6px;right:8px;width:22px;height:22px;border-radius:50%;border:1px solid rgba(255,255,255,.2);background:rgba(0,0,0,.4);color:var(--text-dim);font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:10}
+.popup-close-btn:hover{background:rgba(0,0,0,.6);color:#fff}
 .snow-bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px}
 .snow-bar-bg{width:100%;background:rgba(255,255,255,.05);border-radius:3px;height:28px;display:flex;align-items:flex-end;overflow:visible;position:relative}
 .snow-bar-fill{width:100%;border-radius:3px 3px 0 0;transition:height .4s}
@@ -207,7 +209,7 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
 
 /* Map */
 #map{flex:1;background:#0d1e33}
-.leaflet-popup-content-wrapper{background:var(--navy-mid)!important;border:1px solid var(--border)!important;border-radius:14px!important;box-shadow:0 8px 32px rgba(0,0,0,.6)!important;color:var(--text)!important}
+.leaflet-popup-content-wrapper{background:var(--navy-mid)!important;border:1px solid var(--border)!important;border-radius:14px!important;box-shadow:0 8px 32px rgba(0,0,0,.6)!important;color:var(--text)!important;position:relative}
 .leaflet-popup-tip{background:var(--navy-mid)!important}
 .leaflet-popup-content{margin:12px 14px!important;min-width:220px}
 .popup-name{font-size:13px;font-weight:700;color:#fff;margin-bottom:2px}
@@ -327,8 +329,20 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
   header{min-height:calc(58px + env(safe-area-inset-top))}
   .view-map{height:calc(100dvh - 58px - env(safe-area-inset-top))}
   .map-mobile-back{display:inline-flex;align-items:center;gap:4px;top:calc(58px + env(safe-area-inset-top) + 6px);left:max(10px,env(safe-area-inset-left));min-height:40px;padding:8px 14px;pointer-events:auto}
-  .leaflet-popup-content-wrapper{max-width:min(92vw,320px)!important}
-  .leaflet-popup-content{margin:8px 10px!important;min-width:0!important;max-height:50vh;max-height:50dvh;overflow-y:auto;-webkit-overflow-scrolling:touch}
+  .leaflet-popup-content-wrapper{
+    max-width:min(92vw,320px)!important;
+    max-height:50vh!important;
+    max-height:50dvh!important;
+    overflow:hidden!important;
+  }
+  .leaflet-popup-content{
+    margin:8px 10px!important;
+    min-width:0!important;
+    max-height:calc(50vh - 16px)!important;
+    max-height:calc(50dvh - 16px)!important;
+    overflow-y:auto!important;
+    -webkit-overflow-scrolling:touch;
+  }
   .popup-name{font-size:12px;margin-bottom:1px;word-break:keep-all;overflow-wrap:break-word}
   .popup-pref{font-size:9px;margin-bottom:4px}
   .popup-pw{margin-bottom:4px}
@@ -1350,9 +1364,12 @@ function renderList(){
             }
             const sw = ps.summitWind;
             const windLevel = sw?windRankLevel(sw.summit||0):0;
+            const prevStrEn = prevNightCm>0
+              ? `Overnight–early: ${prevNightCm.toFixed(1)}cm`
+              : `Overnight–early: 0cm`;
+            const dayStrEn = useDaySnowCm!=null ? useDaySnowCm.toFixed(1) : "--";
             summaryHtml = `<div class="pw-summary-row">
-              <span class="summary-badge">Prev 14–Next 5: ${prevNightCm.toFixed(1)}cm</span>
-              <span class="summary-badge">Day total: ${useDaySnowCm!=null?useDaySnowCm.toFixed(1):"--"}cm</span>
+              <span class="summary-badge">${prevStrEn} / Day total ${dayStrEn}cm</span>
               <span class="summary-badge">Rain risk: ${mkRainLabel(rainLevel)}</span>
               <span class="summary-badge">Summit wind: ${mkWindLabel(windLevel)}</span>
             </div>`;
@@ -1544,7 +1561,7 @@ function selectResort(id, opts){
   const liftStart = r.liftStart || (typeof liftTimesCache[r.id]!=="undefined" ? liftTimesCache[r.id] : null);
   const operating = getResortOperating(r);
   const inSeason = isResortInSeason(r);
-  let contentHtml=`<div class="popup-name">${displayNameEn(r)}</div>${r.name&&displayNameEn(r)!==r.name ? `<div class="resort-name-signs" title="As on road signs in Japan">As on road signs: ${r.name}</div>` : ""}<div class="popup-pref">${getPrefEn(r.pref)} · TOP ${r.elevation.top}m</div>`;
+  let contentHtml=`<button type="button" class="popup-close-btn" onclick="closeResortPopup()">×</button><div class="popup-name">${displayNameEn(r)}</div>${r.name&&displayNameEn(r)!==r.name ? `<div class="resort-name-signs" title="As on road signs in Japan">As on road signs: ${r.name}</div>` : ""}<div class="popup-pref">${getPrefEn(r.pref)} · TOP ${r.elevation.top}m</div>`;
   if(operating){
     const periodStr = formatOperatingPeriod(operating.open, operating.close);
     contentHtml+=`<div class="popup-detail-row popup-operating-row">📅 Operating <strong>${periodStr}</strong>${!inSeason?' <span class="badge-closed">Closed</span>':""}</div>`;
@@ -1656,6 +1673,13 @@ function selectResortGroup(targetId, groupIds){
     }
   });
   // ピンだけ追加して「どこにあるか」を同じ画面内で見せる（地図は動かさない）
+}
+
+function closeResortPopup(){
+  if(typeof map!=="undefined" && map && currentPopup){
+    map.closePopup(currentPopup);
+    currentPopup = null;
+  }
 }
 
 // ─── Map ───────────────────────────────────────────────────────
