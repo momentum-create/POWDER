@@ -171,6 +171,24 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
 .three-day-rain,.three-day-wind{font-size:11px;line-height:1}
 .popup-close-btn{position:absolute;top:6px;right:8px;width:22px;height:22px;border-radius:50%;border:1px solid rgba(255,255,255,.2);background:rgba(0,0,0,.4);color:var(--text-dim);font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:10}
 .popup-close-btn:hover{background:rgba(0,0,0,.6);color:#fff}
+.popup-day-strip{display:flex;gap:4px;margin-bottom:6px}
+.popup-day-tab{flex:1;min-width:0;padding:6px 4px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.04);color:var(--text-dim);font-size:10px}
+.popup-day-tab .popup-day-label{font-size:9px;margin-bottom:2px}
+.popup-day-tab .popup-day-snow{font-size:11px;font-family:"Space Mono",monospace}
+.popup-day-tab.is-active{border-color:var(--accent);background:rgba(77,217,196,.18);color:#fff}
+.popup-day-summary{margin:4px 0 6px;font-size:10px;color:var(--text-dim)}
+.popup-day-summary-row{margin-bottom:2px}
+.popup-day-summary-row strong{color:var(--text)}
+.popup-hourly-strip{display:flex;gap:3px;margin-top:4px;padding-top:4px;border-top:1px solid var(--border)}
+.popup-hourly-bar{flex:1;min-width:0;text-align:center}
+.popup-hourly-bar-bg{position:relative;width:100%;height:18px;border-radius:3px;background:rgba(255,255,255,.06);display:flex;align-items:flex-end;justify-content:center;overflow:hidden}
+.popup-hourly-fill{width:100%;border-radius:3px 3px 0 0}
+.popup-hourly-icon{position:absolute;top:1px;font-size:9px;text-shadow:0 1px 2px rgba(0,0,0,.8)}
+.popup-hourly-label{margin-top:2px;font-size:8px;color:var(--text-dim);white-space:nowrap}
+@media(max-width:700px){
+  .popup-day-strip{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .popup-day-tab{flex:0 0 auto;min-width:72px}
+}
 .snow-bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px}
 .snow-bar-bg{width:100%;background:rgba(255,255,255,.05);border-radius:3px;height:28px;display:flex;align-items:flex-end;overflow:visible;position:relative}
 .snow-bar-fill{width:100%;border-radius:3px 3px 0 0;transition:height .4s}
@@ -1534,6 +1552,7 @@ function selectResort(id, opts){
   selectedId=id;
   const r=RESORT_MAP[id];
   if(!r) return;
+  const isMobilePopup = (typeof window!=="undefined" && window.innerWidth<=700);
   if(markers[id] && !map.hasLayer(markers[id])) markers[id].addTo(map);
   if(currentPopup) map.closePopup(currentPopup);
 
@@ -1557,11 +1576,130 @@ function selectResort(id, opts){
   const hasData=daily&&daily!=="loading"&&daily.snowfall_sum;
   const ps=hasData?calcPowderScore(daily,r,targetDayOffset):null;
 
+  let mobileTopHtml="";
+  if(isMobilePopup && hasData && ps){
+    const dates = getDates();
+    let dayStripHtml = '<div class="popup-day-strip">';
+    for(let i=0;i<7;i++){
+      const snowD = getSnowfallForDisplay(id, i);
+      const snowCm = snowD.cm!=null ? Math.round(snowD.cm) : null;
+      const isActive = i===targetDayOffset;
+      let label;
+      if(i===0) label="Today";
+      else if(i===1) label="Tomorrow";
+      else if(i===2) label="+2 days";
+      else label=`+${i}d`;
+      const snowText = snowCm!=null && snowCm>0 ? `❄ ${snowCm}cm` : "—";
+      dayStripHtml+=`<button type="button" class="popup-day-tab${isActive?" is-active":""}" data-offset="${i}" onclick="setTargetDayOffset(${i}); selectResort(${id},{noMove:true});"><div class="popup-day-label">${label}</div><div class="popup-day-snow">${snowText}</div></button>`;
+    }
+    dayStripHtml+='</div>';
+
+    let prevNightCm = 0;
+    const snowArr = daily.hourly_snowfall;
+    const rainArr = daily.hourly_rain||[];
+    const dayIdx = getDayIndex(daily,targetDayOffset);
+    if(Array.isArray(snowArr) && dayIdx>=1){
+      const basePrev=(dayIdx-1)*24;
+      const prev14_24 = snowArr.slice(basePrev+14,basePrev+24).reduce((a,b)=>a+(b||0),0);
+      const today0_5  = snowArr.slice(dayIdx*24,dayIdx*24+5).reduce((a,b)=>a+(b||0),0);
+      prevNightCm = (prev14_24+today0_5)/10;
+    }
+    let daySnow = getSnowfallAdjusted(daily,r,targetDayOffset);
+    if(daySnow==null) daySnow=0;
+    let rainLevel=0;
+    if(Array.isArray(snowArr)){
+      let snowMmDay=0,rainMmDay=0;
+      const baseDay=dayIdx*24;
+      for(let i=baseDay;i<baseDay+24 && i<snowArr.length;i++){
+        snowMmDay+=snowArr[i]||0;
+        rainMmDay+=rainArr[i]||0;
+      }
+      const totalMm = snowMmDay+rainMmDay;
+      if(totalMm>0){
+        const ratio = rainMmDay/totalMm;
+        if(ratio>0.7) rainLevel=2;
+        else if(ratio>0.3) rainLevel=1;
+      }
+    }
+    const mkRainLabel = lvl=>["mostly snow","mixed","mostly rain"][lvl]||"";
+    const sw = ps.summitWind;
+    const wDir = windDir(sw.summitDir);
+    const mkWindLabel = ()=> sw ? `${sw.summit}km/h${wDir?` ${wDir}`:""}` : "";
+    const wdq = sw ? windDirQuality(sw.summitDir,r.region) : null;
+    const overnightStr = `Overnight–morning <strong>${prevNightCm.toFixed(1)}cm</strong>`;
+    const dayTotalStr  = `Day total <strong>${daySnow.toFixed(1)}cm</strong>`;
+    const summaryHtml = `<div class="popup-day-summary"><div class="popup-day-summary-row">${overnightStr} / ${dayTotalStr}</div><div class="popup-day-summary-row">Rain risk: <strong>${mkRainLabel(rainLevel)}</strong></div><div class="popup-day-summary-row">Summit wind: <strong>${mkWindLabel()}</strong>${wdq?` (${wdq.label})`:""}</div></div>`;
+
+    let hourlyHtml="";
+    if(Array.isArray(snowArr)){
+      const segments=[];
+      const seg=(labelKey,from,to)=>{
+        let snowMm=0,rainMm=0;
+        for(let i=from;i<to && i<snowArr.length;i++){
+          snowMm+=snowArr[i]||0;
+          rainMm+=rainArr[i]||0;
+        }
+        segments.push({labelKey,snowMm,rainMm});
+      };
+      if(dayIdx>=1){
+        const basePrev=(dayIdx-1)*24;
+        seg("Prev eve",basePrev+14,basePrev+24);
+      } else {
+        segments.push({labelKey:"Prev eve",snowMm:0,rainMm:0});
+      }
+      const baseDay=dayIdx*24;
+      seg("0–5h",baseDay+0,baseDay+5);
+      seg("6–10h",baseDay+5,baseDay+10);
+      seg("11–15h",baseDay+10,baseDay+15);
+      seg("16–20h",baseDay+15,baseDay+20);
+      seg("21–24h",baseDay+20,baseDay+24);
+      if(dayIdx+1<daily.hourly_snowfall.length/24){
+        const baseNext=(dayIdx+1)*24;
+        seg("Next 0–5",baseNext,baseNext+5);
+      } else {
+        segments.push({labelKey:"Next 0–5",snowMm:0,rainMm:0});
+      }
+      const allCm = segments.map(s=>s.snowMm/10);
+      const maxCm = Math.max(...allCm,0.1);
+      hourlyHtml = '<div class="popup-hourly-strip">';
+      segments.forEach(s=>{
+        const snowCm=s.snowMm/10;
+        const rainCm=s.rainMm/10;
+        const totalWater=s.snowMm+s.rainMm;
+        const rainRatio=totalWater>0?s.rainMm/totalWater:0;
+        let icon="";
+        if(totalWater>=0.1){
+          if(rainRatio>0.7) icon="🌧";
+          else if(rainRatio>0.3) icon="❄🌧";
+          else if(s.snowMm>0) icon="❄";
+        }
+        const h = maxCm>0 ? Math.max(icon?4:2, Math.round((snowCm||0.1)/maxCm*16)) : (icon?4:2);
+        const baseColor = snowColor(Math.max(snowCm,0.1));
+        let fillStyle;
+        if(totalWater>0 && rainRatio>0.3){
+          const frac=Math.min(0.9,Math.max(0.1,rainRatio));
+          const stop=Math.round(frac*100);
+          fillStyle=`background:linear-gradient(to top,#3b82f6 0%,#3b82f6 ${stop}%,${baseColor} ${stop}%,${baseColor} 100%)`;
+        } else {
+          fillStyle=`background:${baseColor}`;
+        }
+        const titleStr=`${s.labelKey}: snow ${snowCm.toFixed(1)}cm / rain ${rainCm.toFixed(1)}cm`;
+        hourlyHtml+=`<div class="popup-hourly-bar" title="${titleStr}"><div class="popup-hourly-bar-bg">${icon?`<span class="popup-hourly-icon">${icon}</span>`:""}<div class="popup-hourly-fill" style="height:${h}px;${fillStyle}"></div></div><div class="popup-hourly-label">${s.labelKey}</div></div>`;
+      });
+      hourlyHtml+='</div>';
+    }
+    mobileTopHtml = dayStripHtml + summaryHtml + hourlyHtml;
+  }
+
   const LIFT_DISCLAIMER = "Confirm exact times on the resort's official site or by contact.";
   const liftStart = r.liftStart || (typeof liftTimesCache[r.id]!=="undefined" ? liftTimesCache[r.id] : null);
   const operating = getResortOperating(r);
   const inSeason = isResortInSeason(r);
-  let contentHtml=`<button type="button" class="popup-close-btn" onclick="closeResortPopup()">×</button><div class="popup-name">${displayNameEn(r)}</div>${r.name&&displayNameEn(r)!==r.name ? `<div class="resort-name-signs" title="As on road signs in Japan">As on road signs: ${r.name}</div>` : ""}<div class="popup-pref">${getPrefEn(r.pref)} · TOP ${r.elevation.top}m</div>`;
+  let contentHtml=`<button type="button" class="popup-close-btn" onclick="closeResortPopup()">×</button>`;
+  if(isMobilePopup && mobileTopHtml){
+    contentHtml+=mobileTopHtml;
+  }
+  contentHtml+=`<div class="popup-name">${displayNameEn(r)}</div>${r.name&&displayNameEn(r)!==r.name ? `<div class="resort-name-signs" title="As on road signs in Japan">As on road signs: ${r.name}</div>` : ""}<div class="popup-pref">${getPrefEn(r.pref)} · TOP ${r.elevation.top}m</div>`;
   if(operating){
     const periodStr = formatOperatingPeriod(operating.open, operating.close);
     contentHtml+=`<div class="popup-detail-row popup-operating-row">📅 Operating <strong>${periodStr}</strong>${!inSeason?' <span class="badge-closed">Closed</span>':""}</div>`;
