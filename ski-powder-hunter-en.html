@@ -426,7 +426,7 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
 
   <!-- Info banner（コンパクト＋折りたたみ） -->
   <div class="info-banner" id="info-banner">
-    <strong>❄️ Powder score</strong> = from forecast snow, wind, temp. <strong>3–4 days ahead</strong> is a good target. Forecasts are indicative. <span id="fetch-policy-desc">We load 40 featured + 50 per region on start</span>. Use <strong>Fetch remaining</strong> to load more.
+    <strong>❄️ Powder score</strong> = from forecast snow, wind, temp. <strong>3–4 days ahead</strong> is a good target. Forecasts are indicative.
     <div class="info-banner-detail">Snowfall is elevation-adjusted. We fetch Open-Meteo per resort (lat, lng, elevation), so nearby resorts can differ by grid; when they do we show the nearby resort’s forecast and mark it “(nearby)”. For warnings see <a href="https://www.jma.go.jp/jma/kishou/know/kurashi/snow.html" target="_blank" rel="noopener" style="color:var(--accent)">JMA</a>. Reliability: 1–2 days stable, 3–5 days indicative, beyond that more variable.</div>
     <div class="info-banner-toggle" id="info-banner-toggle">▼ More</div>
   </div>
@@ -597,6 +597,17 @@ let currentPopup = null;
 let mapShowAll = false;  // false=地図は注目のみ, true=全ゲレンデ表示
 
 // ─── Dates ─────────────────────────────────────────────────────
+function setTargetDayOffset(offset){
+  const n = parseInt(offset);
+  if(Number.isNaN(n) || n<0 || n>6) return;
+  if(n===targetDayOffset) return;
+  targetDayOffset = n;
+  syncDateButtonsActive();
+  renderTop10();
+  renderList();
+  refreshMarkers();
+}
+
 function getDates(){
   const today = new Date();
   const dates = [];
@@ -651,10 +662,7 @@ function renderDateButtonsInto(containerId){
   }).join("");
   container.querySelectorAll(".date-btn").forEach(btn=>{
     btn.addEventListener("click",()=>{
-      targetDayOffset = parseInt(btn.dataset.offset);
-      syncDateButtonsActive();
-      renderTop10();
-      renderList();
+      setTargetDayOffset(btn.dataset.offset);
     });
   });
 }
@@ -1162,7 +1170,7 @@ function renderList(){
         adjusted.map((cm,i)=>{
           const h=Math.max(2,Math.round((cm/maxS)*26));
           const isTarget=i===targetDayOffset;
-          return`<div class="snow-bar-wrap" title="${DLABELS[i]} forecast: ${Math.round(adjusted[i])}cm">
+          return`<div class="snow-bar-wrap" title="${DLABELS[i]} forecast: ${Math.round(adjusted[i])}cm" data-offset="${i}" onclick="setTargetDayOffset(${i})">
             <div class="snow-bar-bg${isTarget?" snow-bar-target":""}">
               <div class="snow-bar-fill" style="height:${h}px;background:${snowColor(cm)}"></div>
               <div class="snow-bar-val">${cm>=0.5?Math.round(cm):""}</div>
@@ -1771,7 +1779,7 @@ document.getElementById("view-map").style.display="none";
       queueFetch(FETCH_ALL_ON_LOAD ? [...INITIAL_FETCH_IDS,...RESORTS.map(r=>r.id).filter(id=>!INITIAL_FETCH_IDS.includes(id))] : [...FEATURED_IDS]);
     });
 })();
-var el=document.getElementById("fetch-policy-desc");if(el) el.textContent=FETCH_ALL_ON_LOAD?"We queue all 450 on start":"We load 40 featured + 50 per region on start";
+var el=document.getElementById("fetch-policy-desc");if(el) el.textContent="";
 (function(){var b=document.getElementById("info-banner"),t=document.getElementById("info-banner-toggle");if(b&&t){t.addEventListener("click",function(){b.classList.toggle("open");t.textContent=b.classList.contains("open")?"▲ Close":"▼ More";});}})();
 </script>
 </body>

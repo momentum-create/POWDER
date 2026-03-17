@@ -456,7 +456,7 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
 
   <!-- Info banner（コンパクト＋折りたたみ） -->
   <div class="info-banner" id="info-banner">
-    <strong>❄️ パウダースコア</strong> = 予想降雪・風速・気温で算出。<strong>3〜4日後</strong>がおすすめ。予報は参考値。<span id="fetch-policy-desc">起動時は注目40件・地域50件</span>。<strong>「残りも取得」</strong>で追加可。
+    <strong>❄️ パウダースコア</strong> = 予想降雪・風速・気温で算出。<strong>3〜4日後</strong>がおすすめ。予報は参考値。
     <div class="info-banner-detail">降雪は標高補正済み。各ゲレンデの緯度・経度・標高でOpen-Meteoを取得するため、2km先など近くでもグリッド差で数値が異なる場合があります。その場合は付近のゲレンデの予報を参照して表示します（「付近」表記）。警報・注意報は<a href="https://www.jma.go.jp/jma/kishou/know/kurashi/snow.html" target="_blank" rel="noopener" style="color:var(--accent)">気象庁</a>で確認。信頼度: 1〜2日先は安定、3〜5日先は目安、以降は変動しやすい。</div>
     <div class="info-banner-toggle" id="info-banner-toggle">▼ 詳しく</div>
   </div>
@@ -645,7 +645,7 @@ function renderDateButtonsInto(containerId){
     const dd = d.getDate().toString().padStart(2,"0");
     const snowCm = getRegionSnowfallForDay(i);
     const isZero = snowCm==null || snowCm===0;
-    const snowHtml = !isZero ? `<span class="date-snow">❄${snowCm}cm</span>` : `<span class::"date-snow">—</span>`;
+    const snowHtml = !isZero ? `<span class="date-snow">❄${snowCm}cm</span>` : `<span class="date-snow">—</span>`;
     const extraClass = isZero ? " zero" : "";
     return `<button class="date-btn${i===targetDayOffset?" active":""}${extraClass}" data-offset="${i}">
       <span class="date-num">${mm}/${dd}</span>
@@ -1201,7 +1201,7 @@ function renderList(){
         adjusted.map((cm,i)=>{
           const h=Math.max(2,Math.round((cm/maxS)*26));
           const isTarget=i===targetDayOffset;
-          return`<div class="snow-bar-wrap" title="${DLABELS[i]}の予想降雪: ${Math.round(adjusted[i])}cm">
+          return`<div class="snow-bar-wrap" title="${DLABELS[i]}の予想降雪: ${Math.round(adjusted[i])}cm" data-offset="${i}" onclick="setTargetDayOffset(${i})">
             <div class="snow-bar-bg${isTarget?" snow-bar-target":""}">
               <div class="snow-bar-fill" style="height:${h}px;background:${snowColor(cm)}"></div>
               <div class="snow-bar-val">${cm>=0.5?Math.round(cm):""}</div>
@@ -1864,7 +1864,7 @@ document.getElementById("view-map").style.display="none";
       queueFetch(FETCH_ALL_ON_LOAD ? [...INITIAL_FETCH_IDS,...RESORTS.map(r=>r.id).filter(id=>!INITIAL_FETCH_IDS.includes(id))] : [...FEATURED_IDS]);
     });
 })();
-var el=document.getElementById("fetch-policy-desc");if(el) el.textContent=FETCH_ALL_ON_LOAD?"起動時から全450件をキューし":"起動時は注目40件・地域50件";
+var el=document.getElementById("fetch-policy-desc");if(el) el.textContent="";
 (function(){var b=document.getElementById("info-banner"),t=document.getElementById("info-banner-toggle");if(b&&t){t.addEventListener("click",function(){b.classList.toggle("open");t.textContent=b.classList.contains("open")?"▲ 閉じる":"▼ 詳しく";});}})();
 </script>
 </body>
