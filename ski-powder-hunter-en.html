@@ -389,6 +389,17 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
       <div class="date-label">Target date</div>
       <div class="date-btns" id="top-date-btns"></div>
     </div>
+    <div class="top-region-pills region-pills" id="top-region-pills">
+      <div class="region-pill active" data-region="all">All Japan</div>
+      <div class="region-pill" data-region="hokkaido">Hokkaido</div>
+      <div class="region-pill" data-region="tohoku">Tohoku</div>
+      <div class="region-pill" data-region="niigata">Niigata</div>
+      <div class="region-pill" data-region="nagano">Nagano</div>
+      <div class="region-pill" data-region="chubu">Chubu</div>
+      <div class="region-pill" data-region="kanto">Kanto</div>
+      <div class="region-pill" data-region="kansai">Kansai</div>
+      <div class="region-pill" data-region="chugoku">Chugoku / Shikoku</div>
+    </div>
     <p class="top-sub" id="top-sub">TOP 10 powder score for selected day</p>
     <p class="top-updated" id="top-updated"></p>
   </section>
@@ -598,6 +609,18 @@ function formatOperatingPeriod(open, close){
 // ─── State ─────────────────────────────────────────────────────
 let targetDayOffset = 3;  // default: 3 days from now
 let activeRegion = "all";
+let topActiveRegion = "all";  // Top view area filter (EN)
+const REGION_LABELS_EN = {
+  all: "All Japan",
+  hokkaido: "Hokkaido",
+  tohoku: "Tohoku",
+  niigata: "Niigata",
+  nagano: "Nagano",
+  chubu: "Chubu",
+  kanto: "Kanto",
+  kansai: "Kansai",
+  chugoku: "Chugoku / Shikoku"
+};
 let searchQuery = "";
 let sortMode = "powder";
 let selectedId = null;
@@ -1083,7 +1106,12 @@ function getFiltered(){
 // ─── Top 10 ranking (トップ用) ─────────────────────────────────
 // マップと同一: 取得済みの全ゲレンデからパウダースコアでTOP10を算出（注目40件に限定しない）
 function renderTop10(){
-  const withData = RESORTS.filter(r=>{
+  const regionFiltered = RESORTS.filter(r=>{
+    if(topActiveRegion==="all") return true;
+    if(topActiveRegion==="chugoku") return r.region==="chugoku"||r.region==="shikoku";
+    return r.region===topActiveRegion;
+  });
+  const withData = regionFiltered.filter(r=>{
     const d = weatherCache[r.id];
     return d&&d!=="loading"&&d.snowfall_sum;
   });
@@ -1099,7 +1127,8 @@ function renderTop10(){
   const dateStr = `${d.getMonth()+1}/${d.getDate()}`;
   const loading = Object.values(weatherCache).some(v=>v==="loading");
   const subEl = document.getElementById("top-sub");
-  if(subEl) subEl.textContent = `TOP 10 powder score for ${dateStr}`;
+  const regionLabel = REGION_LABELS_EN[topActiveRegion] || "All Japan";
+  if(subEl) subEl.textContent = `Top 10 powder scores on ${dateStr} (${regionLabel})`;
 
   const updEl = document.getElementById("top-updated");
   if(updEl){
@@ -1245,8 +1274,7 @@ function renderList(){
         const dayStartIdx = prevLabels.length;
         const nextStartIdx = prevLabels.length + 5;
         const hourlyId = `hourly-${r.id}`;
-        barsHtml+=`<button type="button" class="hourly-toggle" onclick="toggleHourly('${hourlyId}')">Show hourly pattern</button>`;
-        barsHtml+=`<div class="hourly-snow-wrap" id="${hourlyId}" style="display:none"><div class="hourly-snow-caption">${DLABELS[targetDayOffset]} hourly forecast snow ${sumNote}</div><div class="hourly-snow-bars">`+
+        barsHtml+=`<div class="hourly-snow-wrap" id="${hourlyId}"><div class="hourly-snow-caption">${DLABELS[targetDayOffset]} hourly forecast snow ${sumNote}</div><div class="hourly-snow-bars">`+
           allCm.map((cm,i)=>{
             const snowMm = allSnowMm[i]||0;
             const rainMm = allRainMm[i]||0;
@@ -1481,13 +1509,6 @@ function getNearbyConvenienceLinks(r){
   ];
 }
 
-function toggleHourly(id){
-  const el = document.getElementById(id);
-  if(!el) return;
-  const isHidden = !el.style.display || el.style.display==="none";
-  el.style.display = isHidden ? "block" : "none";
-}
-
 // ─── Select resort ─────────────────────────────────────────────
 function selectResort(id, opts){
   opts = opts || {};
@@ -1717,6 +1738,14 @@ function refreshMarkers(){
 }
 
 // ─── Events ────────────────────────────────────────────────────
+document.querySelectorAll("#top-region-pills .region-pill").forEach(p=>{
+  p.addEventListener("click",()=>{
+    document.querySelectorAll("#top-region-pills .region-pill").forEach(x=>x.classList.remove("active"));
+    p.classList.add("active");
+    topActiveRegion = p.dataset.region || "all";
+    renderTop10();
+  });
+});
 document.querySelectorAll(".region-pill").forEach(p=>{
   p.addEventListener("click",()=>{
     document.querySelectorAll(".region-pill").forEach(x=>x.classList.remove("active"));

@@ -1285,8 +1285,7 @@ function renderList(){
         const dayStartIdx = prevLabels.length;
         const nextStartIdx = prevLabels.length + 5;
         const hourlyId = `hourly-${r.id}`;
-        barsHtml+=`<button type="button" class="hourly-toggle" onclick="toggleHourly('${hourlyId}')">時間帯ごとの降り方を見る</button>`;
-        barsHtml+=`<div class="hourly-snow-wrap" id="${hourlyId}" style="display:none"><div class="hourly-snow-caption">${DLABELS[targetDayOffset]}の前後＋時間帯別予想降雪 ${sumNote}</div><div class="hourly-snow-bars">`+
+        barsHtml+=`<div class="hourly-snow-wrap" id="${hourlyId}"><div class="hourly-snow-caption">${DLABELS[targetDayOffset]}の前後＋時間帯別予想降雪 ${sumNote}</div><div class="hourly-snow-bars">`+
           allCm.map((cm,i)=>{
             const snowMm = allSnowMm[i]||0;
             const rainMm = allRainMm[i]||0;
@@ -1559,12 +1558,6 @@ function togglePopupNearby(){
   if(el) el.classList.toggle("is-expanded");
 }
 
-function toggleHourly(id){
-  const el = document.getElementById(id);
-  if(!el) return;
-  const isHidden = !el.style.display || el.style.display==="none";
-  el.style.display = isHidden ? "block" : "none";
-}
 
 // ─── Select resort ─────────────────────────────────────────────
 function selectResort(id, opts){
