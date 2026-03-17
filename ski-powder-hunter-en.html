@@ -160,6 +160,15 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
 .hourly-snow-bar.next-start{margin-left:6px;border-left:1px solid var(--border);padding-left:4px}
 .hourly-snow-icon{position:absolute;top:-9px;left:50%;transform:translateX(-50%);font-size:8px;pointer-events:none}
 .snow-bars{display:flex;gap:2px;align-items:flex-end;height:40px}
+.hourly-toggle{margin-top:4px;margin-bottom:2px;font-size:10px;padding:4px 8px;border-radius:999px;border:1px solid var(--border);background:rgba(255,255,255,.02);color:var(--text-dim);cursor:pointer}
+.hourly-toggle:hover{background:rgba(255,255,255,.06);color:var(--text)}
+.pw-summary-row{margin:4px 0 2px;display:flex;flex-wrap:wrap;gap:4px;font-size:10px}
+.summary-badge{padding:2px 6px;border-radius:999px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.04);color:var(--text-dim)}
+.pw-three-day-strip{display:flex;gap:6px;margin:4px 0 6px;font-size:9px}
+.three-day-item{flex:1;min-width:0;padding:4px 6px;border-radius:8px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);text-align:center}
+.three-day-label{font-size:9px;color:var(--text-dim);margin-bottom:2px}
+.three-day-snow{font-size:10px;font-family:"Space Mono",monospace;margin-bottom:2px}
+.three-day-rain,.three-day-wind{font-size:11px;line-height:1}
 .snow-bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px}
 .snow-bar-bg{width:100%;background:rgba(255,255,255,.05);border-radius:3px;height:28px;display:flex;align-items:flex-end;overflow:visible;position:relative}
 .snow-bar-fill{width:100%;border-radius:3px 3px 0 0;transition:height .4s}
@@ -950,6 +959,12 @@ function windLabel(kmh){
   if(kmh<35) return "Moderate";
   return "Strong";
 }
+function windRankLevel(kmh){
+  if(kmh<10) return 0;
+  if(kmh<20) return 1;
+  if(kmh<35) return 2;
+  return 3;
+}
 function snowColor(cm){
   if(cm>=30) return "var(--pw-excellent)";
   if(cm>=15) return "#7ab8e0";
@@ -1158,8 +1173,10 @@ function renderList(){
     const sel = r.id===selectedId;
     const inSeason = isResortInSeason(r);
 
-    // Snow bars（いまの日付を「今日」として、今日〜6日後の各日予想降雪）
+    // Snow bars（today + next 6 days）
     let barsHtml="";
+    let summaryHtml="";
+    let stripHtml="";
     const dates = getDates();
     const todayStr = `${dates[0].getMonth()+1}/${dates[0].getDate()}`;
     const DLABELS=["Today","Tomorrow","+2d","+3d","+4d","+5d","+6d"];
@@ -1227,7 +1244,9 @@ function renderList(){
         const scaleBase = allCm.length ? Math.max(...allCm, 0.1) : 0.1;
         const dayStartIdx = prevLabels.length;
         const nextStartIdx = prevLabels.length + 5;
-        barsHtml+=`<div class="hourly-snow-wrap"><div class="hourly-snow-caption">${DLABELS[targetDayOffset]} hourly forecast snow ${sumNote}</div><div class="hourly-snow-bars">`+
+        const hourlyId = `hourly-${r.id}`;
+        barsHtml+=`<button type="button" class="hourly-toggle" onclick="toggleHourly('${hourlyId}')">Show hourly pattern</button>`;
+        barsHtml+=`<div class="hourly-snow-wrap" id="${hourlyId}" style="display:none"><div class="hourly-snow-caption">${DLABELS[targetDayOffset]} hourly forecast snow ${sumNote}</div><div class="hourly-snow-bars">`+
           allCm.map((cm,i)=>{
             const snowMm = allSnowMm[i]||0;
             const rainMm = allRainMm[i]||0;
@@ -1270,6 +1289,87 @@ function renderList(){
     } else {
       barsHtml=`<div class="loading-row" style="opacity:.5">No data</div>`;
     }
+
+      // Focus day summary + +/-1 day strip
+      try{
+        const dates = getDates();
+        const baseOffsets = [-1,0,1];
+        const snowArr = daily.hourly_snowfall;
+        const rainArr = daily.hourly_rain||[];
+        const mkRainLabel = lvl=>["Mostly snow","Mixed","Mostly rain"][lvl]||"";
+        const mkWindLabel = lvl=>["Calm","Light","Moderate","Strong"][lvl]||"";
+        // Focus day summary
+        if(Array.isArray(snowArr)){
+          const dayIdx = getDayIndex(daily, targetDayOffset);
+          if(dayIdx!=null && dayIdx>=0){
+            const sumRange = (arr,from,to)=>{let s=0;for(let i=from;i<to&&i<arr.length;i++) s+=(arr[i]||0);return s;};
+            const prevStart = Math.max(0,(dayIdx-1)*24+14);
+            const prevEnd = Math.max(prevStart,dayIdx*24+6);
+            const prevNightMm = sumRange(snowArr,prevStart,prevEnd);
+            const prevNightCm = prevNightMm/10;
+            const dayBase = dayIdx*24;
+            const daySnowMm = sumRange(snowArr,dayBase,dayBase+24);
+            const dayRainMm = sumRange(rainArr,dayBase,dayBase+24);
+            const daySnowCmFromHourly = daySnowMm/10;
+            const daySnowCm = getSnowfallAdjusted(daily,r,targetDayOffset);
+            const useDaySnowCm = daySnowCm!=null ? daySnowCm : daySnowCmFromHourly;
+            const totalMm = daySnowMm+dayRainMm;
+            let rainLevel=0;
+            if(totalMm>0){
+              const ratio = dayRainMm/totalMm;
+              if(ratio>0.7) rainLevel=2;
+              else if(ratio>0.3) rainLevel=1;
+            }
+            const sw = ps.summitWind;
+            const windLevel = sw?windRankLevel(sw.summit||0):0;
+            summaryHtml = `<div class="pw-summary-row">
+              <span class="summary-badge">Prev 14–Next 5: ${prevNightCm.toFixed(1)}cm</span>
+              <span class="summary-badge">Day total: ${useDaySnowCm!=null?useDaySnowCm.toFixed(1):"--"}cm</span>
+              <span class="summary-badge">Rain risk: ${mkRainLabel(rainLevel)}</span>
+              <span class="summary-badge">Summit wind: ${mkWindLabel(windLevel)}</span>
+            </div>`;
+          }
+        }
+        // +/-1 day strip
+        const stripItems = baseOffsets.map(delta=>{
+          const off = targetDayOffset+delta;
+          if(off<0||off>6) return "";
+          const d = dates[off];
+          const label = delta===-1?"Prev":(delta===0?"Day":"Next");
+          const dayIdx2 = getDayIndex(daily, off);
+          if(dayIdx2==null||dayIdx2<0) return "";
+          let snowCm = getSnowfallAdjusted(daily,r,off);
+          if(snowCm==null && Array.isArray(snowArr)){
+            const base2 = dayIdx2*24;
+            let mm=0;for(let i=base2;i<base2+24&&i<snowArr.length;i++) mm+=(snowArr[i]||0);
+            snowCm = mm/10;
+          }
+          let rainLevel=0;
+          if(Array.isArray(snowArr)&&Array.isArray(rainArr)){
+            const base2 = dayIdx2*24;
+            let snowMm=0,rainMm=0;
+            for(let i=base2;i<base2+24&&i<snowArr.length;i++) snowMm+=(snowArr[i]||0);
+            for(let i=base2;i<base2+24&&i<rainArr.length;i++) rainMm+=(rainArr[i]||0);
+            const totalMm = snowMm+rainMm;
+            if(totalMm>0){
+              const ratio = rainMm/totalMm;
+              if(ratio>0.7) rainLevel=2;
+              else if(ratio>0.3) rainLevel=1;
+            }
+          }
+          const sw = ps.summitWind;
+          const windLevel = sw?windRankLevel(sw.summit||0):0;
+          return `<div class="three-day-item">
+            <div class="three-day-label">${label}</div>
+            <div class="three-day-snow">${snowCm!=null?snowCm.toFixed(1):"--"}cm</div>
+            <div class="three-day-rain">${["❄","❄🌧","🌧"][rainLevel]}</div>
+            <div class="three-day-wind">${["🍃","🍃","⚠","⛔"][windLevel]}</div>
+          </div>`;
+        }).filter(Boolean).join("");
+        if(stripItems){
+          stripHtml = `<div class="pw-three-day-strip">${stripItems}</div>`;
+        }
+      }catch(e){}
 
     // Weather badges
     let weatherHtml="";
@@ -1322,6 +1422,8 @@ function renderList(){
         ${scoreBadge}
       </div>
       ${barsHtml}
+      ${summaryHtml}
+      ${stripHtml}
       ${weatherHtml}
     </div>`;
   }).join("");
@@ -1377,6 +1479,13 @@ function getNearbyConvenienceLinks(r){
   return [
     { name: "Search convenience store", url: "https://www.google.com/search?q="+q+"convenience+store" }
   ];
+}
+
+function toggleHourly(id){
+  const el = document.getElementById(id);
+  if(!el) return;
+  const isHidden = !el.style.display || el.style.display==="none";
+  el.style.display = isHidden ? "block" : "none";
 }
 
 // ─── Select resort ─────────────────────────────────────────────
