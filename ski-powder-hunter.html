@@ -341,6 +341,8 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
 .view-map{height:calc(100vh - 52px);display:flex;flex-direction:column;overflow:hidden}
 .view-map .main{flex:1;min-width:0}
 .map-mobile-back{display:none;position:absolute;z-index:950;left:10px;top:60px;padding:6px 10px;border-radius:999px;border:1px solid var(--border);background:rgba(11,22,40,.9);color:var(--text-dim);font-size:11px;font-family:\"Noto Sans JP\",sans-serif}
+.map-mobile-search{display:none;position:absolute;z-index:950;right:10px;top:60px}
+.map-mobile-search .search-input{width:min(52vw,280px);max-width:280px}
 
 @media(max-width:900px){
   .sidebar{width:300px;min-width:280px}
@@ -369,6 +371,8 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
   header{min-height:calc(58px + env(safe-area-inset-top))}
   .view-map{height:calc(100dvh - 58px - env(safe-area-inset-top))}
   .map-mobile-back{display:inline-flex;align-items:center;gap:4px;top:calc(58px + env(safe-area-inset-top) + 6px);left:max(10px,env(safe-area-inset-left));min-height:40px;padding:8px 14px;pointer-events:auto}
+  .map-mobile-search{display:block;top:calc(58px + env(safe-area-inset-top) + 6px);right:max(10px,env(safe-area-inset-right));pointer-events:auto}
+  .map-mobile-search .search-input{font-size:13px;min-height:40px;padding:9px 12px}
   /* 目標地点ポップアップ: スマホでコンパクトに＆中身スクロール */
   .leaflet-popup-content-wrapper{
     max-width:min(92vw,320px)!important;
@@ -479,6 +483,9 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
 <!-- マップビュー: サイドバー + 地図 -->
 <div id="view-map" class="view-map" style="display:none">
 <button type="button" class="map-mobile-back" id="btn-map-back-top">← ランキング</button>
+<div class="map-mobile-search">
+  <input class="search-input" id="search-input-mobile" type="text" placeholder="ゲレンデ・都道府県…">
+</div>
 <div class="main">
 <div class="sidebar">
   <div class="sidebar-top">
@@ -747,7 +754,7 @@ function fetchWeather(resort){
     : `https://api.open-meteo.com/v1/forecast?latitude=${resort.lat}&longitude=${resort.lng}`+
       (resort.elevation?.top != null ? `&elevation=${resort.elevation.top}` : "")+
       `&daily=snowfall_sum,wind_speed_10m_max,wind_direction_10m_dominant,wind_gusts_10m_max,temperature_2m_min,temperature_2m_max,precipitation_hours`+
-      `&hourly=wind_speed_850hPa,wind_direction_850hPa,snowfall,snow_depth,precipitation_probability,rain,precipitation`+
+      `&hourly=wind_speed_850hPa,wind_direction_850hPa,snowfall,snow_depth,precipitation_probability,rain,precipitation,temperature_2m`+
       `&past_days=1&forecast_days=7&timezone=Asia%2FTokyo`;
 
   return fetch(url)
@@ -773,6 +780,7 @@ function fetchWeather(resort){
           }
         }
         if(data.hourly?.snowfall) daily.hourly_snowfall = data.hourly.snowfall;
+        if(data.hourly?.time) daily.hourly_time = data.hourly.time;
         if(data.hourly?.snow_depth) daily.hourly_snow_depth = data.hourly.snow_depth;
         if(data.hourly?.precipitation_probability) daily.hourly_precip_prob = data.hourly.precipitation_probability;
         if(data.hourly?.rain) daily.hourly_rain = data.hourly.rain;
@@ -780,6 +788,7 @@ function fetchWeather(resort){
           const prec = data.hourly.precipitation, snow = data.hourly.snowfall;
           daily.hourly_rain = prec.map((p,i)=> Math.max(0, (p||0) - (snow[i]!=null ? snow[i] : 0)));
         }
+        if(data.hourly?.temperature_2m) daily.hourly_temp_2m = data.hourly.temperature_2m;
       }
       weatherCache[resort.id]=daily;
       lastDataUpdated = new Date();
@@ -910,6 +919,79 @@ function getSnowfallAdjusted(daily, resort, dayOffset){
   const raw = daily.snowfall_sum[idx]||0;
   return raw * elevationFactor(resort);
 }
+function classifyPhase(tempC, snowMm, totalMm){
+  if(totalMm<=0) return { snowMmEff: 0, rainMmEff: 0, phase: "none" };
+  const T_SNOW = 0.0;
+  const T_MIX  = 1.5;
+  const T_RAIN = 2.5;
+  let snowFrac, rainFrac;
+  if(tempC<=T_SNOW){
+    snowFrac = 1.0; rainFrac = 0.0;
+  }else if(tempC>=T_RAIN){
+    snowFrac = 0.0; rainFrac = 1.0;
+  }else{
+    const t = (tempC - T_SNOW) / (T_RAIN - T_SNOW);
+    snowFrac = Math.max(0, 1.0 - t);
+    rainFrac = Math.min(1.0, t);
+  }
+  const snowMmEff = totalMm * snowFrac;
+  const rainMmEff = totalMm * rainFrac;
+  let phase = "snow";
+  const rainRatio = totalMm>0 ? rainMmEff/totalMm : 0;
+  if(rainRatio>0.7) phase="rain";
+  else if(rainRatio>0.3) phase="mix";
+  return { snowMmEff, rainMmEff, phase };
+}
+function getHourlyPhaseArrays(daily, resort){
+  const snowArr = daily?.hourly_snowfall;
+  const rainArr = daily?.hourly_rain;
+  const tempArr = daily?.hourly_temp_2m;
+  if(!Array.isArray(snowArr) || !Array.isArray(rainArr) || !Array.isArray(tempArr)){
+    return { snowMm: snowArr||[], rainMm: rainArr||[], tempC: tempArr||[] };
+  }
+  const len = Math.min(snowArr.length, rainArr.length, tempArr.length);
+  const snowMm = new Array(len);
+  const rainMm = new Array(len);
+  const tempC  = new Array(len);
+  for(let i=0;i<len;i++){
+    const t  = tempArr[i];
+    const sM = snowArr[i]||0;
+    const rM = rainArr[i]||0;
+    const total = sM + rM;
+    if(!Number.isFinite(t) || total<=0){
+      snowMm[i]=sM;
+      rainMm[i]=rM;
+      tempC[i]=t;
+      continue;
+    }
+    const ph = classifyPhase(t, sM, total);
+    snowMm[i]=ph.snowMmEff;
+    rainMm[i]=ph.rainMmEff;
+    tempC[i]=t;
+  }
+  return { snowMm, rainMm, tempC };
+}
+function getLast24hModelSnowCm(daily, resort){
+  const t = daily?.hourly_time;
+  const s = daily?.hourly_snowfall;
+  if(!Array.isArray(t) || !Array.isArray(s) || !s.length) return null;
+  const now = Date.now();
+  let idxNow = -1;
+  for(let i=t.length-1;i>=0;i--){
+    const ms = Date.parse(t[i]);
+    if(!Number.isNaN(ms) && ms<=now){
+      idxNow=i;
+      break;
+    }
+  }
+  if(idxNow<0) idxNow = Math.min(t.length-1,s.length-1);
+  const from = Math.max(0, idxNow-24);
+  const to = Math.min(idxNow+1, s.length);
+  let sum=0;
+  for(let i=from;i<to;i++) sum += (s[i]||0);
+  const cm = (sum/10) * elevationFactor(resort);
+  return cm;
+}
 // 表示用：自データが無い/0で近くに降雪予報がある場合は付近の値を標高補正して参照（2kmで24cm vs 0cm のような差を緩和）
 const NEARBY_FALLBACK_KM = 5;
 const NEARBY_FALLBACK_MIN_CM = 5;
@@ -1036,10 +1118,11 @@ function qualityBadge(ps){
 // 3時間刻みの「雨/雪タイムライン」を作る（ターゲット日の24hを 0–3,3–6,...21–24 時の8ブロックに集約）
 function getPrecipTimeline(daily, dayOffset){
   if(!daily) return [];
-  const snowArr = daily.hourly_snowfall;
+  const phase = getHourlyPhaseArrays(daily, null);
+  const snowArr = phase.snowMm||daily.hourly_snowfall;
   const depthArr = daily.hourly_snow_depth;
   const probArr = daily.hourly_precip_prob;
-  const rainArr = daily.hourly_rain;
+  const rainArr = phase.rainMm||daily.hourly_rain;
   if(!snowArr && !probArr && !rainArr) return [];
   const dayIdx = getDayIndex(daily, dayOffset);
   const base = dayIdx*24;
@@ -1328,8 +1411,9 @@ function renderList(){
         const dayIdx = getDayIndex(daily, targetDayOffset);
         const base = dayIdx*24;
         const seg = (arr,a,b)=>{ let s=0; for(let i=a;i<b&&i<arr.length;i++) s+=(arr[i]||0); return s; };
-        const snowArr = daily.hourly_snowfall;
-        const rainArr = daily.hourly_rain||[];
+        const phase = getHourlyPhaseArrays(daily, r);
+        const snowArr = phase.snowMm;
+        const rainArr = phase.rainMm||[];
         // 前日 14-19時・19-24時（スキー終了〜就寝あたり）。今日選択時もAPIに前日があれば表示
         let prevSegsCm = [];
         let prevLabels = [];
@@ -1426,8 +1510,9 @@ function renderList(){
       try{
         const dates = getDates();
         const baseOffsets = [-1,0,1];
-        const snowArr = daily.hourly_snowfall;
-        const rainArr = daily.hourly_rain||[];
+        const phaseAll = getHourlyPhaseArrays(daily, r);
+        const snowArr = phaseAll.snowMm||daily.hourly_snowfall;
+        const rainArr = phaseAll.rainMm||daily.hourly_rain||[];
         const mkRainLabel = lvl=>["雪主体","雨混じり","ほぼ雨"][lvl]||"";
         const mkWindLabel = lvl=>["ほぼ無風","弱め","やや強","強め"][lvl]||"";
         // フォーカス日サマリー
@@ -1458,7 +1543,15 @@ function renderList(){
               ? `前夜〜朝まで ${prevNightCm.toFixed(1)}cm`
               : `前夜〜朝の新雪 0cm`;
             const dayStr = useDaySnowCm!=null ? useDaySnowCm.toFixed(1) : "--";
+            const jmaForSummary = jmaSnowCache[r.id];
+            const last24 = (targetDayOffset===0 && jmaForSummary && jmaForSummary.snowfall_24h_cm!=null)
+              ? jmaForSummary.snowfall_24h_cm
+              : null;
+            const last24Html = last24!=null
+              ? `<span class="summary-badge">直近24h観測: ${last24.toFixed(1)}cm<span class="snow-depth-source">（気象庁）</span></span>`
+              : "";
             summaryHtml = `<div class="pw-summary-row">
+              ${last24Html}
               <span class="summary-badge">${prevStr} / 当日合計 ${dayStr}cm</span>
               <span class="summary-badge">雨リスク: ${mkRainLabel(rainLevel)}</span>
               <span class="summary-badge">山頂風: ${mkWindLabel(windLevel)}</span>
@@ -1715,8 +1808,9 @@ function selectResort(id, opts){
 
     // サマリー
     let prevNightCm = 0;
-    const snowArr = daily.hourly_snowfall;
-    const rainArr = daily.hourly_rain||[];
+    const phasePopup = getHourlyPhaseArrays(daily, r);
+    const snowArr = phasePopup.snowMm||daily.hourly_snowfall;
+    const rainArr = phasePopup.rainMm||daily.hourly_rain||[];
     const dayIdx = getDayIndex(daily,targetDayOffset);
     if(Array.isArray(snowArr) && dayIdx>=1){
       const basePrev=(dayIdx-1)*24;
@@ -1748,7 +1842,14 @@ function selectResort(id, opts){
     const wdq = sw ? windDirQuality(sw.summitDir,r.region) : null;
     const overnightStr = `前夜〜朝まで <strong>${prevNightCm.toFixed(1)}cm</strong>`;
     const dayTotalStr  = `当日合計 <strong>${daySnow.toFixed(1)}cm</strong>`;
-    const summaryHtml = `<div class="popup-day-summary"><div class="popup-day-summary-row">${overnightStr} / ${dayTotalStr}</div><div class="popup-day-summary-row">雨リスク: <strong>${mkRainLabel(rainLevel)}</strong></div><div class="popup-day-summary-row">山頂風: <strong>${mkWindLabel()}</strong>${wdq?`（${wdq.label}）`:""}</div></div>`;
+    const jmaForSummary = jmaSnowCache[r.id];
+    const last24 = (targetDayOffset===0 && jmaForSummary && jmaForSummary.snowfall_24h_cm!=null)
+      ? jmaForSummary.snowfall_24h_cm
+      : null;
+    const last24Row = last24!=null
+      ? `<div class="popup-day-summary-row">直近24h観測: <strong>${last24.toFixed(1)}cm</strong><span class="snow-depth-source">（気象庁）</span></div>`
+      : "";
+    const summaryHtml = `<div class="popup-day-summary">${last24Row}<div class="popup-day-summary-row">${overnightStr} / ${dayTotalStr}</div><div class="popup-day-summary-row">雨リスク: <strong>${mkRainLabel(rainLevel)}</strong></div><div class="popup-day-summary-row">山頂風: <strong>${mkWindLabel()}</strong>${wdq?`（${wdq.label}）`:""}</div></div>`;
 
     // 時間帯バー
     let hourlyHtml="";
@@ -2062,10 +2163,23 @@ document.querySelectorAll(".region-pill").forEach(p=>{
   });
 });
 
-document.getElementById("search-input").addEventListener("input",e=>{
-  searchQuery=e.target.value;
+function setSearchQuery(q){
+  searchQuery = q||"";
+  const a = document.getElementById("search-input");
+  if(a && a.value!==searchQuery) a.value = searchQuery;
+  const b = document.getElementById("search-input-mobile");
+  if(b && b.value!==searchQuery) b.value = searchQuery;
   renderList();
+}
+document.getElementById("search-input").addEventListener("input",e=>{
+  setSearchQuery(e.target.value);
 });
+const mobileSearchEl = document.getElementById("search-input-mobile");
+if(mobileSearchEl){
+  mobileSearchEl.addEventListener("input",e=>{
+    setSearchQuery(e.target.value);
+  });
+}
 document.getElementById("sort-select").addEventListener("change",e=>{
   sortMode=e.target.value;
   const hint=document.getElementById("sort-depth-hint");
