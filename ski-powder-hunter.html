@@ -56,6 +56,11 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
 .date-btn.active{background:rgba(77,217,196,.15);border-color:var(--accent);color:#fff}
 .date-btn.active .date-num{color:var(--accent)}
 .date-btn.active .date-day{color:var(--accent)}
+.date-row-flex{display:flex;flex-wrap:wrap;align-items:flex-end;gap:8px;margin-bottom:2px}
+.prev-day-jma-chip{display:none;flex:0 0 auto;max-width:100%;font-size:9px;color:var(--text-dim);line-height:1.3;padding:6px 8px;border-radius:8px;background:rgba(77,217,196,.1);border:1px solid rgba(77,217,196,.22)}
+.prev-day-jma-chip strong{color:var(--accent);margin-left:4px;font-family:"Space Mono",monospace}
+.pw-prev-day-jma-line{font-size:9px;color:var(--text-dim);margin:0 0 6px;line-height:1.35}
+.pw-prev-day-jma-line strong{color:var(--accent);font-family:"Space Mono",monospace}
 
 /* Filters */
 .filter-row{display:flex;gap:6px;margin-bottom:10px;align-items:center}
@@ -103,7 +108,6 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
 .sort-fetch-more:hover{background:rgba(77,217,196,.25)}
 .sort-select{background:transparent;border:none;color:var(--text-dim);font-size:11px;font-family:"Noto Sans JP",sans-serif;outline:none;cursor:pointer}
 .sort-select option{background:var(--navy-mid)}
-.sort-depth-hint{font-size:9px;color:var(--text-dim);margin-left:4px;white-space:nowrap}
 .snow-depth-source{font-size:9px;opacity:.85;color:var(--text-dim);margin-left:1px;font-weight:400}
 .map-pin-bar{display:flex;align-items:center;gap:6px;padding:6px 12px;border-bottom:1px solid var(--border);background:rgba(11,22,40,.4);flex-shrink:0}
 .map-pin-label{font-size:10px;color:var(--text-dim);font-family:"Space Mono",monospace;white-space:nowrap}
@@ -686,7 +690,10 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
     <p class="top-lead">いつ行く？ — 日付を選んでその日のTOP10をチェック</p>
     <div class="top-date-wrap">
       <div class="date-label">ターゲット日</div>
-      <div class="date-btns" id="top-date-btns"></div>
+      <div class="date-row-flex">
+        <div class="prev-day-jma-chip" id="top-prev-day-jma-chip" aria-live="polite"></div>
+        <div class="date-btns" id="top-date-btns"></div>
+      </div>
     </div>
     <div class="top-sort-row">
       <label for="top-sort-select" class="top-sort-label">並び替え:</label>
@@ -734,7 +741,10 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
     <!-- Target date selector -->
     <div class="date-selector">
       <div class="date-label">いつ行く？ — ターゲット日を選択</div>
-      <div class="date-btns" id="date-btns"></div>
+      <div class="date-row-flex">
+        <div class="prev-day-jma-chip" id="prev-day-jma-chip" aria-live="polite"></div>
+        <div class="date-btns" id="date-btns"></div>
+      </div>
     </div>
 
     <!-- Search -->
@@ -759,8 +769,7 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
 
   <!-- Info banner（コンパクト＋折りたたみ） -->
   <div class="info-banner" id="info-banner">
-    <strong>❄️ パウダースコア</strong> = 予想降雪・風速・気温で算出。<strong>3〜4日後</strong>がおすすめ。予報は参考値。
-    <div class="info-banner-detail">降雪は標高補正済み。各ゲレンデの緯度・経度・標高でOpen-Meteoを取得するため、2km先など近くでもグリッド差で数値が異なる場合があります。その場合は付近のゲレンデの予報を参照して表示します（「付近」表記）。警報・注意報は<a href="https://www.jma.go.jp/jma/kishou/know/kurashi/snow.html" target="_blank" rel="noopener" style="color:var(--accent)">気象庁</a>で確認。信頼度: 1〜2日先は安定、3〜5日先は目安、以降は変動しやすい。</div>
+    <div class="info-banner-detail">降雪は標高補正済み。各ゲレンデの緯度・経度・標高でOpen-Meteoを取得するため、近くでもグリッド差で数値が異なる場合があります（「付近」表記で別地点の予報を参照することがあります）。警報・注意報は<a href="https://www.jma.go.jp/jma/kishou/know/kurashi/snow.html" target="_blank" rel="noopener" style="color:var(--accent)">気象庁</a>で確認してください。</div>
     <div class="info-banner-toggle" id="info-banner-toggle">▼ 詳しく</div>
   </div>
 
@@ -774,7 +783,6 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
       <option value="wind">風弱い順</option>
       <option value="temp">気温低い順</option>
     </select>
-    <span class="sort-depth-hint" id="sort-depth-hint" style="display:none" title="ゲレンデ公表(resort-snow.json/RESORTS)優先。未取得時は気象庁またはモデル値でランキング">（ゲレンデ公表優先・未取得時は気象庁/モデル）</span>
   </div>
   <div class="map-pin-bar">
     <span class="map-pin-label">地図のピン:</span>
@@ -858,6 +866,98 @@ const INITIAL_FETCH_IDS = [19, 324, 300, 203]; // ニセコHANAZONO, かぐら, 
 // ─── Weather cache ─────────────────────────────────────────────
 const weatherCache = {};   // id -> {daily:{time,snowfall_sum,wind_speed_10m_max,...}}
 let jmaSnowCache = {};     // id -> { depth_cm, station_name, observed_at }（気象庁・日1回取得の積雪）
+/** 気象庁・前日(JSTカレンダー)実績: 降水㎜+気温℃から降雪相当cmへ換算するルール（全画面共通） */
+const JMA_PREV_SNOW_RULE_TITLE_JA = "気象庁の1時間降水量(㎜)と気温(℃)から降雪相当(cm)を推計。4℃以上は降雨のみ、0〜4℃は線形補間、0℃以下は1mm降水≈1cm新雪相当。";
+let jmaPrevDayMeta = null; // { calendar_day_jst, rule_note_ja, rule_note_en }
+
+function jmaHourlyPrecipTempToSnowCm(precipMm, tempC){
+  if(precipMm==null||precipMm==="") return null;
+  const p = Number(precipMm);
+  if(Number.isNaN(p)||p<0) return null;
+  if(p<0.05) return 0;
+  if(tempC==null||tempC==="") return null;
+  const t = Number(tempC);
+  if(Number.isNaN(t)) return null;
+  let snowFrac = 1;
+  if(t>=4) snowFrac = 0;
+  else if(t>0) snowFrac = (4-t)/4;
+  return p*10*snowFrac;
+}
+function sumJmaPrevSnowHourRange(precipArr, tempCArr, fromH, toHEx){
+  if(!Array.isArray(precipArr)||!Array.isArray(tempCArr)) return null;
+  let sum = 0;
+  for(let h=fromH;h<toHEx;h++){
+    if(h>=precipArr.length||h>=tempCArr.length) return null;
+    const cm = jmaHourlyPrecipTempToSnowCm(precipArr[h], tempCArr[h]);
+    if(cm===null) return null;
+    sum += cm;
+  }
+  return sum;
+}
+function mergeJmaPrevDayHourlyPayload(payload){
+  if(!payload||!payload.calendar_day_jst||typeof payload.calendar_day_jst!=="string"||!payload.stations||typeof payload.stations!=="object") return;
+  jmaPrevDayMeta = {
+    calendar_day_jst: payload.calendar_day_jst,
+    rule_note_ja: payload.rule_note_ja||JMA_PREV_SNOW_RULE_TITLE_JA,
+    rule_note_en: payload.rule_note_en||""
+  };
+  for(const idStr in jmaSnowCache){
+    const entry = jmaSnowCache[idStr];
+    if(!entry||!entry.station_no) continue;
+    const st = payload.stations[entry.station_no];
+    if(!st||!Array.isArray(st.precip_mm)||!Array.isArray(st.temp_c)) continue;
+    if(st.precip_mm.length<24||st.temp_c.length<24) continue;
+    const total = sumJmaPrevSnowHourRange(st.precip_mm, st.temp_c, 0, 24);
+    const h1218 = sumJmaPrevSnowHourRange(st.precip_mm, st.temp_c, 12, 18);
+    const h1824 = sumJmaPrevSnowHourRange(st.precip_mm, st.temp_c, 18, 24);
+    if(total===null||h1218===null||h1824===null) continue;
+    entry.prev_day_jst = payload.calendar_day_jst;
+    entry.prev_day_total_snow_cm_est = Math.round(total*10)/10;
+    entry.prev_day_12_18_snow_cm_est = Math.round(h1218*10)/10;
+    entry.prev_day_18_24_snow_cm_est = Math.round(h1824*10)/10;
+  }
+  updatePrevDayJmaChips();
+}
+function getJmaPrevDaySnowForResort(id){
+  const e = jmaSnowCache[id];
+  if(!e) return null;
+  if(e.prev_day_total_snow_cm_est==null&&e.prev_day_12_18_snow_cm_est==null&&e.prev_day_18_24_snow_cm_est==null) return null;
+  return {
+    total: e.prev_day_total_snow_cm_est,
+    h12_18: e.prev_day_12_18_snow_cm_est,
+    h18_24: e.prev_day_18_24_snow_cm_est,
+    jst: e.prev_day_jst||null,
+    ruleTitle: (jmaPrevDayMeta&&jmaPrevDayMeta.rule_note_ja)||JMA_PREV_SNOW_RULE_TITLE_JA
+  };
+}
+function formatJstCalendarShort(ymd){
+  if(!ymd||typeof ymd!=="string") return "";
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(ymd.trim());
+  if(!m) return ymd;
+  return `${parseInt(m[2],10)}/${parseInt(m[3],10)}`;
+}
+function updatePrevDayJmaChips(){
+  const chip = document.getElementById("prev-day-jma-chip");
+  const topChip = document.getElementById("top-prev-day-jma-chip");
+  const hide = ()=>{ if(chip){ chip.style.display="none"; chip.innerHTML=""; } if(topChip){ topChip.style.display="none"; topChip.innerHTML=""; } };
+  if(!jmaPrevDayMeta||!jmaPrevDayMeta.calendar_day_jst){ hide(); return; }
+  const filtered = getFiltered();
+  let maxV = -1;
+  let has = false;
+  filtered.forEach(function(r){
+    const e = jmaSnowCache[r.id];
+    if(e&&e.prev_day_total_snow_cm_est!=null){ has=true; maxV=Math.max(maxV,e.prev_day_total_snow_cm_est); }
+  });
+  const dateL = formatJstCalendarShort(jmaPrevDayMeta.calendar_day_jst);
+  const tip = jmaPrevDayMeta.rule_note_ja||JMA_PREV_SNOW_RULE_TITLE_JA;
+  if(!has){
+    hide();
+    return;
+  }
+  const inner = `<span title="${tip.replace(/"/g,"&quot;")}">${dateL} 前日合計（気象庁） <strong>${maxV.toFixed(maxV>=10?0:1)}cm</strong><span class="snow-depth-source">（表示中の最大）</span></span>`;
+  if(chip){ chip.innerHTML=inner; chip.style.display="flex"; }
+  if(topChip){ topChip.innerHTML=inner; topChip.style.display="flex"; }
+}
 let resortSnowCache = {};  // id -> { depth_cm, updated_at }（ゲレンデ公表・data/resort-snow.json または RESORTS.snowDepth）
 let liftTimesCache = {};   // id -> "8:00"（リフト開始時刻・data/lift-times.json または RESORTS[].liftStart）
 let operatingCache = {};   // id -> { open: "12-01", close: "04-30" }（営業期間・data/resort-operating.json または RESORTS[].openDate/closeDate）
@@ -983,6 +1083,7 @@ function renderDateButtonsInto(containerId){
       setTargetDayOffset(btn.dataset.offset);
     });
   });
+  updatePrevDayJmaChips();
 }
 function syncDateButtonsActive(){
   document.querySelectorAll("#top-date-btns .date-btn, #date-btns .date-btn").forEach(b=>{
@@ -1594,8 +1695,8 @@ function renderTop10(){
         return sb - sa;
       })
       .slice(0,10);
-    if(fallbackTop10.length>0){
-      if(subEl) subEl.textContent = `${dateStr}のパウダースコア TOP10（${regionLabel}・フォールバック）`;
+      if(fallbackTop10.length>0){
+      if(subEl) subEl.textContent = `${dateStr}のパウダースコア TOP10（${regionLabel}・参考表示）`;
       listEl.innerHTML = fallbackTop10.map((r,i)=>{
         const rank = i+1;
         const rankClass = rank===1?"top-1":rank===2?"top-2":rank===3?"top-3":"";
@@ -1606,7 +1707,7 @@ function renderTop10(){
           <div class="top-card-body">
             <div class="top-card-name">${r.name}</div>
             <div class="top-card-pref">${r.pref} · TOP ${r.elevation?.top||"-"}m</div>
-            <div class="top-card-meta">❄️ ${newSnow!=null?newSnow+"cm(3日)":"—"} · 🌐 フォールバックデータ</div>
+            <div class="top-card-meta">❄️ ${newSnow!=null?newSnow+"cm(3日)":"—"} · 埋め込みスコア</div>
           </div>
           <div class="top-card-score ${scoreClass(score)}">
             <div class="top-card-score-num">${score}</div>
@@ -1684,9 +1785,13 @@ function renderList(){
     const todayStr = `${dates[0].getMonth()+1}月${dates[0].getDate()}日`;
     const DLABELS=["今日","明日","明後日","+3日","+4日","+5日","+6日"];
     if(hasData&&daily.snowfall_sum){
+      const jpdCard = getJmaPrevDaySnowForResort(r.id);
+      const prevDayBanner = (targetDayOffset===0 && jpdCard && jpdCard.total!=null)
+        ? `<div class="pw-prev-day-jma-line" title="${String(jpdCard.ruleTitle||"").replace(/"/g,"&quot;")}">前日（${formatJstCalendarShort(jpdCard.jst)}）合計（気象庁） <strong>${jpdCard.total.toFixed(1)}cm</strong><span class="snow-depth-source">（降水・気温から推計）</span></div>`
+        : "";
       const adjusted = Array.from({length:7},(_,i)=>{ const v=getSnowfallAdjusted(daily,r,i); return v!=null?v:0; });
       const maxS = Math.max(...adjusted,1);
-      barsHtml=`<div class="snow-bars-wrap"><div class="snow-bars-caption">各日の予想降雪（棒・数字＝cm）<span class="snow-bars-today-hint">※今日＝${todayStr}（ページを開いた日）</span></div><div class="snow-bars">`+
+      barsHtml=prevDayBanner+`<div class="snow-bars-wrap"><div class="snow-bars-caption">各日の予想降雪（棒・数字＝cm）<span class="snow-bars-today-hint">※今日＝${todayStr}（ページを開いた日）</span></div><div class="snow-bars">`+
         adjusted.map((cm,i)=>{
           const h=Math.max(2,Math.round((cm/maxS)*26));
           const isTarget=i===targetDayOffset;
@@ -1707,12 +1812,18 @@ function renderList(){
         const phase = getHourlyPhaseArrays(daily, r);
         const snowArr = phase.snowMm;
         const rainArr = phase.rainMm||[];
-        // 前日 14-19時・19-24時（スキー終了〜就寝あたり）。今日選択時もAPIに前日があれば表示
+        // 「今日」: 前日12–18・18–24は気象庁系（jma-prevday-hourly.json マージ値）のみ。それ以外の日は従来どおり予報ベースの前日帯
+        const jmaPrevBands = targetDayOffset===0 ? getJmaPrevDaySnowForResort(r.id) : null;
         let prevSegsCm = [];
         let prevLabels = [];
         let prevSnowMm = [];
         let prevRainMm = [];
-        if(dayIdx>=1){
+        if(targetDayOffset===0 && jmaPrevBands && jmaPrevBands.h12_18!=null && jmaPrevBands.h18_24!=null){
+          prevSnowMm = [ jmaPrevBands.h12_18*10, jmaPrevBands.h18_24*10 ];
+          prevRainMm = [ 0, 0 ];
+          prevSegsCm = [ jmaPrevBands.h12_18, jmaPrevBands.h18_24 ];
+          prevLabels = ["前日12–18時（気象庁）","前日18–24時（気象庁）"];
+        } else if(targetDayOffset!==0 && dayIdx>=1){
           const prevSnowHours = snowArr.slice((dayIdx-1)*24,(dayIdx-1)*24+24);
           const prevRainHours = rainArr.slice((dayIdx-1)*24,(dayIdx-1)*24+24);
           prevSnowMm = [ seg(prevSnowHours,14,19), seg(prevSnowHours,19,24) ];
@@ -1750,6 +1861,9 @@ function renderList(){
         }
         const totalDisplay = segsCm.reduce((a,b)=>a+b,0);
         const sumNote = dailySnowCm!=null && totalMm>0 ? `（当日合計 ${totalDisplay.toFixed(1)}cm ＝ 日別に比例）` : (totalMm===0 && dailySnowCm>0 ? "（時間帯別データなし・日別のみ）" : "");
+        const jmaPrevHint = (targetDayOffset===0 && prevLabels.length && jmaPrevDayMeta&&jmaPrevDayMeta.calendar_day_jst)
+          ? ` <span class="snow-depth-source">左端2本＝気象庁・${formatJstCalendarShort(jmaPrevDayMeta.calendar_day_jst)}実績（推計）</span>`
+          : "";
         const allCm = [...prevSegsCm,...segsCm,...nextSegsCm];
         const allLabels = [...prevLabels,...labels,...nextLabels];
         const allSnowMm = [...prevSnowMm,...segsSnowMm,...nextSnowMm];
@@ -1758,7 +1872,7 @@ function renderList(){
         const dayStartIdx = prevLabels.length;
         const nextStartIdx = prevLabels.length + 5;
         const hourlyId = `hourly-${r.id}`;
-        barsHtml+=`<div class="hourly-snow-wrap" id="${hourlyId}"><div class="hourly-snow-caption">${DLABELS[targetDayOffset]}の前後＋時間帯別予想降雪 ${sumNote}</div><div class="hourly-snow-bars">`+
+        barsHtml+=`<div class="hourly-snow-wrap" id="${hourlyId}"><div class="hourly-snow-caption">${DLABELS[targetDayOffset]}の前後＋時間帯別（予報） ${sumNote}${jmaPrevHint}</div><div class="hourly-snow-bars">`+
           allCm.map((cm,i)=>{
             const snowMm = allSnowMm[i]||0;
             const rainMm = allRainMm[i]||0;
@@ -1784,7 +1898,10 @@ function renderList(){
             } else {
               fillStyle = `background:${snowBaseColor}`;
             }
-            const titleStr = totalWater>=0.1 ? `${allLabels[i]}: 雪${snowMm.toFixed(1)}cm 雨${rainMm.toFixed(1)}mm` : allLabels[i];
+            const isJmaPrevBar = String(allLabels[i]).indexOf("（気象庁）")>=0;
+            const titleStr = isJmaPrevBar
+              ? `${allLabels[i]}: 降雪相当 ${cm.toFixed(1)}cm（降水・気温から推計）`
+              : (totalWater>=0.1 ? `${allLabels[i]}: 雪${snowMm.toFixed(1)}cm 雨${rainMm.toFixed(1)}mm` : allLabels[i]);
             return `<div class="hourly-snow-bar${extraClass}" title="${titleStr}">
               <div class="hourly-snow-bar-bg">
                 ${icon?`<span class="hourly-snow-icon">${icon}</span>`:""}
@@ -1799,10 +1916,8 @@ function renderList(){
       barsHtml=`<div class="loading-row" style="opacity:.5">データ未取得</div>`;
     }
 
-      // フォーカス日のサマリー＋前後2日ストリップ
+      // フォーカス日のサマリー
       try{
-        const dates = getDates();
-        const baseOffsets = [-1,0,1];
         const phaseAll = getHourlyPhaseArrays(daily, r);
         const snowArr = phaseAll.snowMm||daily.hourly_snowfall;
         const rainArr = phaseAll.rainMm||daily.hourly_rain||[];
@@ -1832,9 +1947,10 @@ function renderList(){
             }
             const sw = ps.summitWind;
             const windLevel = sw?windRankLevel(sw.summit||0):0;
-            const prevStr = prevNightCm>0
-              ? `前夜〜朝まで ${prevNightCm.toFixed(1)}cm`
-              : `前夜〜朝の新雪 0cm`;
+            const jpdS = targetDayOffset===0 ? getJmaPrevDaySnowForResort(r.id) : null;
+            const prevStr = (jpdS && jpdS.total!=null)
+              ? `前日合計（気象庁） ${jpdS.total.toFixed(1)}cm`
+              : (prevNightCm>0 ? `前夜〜朝まで ${prevNightCm.toFixed(1)}cm` : `前夜〜朝の新雪 0cm`);
             const dayStr = useDaySnowCm!=null ? useDaySnowCm.toFixed(1) : "--";
             const jmaForSummary = jmaSnowCache[r.id];
             const last24 = (targetDayOffset===0 && jmaForSummary && jmaForSummary.snowfall_24h_cm!=null)
@@ -1850,45 +1966,6 @@ function renderList(){
               <span class="summary-badge">山頂風: ${mkWindLabel(windLevel)}</span>
             </div>`;
           }
-        }
-        // 前後2日ストリップ
-        const stripItems = baseOffsets.map(delta=>{
-          const off = targetDayOffset+delta;
-          if(off<0||off>6) return "";
-          const d = dates[off];
-          const label = delta===-1?"前日":(delta===0?"当日":"翌日");
-          const dayIdx2 = getDayIndex(daily, off);
-          if(dayIdx2==null||dayIdx2<0) return "";
-          let snowCm = getSnowfallAdjusted(daily,r,off);
-          if(snowCm==null && Array.isArray(snowArr)){
-            const base2 = dayIdx2*24;
-            let mm=0;for(let i=base2;i<base2+24&&i<snowArr.length;i++) mm+=(snowArr[i]||0);
-            snowCm = mm/10;
-          }
-          let rainLevel=0;
-          if(Array.isArray(snowArr)&&Array.isArray(rainArr)){
-            const base2 = dayIdx2*24;
-            let snowMm=0,rainMm=0;
-            for(let i=base2;i<base2+24&&i<snowArr.length;i++) snowMm+=(snowArr[i]||0);
-            for(let i=base2;i<base2+24&&i<rainArr.length;i++) rainMm+=(rainArr[i]||0);
-            const totalMm = snowMm+rainMm;
-            if(totalMm>0){
-              const ratio = rainMm/totalMm;
-              if(ratio>0.7) rainLevel=2;
-              else if(ratio>0.3) rainLevel=1;
-            }
-          }
-          const sw = ps.summitWind;
-          const windLevel = sw?windRankLevel(sw.summit||0):0;
-          return `<div class="three-day-item">
-            <div class="three-day-label">${label}</div>
-            <div class="three-day-snow">${snowCm!=null?snowCm.toFixed(1):"--"}cm</div>
-            <div class="three-day-rain">${["❄","❄🌧","🌧"][rainLevel]}</div>
-            <div class="three-day-wind">${["🍃","🍃","⚠","⛔"][windLevel]}</div>
-          </div>`;
-        }).filter(Boolean).join("");
-        if(stripItems){
-          stripHtml = `<div class="pw-three-day-strip">${stripItems}</div>`;
         }
       }catch(e){}
 
@@ -2136,7 +2213,10 @@ function selectResort(id, opts){
     const wDir = windDir(sw.summitDir);
     const mkWindLabel = ()=> sw ? `${sw.summit}km/h${wDir?` ${wDir}`:""}` : "";
     const wdq = sw ? windDirQuality(sw.summitDir,r.region) : null;
-    const overnightStr = `前夜〜朝まで <strong>${prevNightCm.toFixed(1)}cm</strong>`;
+    const jpdPop = targetDayOffset===0 ? getJmaPrevDaySnowForResort(r.id) : null;
+    const overnightStr = (jpdPop && jpdPop.total!=null)
+      ? `前日合計（気象庁） <strong>${jpdPop.total.toFixed(1)}cm</strong>`
+      : `前夜〜朝まで <strong>${prevNightCm.toFixed(1)}cm</strong>`;
     const dayTotalStr  = `当日合計 <strong>${daySnow.toFixed(1)}cm</strong>`;
     const jmaForSummary = jmaSnowCache[r.id];
     const last24 = (targetDayOffset===0 && jmaForSummary && jmaForSummary.snowfall_24h_cm!=null)
@@ -2159,11 +2239,12 @@ function selectResort(id, opts){
         }
         segments.push({labelKey,snowMm,rainMm});
       };
-      if(dayIdx>=1){
+      if(targetDayOffset===0 && jpdPop && jpdPop.h12_18!=null && jpdPop.h18_24!=null){
+        segments.push({labelKey:"前日12–18（気象庁）",snowMm:jpdPop.h12_18*10,rainMm:0});
+        segments.push({labelKey:"前日18–24（気象庁）",snowMm:jpdPop.h18_24*10,rainMm:0});
+      } else if(targetDayOffset!==0 && dayIdx>=1){
         const basePrev=(dayIdx-1)*24;
         seg("前日夕方",basePrev+14,basePrev+24);
-      } else {
-        segments.push({labelKey:"前日夕方",snowMm:0,rainMm:0});
       }
       const baseDay=dayIdx*24;
       seg("0-5時",baseDay+0,baseDay+5);
@@ -2201,7 +2282,10 @@ function selectResort(id, opts){
         } else {
           fillStyle=`background:${baseColor}`;
         }
-        const titleStr=`${s.labelKey}: 雪${snowCm.toFixed(1)}cm / 雨${rainCm.toFixed(1)}cm`;
+        const isJmaSeg = String(s.labelKey).indexOf("（気象庁）")>=0;
+        const titleStr = isJmaSeg
+          ? `${s.labelKey}: 降雪相当 ${snowCm.toFixed(1)}cm（降水・気温から推計）`
+          : `${s.labelKey}: 雪${snowCm.toFixed(1)}cm / 雨${rainCm.toFixed(1)}cm`;
         hourlyHtml+=`<div class="popup-hourly-bar" title="${titleStr}"><div class="popup-hourly-bar-bg">${icon?`<span class="popup-hourly-icon">${icon}</span>`:""}<div class="popup-hourly-fill" style="height:${h}px;${fillStyle}"></div></div><div class="popup-hourly-label">${s.labelKey}</div></div>`;
       });
       hourlyHtml+='</div>';
@@ -2391,13 +2475,46 @@ const JMA_SNOW_CONFIG = {
   }
 };
 
-const JMA_PROBE_Z = 7;
+/** JMA jmatile 降雪は奇数 z で欠けることが多い → レイヤ・時刻プローブとも「実効タイル z」を偶数に揃える */
+const JMA_TILE_NATIVE_MIN = 6;
+const JMA_TILE_NATIVE_MAX = 8;
 // 遡及・刻み: Gemini+JMA慣例ではモデル発表は離散的。30分刻みは負荷が大きいため60分、遡及は同等試行数で720分
 const JMA_PROBE_LOOKBACK_MIN = 720;
 const JMA_PROBE_STEP_MIN = 60;
 const JMA_PROBE_TIMEOUT_MS = 2500;
 let jmaSnowDebugProbeErrorCount = 0;
 let jmaSnowKnownGoodTested = { "3h": false, "6h": false };
+
+function getJmaSnowEffectiveTileZoom(mapZoom){
+  let z = Math.round(Number(mapZoom));
+  if(!isFinite(z)) z = JMA_TILE_NATIVE_MIN;
+  if(z < JMA_TILE_NATIVE_MIN) z = JMA_TILE_NATIVE_MIN;
+  if(z > JMA_TILE_NATIVE_MAX) z = JMA_TILE_NATIVE_MAX;
+  if((z % 2) === 1) z--;
+  return z;
+}
+/** 現在の実効 z でヒットしないときの予備（6↔8） */
+function getJmaSnowAlternateProbeZ(zEff){
+  if(zEff >= JMA_TILE_NATIVE_MAX) return JMA_TILE_NATIVE_MAX - 2;
+  return JMA_TILE_NATIVE_MAX;
+}
+
+const JmaSnowTileLayer = L.TileLayer.extend({
+  _clampZoom: function(zoom){
+    var z = L.GridLayer.prototype._clampZoom.call(this, zoom);
+    if(z === undefined){ return z; }
+    if((z % 2) === 1){
+      // #region agent log
+      try{
+        var mz = Math.round(zoom);
+        fetch("http://127.0.0.1:7504/ingest/7a45a88b-734e-4e06-9139-2646ed4e0f41",{method:"POST",headers:{"Content-Type":"application/json","X-Debug-Session-Id":"e56e9e"},body:JSON.stringify({sessionId:"e56e9e",location:"ski-powder-hunter.html:JmaSnowTileLayer._clampZoom",message:"jma tile zoom forced even",data:{mapRoundedZoom:mz,nativeZoomBefore:z,tileZoomAfter:z-1},timestamp:Date.now(),hypothesisId:"H-evenZ"})}).catch(function(){});
+      }catch(_){}
+      // #endregion
+      z--;
+    }
+    return z;
+  }
+});
 
 function buildJmaSnowTileUrlFromXY(kind, timeStr, z, x, y){
   const template = buildJmaSnowTileUrl(kind, timeStr);
@@ -2606,26 +2723,28 @@ async function probeAnyJmaTilePointExists(kind, timeStr, z, probePoints){
 
 async function isJmaSnowTimeRenderable(kind, timeStr){
   if(!kind || !timeStr) return { hit:false, hitZ:null, pointIndex:-1 };
-  const zNow = Math.round(map ? map.getZoom() : 7);
+  const mapZ = map && map.getZoom ? map.getZoom() : 7;
+  const zNow = getJmaSnowEffectiveTileZoom(mapZ);
+  const zAlt = getJmaSnowAlternateProbeZ(zNow);
   const points = getJmaProbeLatLngs();
 
   const rNow = await probeAnyJmaTilePointExists(kind, timeStr, zNow, points);
   if(rNow.hit) {
     const pointKind = ['center','NE','NW','SE','SW'][rNow.index] || 'unknown';
     // #region [JMA snow debug] isRenderable result
-    console.log("[JMA snow debug] isRenderable result", { kind, timeStr, hit:true, hitZ:zNow, pointIndex:rNow.index, point:pointKind });
+    console.log("[JMA snow debug] isRenderable result", { kind, timeStr, hit:true, hitZ:zNow, mapZoom:mapZ, pointIndex:rNow.index, point:pointKind });
     // #endregion
     return { hit:true, hitZ:zNow, pointIndex:rNow.index };
   }
 
-  if(JMA_PROBE_Z !== zNow){
-    const rFb = await probeAnyJmaTilePointExists(kind, timeStr, JMA_PROBE_Z, points);
+  if(zAlt !== zNow){
+    const rFb = await probeAnyJmaTilePointExists(kind, timeStr, zAlt, points);
     if(rFb.hit) {
       const pointKind = ['center','NE','NW','SE','SW'][rFb.index] || 'unknown';
       // #region [JMA snow debug] isRenderable result
-      console.log("[JMA snow debug] isRenderable result", { kind, timeStr, hit:true, hitZ:JMA_PROBE_Z, pointIndex:rFb.index, point:pointKind });
+      console.log("[JMA snow debug] isRenderable result", { kind, timeStr, hit:true, hitZ:zAlt, mapZoom:mapZ, pointIndex:rFb.index, point:pointKind });
       // #endregion
-      return { hit:true, hitZ:JMA_PROBE_Z, pointIndex:rFb.index };
+      return { hit:true, hitZ:zAlt, pointIndex:rFb.index };
     }
   }
   // #region [JMA snow debug] isRenderable result
@@ -2684,9 +2803,11 @@ async function fetchJmaSnowLatestTime(kind){
   }catch(_){}
   // #endregion
 
-  const zNow = Math.round(map ? map.getZoom() : 7);
+  const mapZ = map && map.getZoom ? map.getZoom() : 7;
+  const zNow = getJmaSnowEffectiveTileZoom(mapZ);
+  const zAlt = getJmaSnowAlternateProbeZ(zNow);
   const points = getJmaProbeLatLngs();
-  console.log("[JMA snow debug] fetchLatest begin", { kind, zNow, lookbackMin, stepMin:JMA_PROBE_STEP_MIN, points:points.length });
+  console.log("[JMA snow debug] fetchLatest begin", { kind, zNow, zAlt, mapZoom:mapZ, lookbackMin, stepMin:JMA_PROBE_STEP_MIN, points:points.length });
 
   for(let offset=0; offset<=lookbackMin; offset+=JMA_PROBE_STEP_MIN){
     const t = new Date(anchorMs - offset*60*1000);
@@ -2697,8 +2818,8 @@ async function fetchJmaSnowLatestTime(kind){
       // #endregion
       return timeStr;
     }
-    if(JMA_PROBE_Z !== zNow){
-      const rFb = await probeAnyJmaTilePointExists(kind, timeStr, JMA_PROBE_Z, points);
+    if(zAlt !== zNow){
+      const rFb = await probeAnyJmaTilePointExists(kind, timeStr, zAlt, points);
       if(rFb.hit) {
         // #region [JMA snow debug] fetchLatest found
         // #endregion
@@ -2724,9 +2845,9 @@ async function fetchJmaSnowLatestTime(kind){
     const rProbeZNow = await probeAnyJmaTilePointExists(kind, known.timeStr, zNow, points);
     console.log("[JMA snow debug] fetchLatest not-found known6h probeAny(zNow)", { kind, timeStr:known.timeStr, z:zNow, hit:rProbeZNow.hit, pointIndex:rProbeZNow.index, label:known.label });
 
-    if(JMA_PROBE_Z !== zNow){
-      const rProbeFb = await probeAnyJmaTilePointExists(kind, known.timeStr, JMA_PROBE_Z, points);
-      console.log("[JMA snow debug] fetchLatest not-found known6h probeAny(fallbackZ)", { kind, timeStr:known.timeStr, z:JMA_PROBE_Z, hit:rProbeFb.hit, pointIndex:rProbeFb.index, label:known.label });
+    if(zAlt !== zNow){
+      const rProbeFb = await probeAnyJmaTilePointExists(kind, known.timeStr, zAlt, points);
+      console.log("[JMA snow debug] fetchLatest not-found known6h probeAny(fallbackZ)", { kind, timeStr:known.timeStr, z:zAlt, hit:rProbeFb.hit, pointIndex:rProbeFb.index, label:known.label });
     }
   }
   // #endregion
@@ -2735,7 +2856,7 @@ async function fetchJmaSnowLatestTime(kind){
   try{
     const probePoint = points && points.length ? points[0] : null;
     if(probePoint){
-      const baseTimeStr = formatJmaTimeStr(rounded);
+      const baseTimeStr = formatJmaTimeStr(new Date(anchorMs));
       const { x, y } = latLngToTileXY(probePoint.lat, probePoint.lng, zNow);
       const secCandidates = ["00","10","20"];
       console.log("[JMA snow debug] seconds probe", { kind, baseTimeStr, z:zNow, tile:{x,y}, secCandidates });
@@ -2829,14 +2950,14 @@ async function ensureJmaSnowLayer(kind){
   }else{
     // #region [JMA snow debug] switch url(create)
     // #endregion
-    jmaSnowLayer = L.tileLayer(urlPattern,{
+    jmaSnowLayer = new JmaSnowTileLayer(urlPattern,{
       opacity:0.5,
       zIndex:50,
       // Gemini/JMA: 高ズームはタイル未提供で真っ白になりやすい → ネイティブは ~8 まで、それ以上は拡大表示
       maxZoom:10,
       minZoom:3,
-      maxNativeZoom:8,
-      minNativeZoom:6
+      maxNativeZoom:JMA_TILE_NATIVE_MAX,
+      minNativeZoom:JMA_TILE_NATIVE_MIN
     });
   }
   return jmaSnowLayer;
@@ -3047,8 +3168,6 @@ if(mobileSearchEl){
 }
 document.getElementById("sort-select").addEventListener("change",e=>{
   sortMode=e.target.value;
-  const hint=document.getElementById("sort-depth-hint");
-  if(hint) hint.style.display=sortMode==="depth"?"inline":"none";
   renderList();
 });
 document.getElementById("btn-fetch-remaining").addEventListener("click",()=>{
@@ -3206,11 +3325,13 @@ document.getElementById("view-map").style.display="none";
     fetch("data/jma-snow.json").then(function(r){ return r.ok?r.json():Promise.reject(); }).catch(function(){ return null; }),
     fetch("data/resort-snow.json").then(function(r){ return r.ok?r.json():Promise.reject(); }).catch(function(){ return null; }),
     fetch("data/lift-times.json").then(function(r){ return r.ok?r.json():Promise.reject(); }).catch(function(){ return null; }),
-    fetch("data/resort-operating.json").then(function(r){ return r.ok?r.json():Promise.reject(); }).catch(function(){ return null; })
+    fetch("data/resort-operating.json").then(function(r){ return r.ok?r.json():Promise.reject(); }).catch(function(){ return null; }),
+    fetch("data/jma-prevday-hourly.json").then(function(r){ return r.ok?r.json():Promise.reject(); }).catch(function(){ return null; })
   ]).then(function(arr){
-    var obj=arr[0], jma=arr[1], resortSnow=arr[2], liftTimes=arr[3], operating=arr[4];
+    var obj=arr[0], jma=arr[1], resortSnow=arr[2], liftTimes=arr[3], operating=arr[4], prevHourly=arr[5];
     if(obj&&typeof obj==="object"){ let n=0; for(var id in obj) if(obj[id]){ weatherCache[id]=obj[id]; n++; } if(n>0){ document.getElementById("fetched-count").textContent=Object.values(weatherCache).filter(v=>v&&v!=="loading").length; renderTop10(); renderList(); } }
     if(jma&&typeof jma==="object"){ jmaSnowCache=jma; }
+    if(prevHourly&&typeof prevHourly==="object"){ mergeJmaPrevDayHourlyPayload(prevHourly); }
     if(resortSnow&&typeof resortSnow==="object"){ resortSnowCache=resortSnow; }
     if(liftTimes&&typeof liftTimes==="object"){ liftTimesCache=liftTimes; }
     if(operating&&typeof operating==="object"){ operatingCache=operating; }
