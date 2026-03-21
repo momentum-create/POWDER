@@ -282,10 +282,13 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
 .popup-lift-note{font-size:9px;color:var(--text-dim);opacity:.9;cursor:help;margin-left:2px}
 
 /* Map marker */
-.custom-marker{display:flex;align-items:center;justify-content:center;flex-direction:column;cursor:pointer}
+.custom-marker{display:flex;align-items:center;justify-content:center;flex-direction:column;cursor:pointer;transition:transform .18s ease,filter .18s ease}
+.custom-marker.is-selected{transform:translateY(-2px) scale(1.1);filter:drop-shadow(0 0 10px rgba(77,217,196,.75))}
 .m-pin{width:30px;height:30px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);display:flex;align-items:center;justify-content:center;border:2px solid rgba(255,255,255,.2);box-shadow:0 2px 8px rgba(0,0,0,.5)}
 .m-pin-inner{transform:rotate(45deg);font-size:11px;line-height:1;font-family:"Space Mono",monospace;font-weight:700}
 .m-snow{font-family:"Space Mono",monospace;font-size:9px;font-weight:700;color:#fff;margin-top:1px;text-shadow:0 1px 3px rgba(0,0,0,.8);white-space:nowrap}
+.custom-cluster-marker{width:34px;height:34px;border-radius:999px;background:rgba(77,217,196,.22);border:2px solid rgba(77,217,196,.75);color:#dffaf5;display:flex;align-items:center;justify-content:center;font-family:"Space Mono",monospace;font-size:12px;font-weight:700;box-shadow:0 4px 12px rgba(0,0,0,.45)}
+.custom-cluster-marker.is-selected{background:rgba(77,217,196,.32);border-color:var(--accent)}
 
 /* Legend overlay */
 .map-overlay{position:absolute;bottom:28px;left:392px;z-index:900;background:rgba(13,30,51,.92);border:1px solid var(--border);border-radius:10px;padding:10px 13px;font-size:11px;backdrop-filter:blur(4px)}
@@ -466,18 +469,19 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
     right:max(8px,env(safe-area-inset-right));
     width:auto;
     max-width:none;
-    flex-wrap:wrap;
+    flex-wrap:nowrap;
     justify-content:center;
     align-items:center;
-    gap:8px 14px;
-    padding:8px 10px;
+    gap:6px;
+    padding:6px;
     font-size:12px;
     line-height:1.25;
-    border-radius:10px;
+    border-radius:12px;
     box-sizing:border-box;
     z-index:955;
   }
-  .map-overlay-toggle label{white-space:normal;text-align:center}
+  .map-overlay-toggle label{white-space:nowrap;text-align:center;flex:1;min-width:0;display:flex;align-items:center;justify-content:center;gap:4px;min-height:40px;padding:0 8px;border-radius:8px;background:rgba(255,255,255,.04)}
+  .map-overlay-toggle input{margin:0}
   /* ポップアップ表示中は戻る・検索・JMAトグルを隠し、×と本文が確実にタップできるようにする */
   .view-map.map-popup-open .map-mobile-back,
   .view-map.map-popup-open .map-mobile-search,
@@ -1005,6 +1009,7 @@ let sortMode = "powder";
 let topSortMode = "powder";
 let selectedId = null;
 let markers = {};
+let clusterMarkers = [];
 let currentPopup = null;
 let mapShowAll = false;  // false=地図は注目のみ, true=全ゲレンデ表示
 let jmaSnowLayer = null;
@@ -2129,6 +2134,7 @@ function selectResort(id, opts){
   selectedId=id;
   const r=RESORT_MAP[id];
   if(!r) return;
+  refreshMarkers();
   const isMobilePopup = (typeof window!=="undefined" && window.innerWidth<=700);
   const filtered = getFiltered();
   const currentIndex = filtered.findIndex(rr=>rr.id===id);
@@ -2461,6 +2467,11 @@ map.on("popupclose", function(){
   const vm = document.getElementById("view-map");
   if(vm) vm.classList.remove("map-popup-open");
 });
+map.on("zoomend moveend", function(){
+  if(typeof applyMarkerLayers==="function" && typeof getCurrentMapVisibleIds==="function"){
+    applyMarkerLayers(getCurrentMapVisibleIds());
+  }
+});
 L.control.zoom({position:"bottomright"}).addTo(map);
 L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",{
   attribution:"&copy; OpenStreetMap &copy; CARTO",subdomains:"abcd",maxZoom:17
@@ -2482,6 +2493,8 @@ const JMA_TILE_NATIVE_MAX = 8;
 const JMA_PROBE_LOOKBACK_MIN = 720;
 const JMA_PROBE_STEP_MIN = 60;
 const JMA_PROBE_TIMEOUT_MS = 2500;
+/** 前回成功した時刻を即表示してから最新取得（初回・ストレージ無しは従来どおりフル探索） */
+const JMA_SNOW_STORAGE_KEY = "powder_jma_snow_last_time_v1";
 let jmaSnowDebugProbeErrorCount = 0;
 let jmaSnowKnownGoodTested = { "3h": false, "6h": false };
 
@@ -2497,6 +2510,103 @@ function getJmaSnowEffectiveTileZoom(mapZoom){
 function getJmaSnowAlternateProbeZ(zEff){
   if(zEff >= JMA_TILE_NATIVE_MAX) return JMA_TILE_NATIVE_MAX - 2;
   return JMA_TILE_NATIVE_MAX;
+}
+
+function readJmaSnowStoredTime(kind){
+  try{
+    const raw = localStorage.getItem(JMA_SNOW_STORAGE_KEY);
+    if(!raw) return null;
+    const o = JSON.parse(raw);
+    const t = o && o[kind];
+    if(typeof t === "string" && /^\d{14}$/.test(t)) return t;
+  }catch(_){}
+  return null;
+}
+function writeJmaSnowStoredTime(kind, timeStr){
+  if(!kind || !timeStr || !/^\d{14}$/.test(timeStr)) return;
+  try{
+    let o = {};
+    const raw = localStorage.getItem(JMA_SNOW_STORAGE_KEY);
+    if(raw){ o = JSON.parse(raw) || {}; }
+    o[kind] = timeStr;
+    localStorage.setItem(JMA_SNOW_STORAGE_KEY, JSON.stringify(o));
+  }catch(_){}
+}
+/** レイヤ URL を組み立て（isRenderable は呼ばない＝即表示用） */
+function mountJmaSnowLayerFromTimeStr(kind, timeStr){
+  if(!kind || !timeStr) return null;
+  jmaSnowKind = kind;
+  jmaSnowLatestTime = timeStr;
+  jmaSnowTimeStrByKind[kind] = timeStr;
+  const urlPattern = buildJmaSnowTileUrl(kind, timeStr);
+  if(!urlPattern) return null;
+  if(jmaSnowLayer){
+    jmaSnowLayer.setUrl(urlPattern);
+  }else{
+    jmaSnowLayer = new JmaSnowTileLayer(urlPattern,{
+      opacity:0.5,
+      zIndex:50,
+      maxZoom:10,
+      minZoom:3,
+      maxNativeZoom:JMA_TILE_NATIVE_MAX,
+      minNativeZoom:JMA_TILE_NATIVE_MIN
+    });
+  }
+  return jmaSnowLayer;
+}
+/** ストレージ即表示後、最新時刻へ差し替え */
+function refreshJmaSnowTimeInBackground(kind){
+  if(!kind) return;
+  const t0 = Date.now();
+  const myKind = kind;
+  console.log("[JMA snow debug] bg refresh start", { kind: myKind });
+  (async function(){
+    try{
+      const latest = await fetchJmaSnowLatestTime(myKind);
+      if(jmaSnowKind !== myKind || !jmaSnowLayer) return;
+      if(!latest){
+        // #region agent log
+        try{
+          fetch("http://127.0.0.1:7504/ingest/7a45a88b-734e-4e06-9139-2646ed4e0f41",{method:"POST",headers:{"Content-Type":"application/json","X-Debug-Session-Id":"e56e9e"},body:JSON.stringify({sessionId:"e56e9e",location:"ski-powder-hunter.html:refreshJmaSnowTimeInBackground",message:"jma bg refresh no latest",data:{kind:myKind,elapsedMs:Date.now()-t0},timestamp:Date.now(),hypothesisId:"H-instant"})}).catch(function(){});
+        }catch(_){}
+        // #endregion
+        return;
+      }
+      const prev = jmaSnowTimeStrByKind ? (jmaSnowTimeStrByKind[myKind] || null) : null;
+      if(prev === latest){
+        writeJmaSnowStoredTime(myKind, latest);
+        // #region agent log
+        try{
+          fetch("http://127.0.0.1:7504/ingest/7a45a88b-734e-4e06-9139-2646ed4e0f41",{method:"POST",headers:{"Content-Type":"application/json","X-Debug-Session-Id":"e56e9e"},body:JSON.stringify({sessionId:"e56e9e",location:"ski-powder-hunter.html:refreshJmaSnowTimeInBackground",message:"jma bg refresh same latest",data:{kind:myKind,latest,elapsedMs:Date.now()-t0},timestamp:Date.now(),hypothesisId:"H-instant"})}).catch(function(){});
+        }catch(_){}
+        // #endregion
+        return;
+      }
+      const renderable = await isJmaSnowTimeRenderable(myKind, latest);
+      if(jmaSnowKind !== myKind || !jmaSnowLayer) return;
+      if(!renderable.hit){
+        // #region agent log
+        try{
+          fetch("http://127.0.0.1:7504/ingest/7a45a88b-734e-4e06-9139-2646ed4e0f41",{method:"POST",headers:{"Content-Type":"application/json","X-Debug-Session-Id":"e56e9e"},body:JSON.stringify({sessionId:"e56e9e",location:"ski-powder-hunter.html:refreshJmaSnowTimeInBackground",message:"jma bg refresh latest not renderable",data:{kind:myKind,latest,elapsedMs:Date.now()-t0},timestamp:Date.now(),hypothesisId:"H-instant"})}).catch(function(){});
+        }catch(_){}
+        // #endregion
+        return;
+      }
+      jmaSnowTimeStrByKind[myKind] = latest;
+      jmaSnowLatestTime = latest;
+      const urlPattern = buildJmaSnowTileUrl(myKind, latest);
+      if(urlPattern) jmaSnowLayer.setUrl(urlPattern);
+      writeJmaSnowStoredTime(myKind, latest);
+      // #region agent log
+      try{
+        fetch("http://127.0.0.1:7504/ingest/7a45a88b-734e-4e06-9139-2646ed4e0f41",{method:"POST",headers:{"Content-Type":"application/json","X-Debug-Session-Id":"e56e9e"},body:JSON.stringify({sessionId:"e56e9e",location:"ski-powder-hunter.html:refreshJmaSnowTimeInBackground",message:"jma bg refresh applied new timeStr",data:{kind:myKind,prev,latest,elapsedMs:Date.now()-t0},timestamp:Date.now(),hypothesisId:"H-instant"})}).catch(function(){});
+      }catch(_){}
+      // #endregion
+      console.log("[JMA snow debug] bg refresh applied", { kind: myKind, prev, latest, elapsedMs: Date.now() - t0 });
+    }catch(e){
+      console.warn("[JMA snow debug] bg refresh error", e);
+    }
+  })();
 }
 
 const JmaSnowTileLayer = L.TileLayer.extend({
@@ -2895,6 +3005,20 @@ async function ensureJmaSnowLayer(kind){
     console.log("[JMA snow debug] ensure fast-path return", { kind, hasLayer: !!jmaSnowLayer, cachedTime: jmaSnowTimeStrByKind[kind] });
     return jmaSnowLayer;
   }
+  const stored = readJmaSnowStoredTime(kind);
+  if(stored){
+    const layerTry = mountJmaSnowLayerFromTimeStr(kind, stored);
+    if(layerTry){
+      console.log("[JMA snow debug] instant path (localStorage)", { kind, timeStr: stored });
+      // #region agent log
+      try{
+        fetch("http://127.0.0.1:7504/ingest/7a45a88b-734e-4e06-9139-2646ed4e0f41",{method:"POST",headers:{"Content-Type":"application/json","X-Debug-Session-Id":"e56e9e"},body:JSON.stringify({sessionId:"e56e9e",location:"ski-powder-hunter.html:ensureJmaSnowLayer",message:"jma instant path applied",data:{kind,timeStr:stored},timestamp:Date.now(),hypothesisId:"H-instant"})}).catch(function(){});
+      }catch(_){}
+      // #endregion
+      refreshJmaSnowTimeInBackground(kind);
+      return layerTry;
+    }
+  }
   // #region [JMA snow debug] known-good probes (existence verification)
   if(kind === "3h" && !jmaSnowKnownGoodTested["3h"]){
     jmaSnowKnownGoodTested["3h"] = true;
@@ -2934,33 +3058,14 @@ async function ensureJmaSnowLayer(kind){
     return jmaSnowLayer || null;
   }
 
-  jmaSnowKind = kind;
-  jmaSnowLatestTime = timeStr;
-  jmaSnowTimeStrByKind[kind] = timeStr;
-  const urlPattern = buildJmaSnowTileUrl(kind, timeStr);
-  if(!urlPattern) {
+  const mounted = mountJmaSnowLayerFromTimeStr(kind, timeStr);
+  if(!mounted) {
     // #region [JMA snow debug] ensure return null (urlPattern null)
     // #endregion
     return null;
   }
-  if(jmaSnowLayer){
-    // #region [JMA snow debug] switch url(setUrl)
-    // #endregion
-    jmaSnowLayer.setUrl(urlPattern);
-  }else{
-    // #region [JMA snow debug] switch url(create)
-    // #endregion
-    jmaSnowLayer = new JmaSnowTileLayer(urlPattern,{
-      opacity:0.5,
-      zIndex:50,
-      // Gemini/JMA: 高ズームはタイル未提供で真っ白になりやすい → ネイティブは ~8 まで、それ以上は拡大表示
-      maxZoom:10,
-      minZoom:3,
-      maxNativeZoom:JMA_TILE_NATIVE_MAX,
-      minNativeZoom:JMA_TILE_NATIVE_MIN
-    });
-  }
-  return jmaSnowLayer;
+  writeJmaSnowStoredTime(kind, timeStr);
+  return mounted;
 }
 
 function startJmaSnowAutoRefresh(){
@@ -2989,7 +3094,10 @@ function startJmaSnowAutoRefresh(){
     jmaSnowTimeStrByKind[kind] = latest;
     jmaSnowLatestTime = latest;
     const urlPattern = buildJmaSnowTileUrl(kind, latest);
-    if(urlPattern) jmaSnowLayer.setUrl(urlPattern);
+    if(urlPattern){
+      jmaSnowLayer.setUrl(urlPattern);
+      writeJmaSnowStoredTime(kind, latest);
+    }
   }, 15*60*1000);
 }
 
@@ -3092,23 +3200,76 @@ function markerLabel(r){
 
 function createMarker(r){
   const c=markerColor(r),lbl=markerLabel(r);
-  const html=`<div class="custom-marker"><div class="m-pin" style="background:${c}22;border-color:${c}66"><span class="m-pin-inner" style="color:${c};font-size:${lbl.length>2?"9":"11"}px">${lbl}</span></div><span class="m-snow" style="color:${c}">cm</span></div>`;
+  const selClass = (selectedId===r.id) ? " is-selected" : "";
+  const html=`<div class="custom-marker${selClass}"><div class="m-pin" style="background:${c}22;border-color:${c}66"><span class="m-pin-inner" style="color:${c};font-size:${lbl.length>2?"9":"11"}px">${lbl}</span></div><span class="m-snow" style="color:${c}">cm</span></div>`;
   const icon=L.divIcon({html,className:"",iconSize:[38,46],iconAnchor:[19,42]});
   const m=L.marker([r.lat,r.lng],{icon});
   m.on("click",()=>selectResort(r.id));
   return m;
 }
 
-function refreshMarkers(){
+function clearClusterMarkers(){
+  if(!clusterMarkers.length) return;
+  clusterMarkers.forEach(function(m){ if(map.hasLayer(m)) map.removeLayer(m); });
+  clusterMarkers = [];
+}
+function mobileClusterActive(){
+  return (typeof window!=="undefined" && window.innerWidth<=700 && map.getZoom()<=8);
+}
+function applyMarkerLayers(mapVisibleIds){
+  clearClusterMarkers();
+  RESORTS.forEach(function(r){
+    if(markers[r.id] && map.hasLayer(markers[r.id])) map.removeLayer(markers[r.id]);
+  });
+  const visibleResorts = RESORTS.filter(function(r){ return mapVisibleIds.has(r.id); });
+  if(!mobileClusterActive()){
+    visibleResorts.forEach(function(r){ if(markers[r.id]) markers[r.id].addTo(map); });
+    return;
+  }
+  const gridPx = 54;
+  const buckets = new Map();
+  visibleResorts.forEach(function(r){
+    const p = map.latLngToContainerPoint([r.lat,r.lng]);
+    const key = `${Math.floor(p.x/gridPx)}:${Math.floor(p.y/gridPx)}`;
+    if(!buckets.has(key)) buckets.set(key,[]);
+    buckets.get(key).push(r);
+  });
+  buckets.forEach(function(list){
+    if(list.length===1){
+      const r = list[0];
+      if(markers[r.id]) markers[r.id].addTo(map);
+      return;
+    }
+    const lat = list.reduce((a,b)=>a+b.lat,0)/list.length;
+    const lng = list.reduce((a,b)=>a+b.lng,0)/list.length;
+    const hasSelected = selectedId!=null && list.some(function(r){ return r.id===selectedId; });
+    const html = `<div class="custom-cluster-marker${hasSelected?" is-selected":""}">${list.length}</div>`;
+    const icon = L.divIcon({ html, className:"", iconSize:[34,34], iconAnchor:[17,17] });
+    const cm = L.marker([lat,lng],{icon,keyboard:false});
+    cm.on("click",function(){
+      const nextZoom = Math.min(map.getZoom()+2,10);
+      map.flyTo([lat,lng],nextZoom,{duration:.25});
+    });
+    cm.addTo(map);
+    clusterMarkers.push(cm);
+  });
+}
+
+function getCurrentMapVisibleIds(){
   const filtered = getFiltered();
   const filteredIds = new Set(filtered.map(r=>r.id));
   let mapVisibleIds = mapShowAll ? filteredIds : new Set(filtered.filter(r=>FEATURED_IDS.has(r.id)).map(r=>r.id));
   if(selectedId!=null && RESORT_MAP[selectedId] && filteredIds.has(selectedId)) mapVisibleIds = new Set([...mapVisibleIds, selectedId]);
+  return mapVisibleIds;
+}
+
+function refreshMarkers(){
+  const mapVisibleIds = getCurrentMapVisibleIds();
   RESORTS.forEach(r=>{
     if(markers[r.id]) map.removeLayer(markers[r.id]);
     markers[r.id]=createMarker(r);
-    if(mapVisibleIds.has(r.id)) markers[r.id].addTo(map);
   });
+  applyMarkerLayers(mapVisibleIds);
 }
 
 // ─── Events ────────────────────────────────────────────────────
