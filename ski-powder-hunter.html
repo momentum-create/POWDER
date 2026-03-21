@@ -396,7 +396,7 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
 }
 .header-link{font-size:12px;color:var(--accent);text-decoration:none;margin-right:8px}
 .header-link:hover{text-decoration:underline}
-.view-map{height:calc(100vh - 52px);display:flex;flex-direction:column;overflow:hidden}
+.view-map{position:relative;height:calc(100vh - 52px);display:flex;flex-direction:column;overflow:hidden}
 .view-map .main{flex:1;min-width:0}
 .map-mobile-back{display:none;position:absolute;z-index:950;left:10px;top:60px;padding:6px 10px;border-radius:999px;border:1px solid var(--border);background:rgba(11,22,40,.9);color:var(--text-dim);font-size:11px;font-family:\"Noto Sans JP\",sans-serif}
 .map-mobile-search{display:none;position:absolute;z-index:950;right:10px;top:60px}
@@ -417,16 +417,22 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
 }
 .map-overlay-toggle label{white-space:nowrap;cursor:pointer}
 .map-overlay-toggle input{margin-right:2px}
+/* 凡例: 右下の Leaflet ズーム・帰属表示と被らないよう、その上に配置 */
 .map-overlay-legend{
   position:absolute;
-  bottom:10px;
-  right:10px;
+  left:50%;
+  right:auto;
+  transform:translateX(-50%);
+  bottom:calc(102px + env(safe-area-inset-bottom,0px));
+  max-width:min(280px,calc(100vw - 80px));
   background:rgba(10,20,40,0.85);
   padding:6px 10px;
   border-radius:6px;
   font-size:11px;
   color:#fff;
-  z-index:1000;
+  z-index:1005;
+  pointer-events:auto;
+  box-sizing:border-box;
 }
 .map-overlay-legend .leg-box{
   display:inline-block;
@@ -465,9 +471,40 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
   header .header-inner{min-height:58px}
   header{min-height:calc(58px + env(safe-area-inset-top))}
   .view-map{height:calc(100dvh - 58px - env(safe-area-inset-top))}
-  .map-mobile-back{display:inline-flex;align-items:center;gap:4px;top:calc(58px + env(safe-area-inset-top) + 6px);left:max(10px,env(safe-area-inset-left));min-height:40px;padding:8px 14px;pointer-events:auto}
-  .map-mobile-search{display:block;top:calc(58px + env(safe-area-inset-top) + 6px);right:max(10px,env(safe-area-inset-right));pointer-events:auto}
+  .map-mobile-back{display:inline-flex;align-items:center;gap:4px;top:calc(58px + env(safe-area-inset-top) + 6px);left:max(10px,env(safe-area-inset-left));min-height:40px;padding:8px 14px;pointer-events:auto;z-index:960}
+  .map-mobile-search{display:block;top:calc(58px + env(safe-area-inset-top) + 6px);right:max(10px,env(safe-area-inset-right));pointer-events:auto;z-index:960}
   .map-mobile-search .search-input{font-size:13px;min-height:40px;padding:9px 12px}
+  /* JMA降雪オーバーレイ: スマホは「戻る・検索」の下の1行に逃がし、地図と干渉しない */
+  .map-overlay-toggle{
+    top:calc(58px + env(safe-area-inset-top) + 52px);
+    left:max(8px,env(safe-area-inset-left));
+    right:max(8px,env(safe-area-inset-right));
+    width:auto;
+    max-width:none;
+    flex-wrap:wrap;
+    justify-content:center;
+    align-items:center;
+    gap:8px 14px;
+    padding:8px 10px;
+    font-size:12px;
+    line-height:1.25;
+    border-radius:10px;
+    box-sizing:border-box;
+    z-index:955;
+  }
+  .map-overlay-toggle label{white-space:normal;text-align:center}
+  /* 凡例: ズームより上（中央）・タップ可能 */
+  .map-overlay-legend{
+    left:50%;
+    right:auto;
+    transform:translateX(-50%);
+    bottom:calc(108px + env(safe-area-inset-bottom,0px));
+    max-width:min(calc(100vw - 24px),260px);
+    font-size:10px;
+    padding:6px 8px;
+    z-index:1005;
+    pointer-events:auto;
+  }
   /* 目標地点ポップアップ: スマホでコンパクトに＆中身スクロール */
   .leaflet-popup-content-wrapper{
     max-width:min(92vw,320px)!important;
@@ -672,7 +709,6 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
   <label><input type="radio" name="jma-snow-kind" value="" checked>OFF</label>
   <label><input type="radio" name="jma-snow-kind" value="3h">3時間降雪予報</label>
   <label><input type="radio" name="jma-snow-kind" value="6h">6時間降雪予報</label>
-  <p class="jma-snow-hint" style="font-size:11px;line-height:1.35;opacity:.88;margin:6px 0 0;max-width:22em;">気象庁タイルは<strong>ズームを上げすぎると表示されない</strong>ことがあります（目安: ズーム8付近まで）。</p>
 </div>
 <div id="jma-legend" class="map-overlay-legend">
   <div>凡例（3h降雪）</div>
@@ -2158,7 +2194,7 @@ function selectResort(id, opts){
   const openPopup = function(){
     if(!map) return;
     currentPopup=L.popup({
-      closeButton:true,
+      closeButton:false,
       maxWidth:popupMaxW,
       autoPan:true,
       autoPanPaddingTopLeft:[0,40],
