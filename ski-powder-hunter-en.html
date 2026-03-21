@@ -191,7 +191,13 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
 @media(max-width:700px){
   .popup-day-strip{overflow-x:auto;-webkit-overflow-scrolling:touch}
   .popup-day-tab{flex:0 0 auto;min-width:72px}
+  .sheet-sub-days .popup-day-tab{min-width:64px}
 }
+.sheet-main-tabs{display:flex;align-items:stretch;gap:0;margin:0 0 8px;padding:0;border-bottom:1px solid var(--border)}
+.sheet-main-tab{flex:1;min-width:0;padding:10px 6px;margin:0;border:none;background:transparent;color:var(--text-dim);font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;-webkit-tap-highlight-color:transparent}
+.sheet-main-tab.is-active{color:var(--text);border-bottom-color:var(--accent)}
+.sheet-main-tab:active{opacity:.85}
+.sheet-sub-days{margin-top:2px;margin-bottom:8px}
 .snow-bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px}
 .snow-bar-bg{width:100%;background:rgba(255,255,255,.05);border-radius:3px;height:28px;display:flex;align-items:flex-end;overflow:visible;position:relative}
 .snow-bar-fill{width:100%;border-radius:3px 3px 0 0;transition:height .4s}
@@ -386,6 +392,7 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
 .view-map{position:relative;height:calc(100vh - 52px);display:flex;flex-direction:column;overflow:hidden}
 .view-map .main{flex:1;min-width:0}
 #map-detail-sheet.map-detail-sheet{display:none!important}
+#map-detail-scrim.map-detail-scrim{display:none!important}
 .map-mobile-back{display:none;position:absolute;z-index:950;left:10px;top:60px;padding:6px 10px;border-radius:999px;border:1px solid var(--border);background:rgba(11,22,40,.9);color:var(--text-dim);font-size:11px;font-family:\"Noto Sans JP\",sans-serif}
 .map-mobile-search{display:none;position:absolute;z-index:950;right:10px;top:60px}
 .map-mobile-search .search-input{width:min(52vw,280px);max-width:280px}
@@ -428,7 +435,7 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
   .view-top .top-cta-btn{width:100%;max-width:100%;padding:12px 16px;font-size:13px;min-height:44px}
   header .header-inner{min-height:58px}
   header{min-height:calc(58px + env(safe-area-inset-top))}
-  .view-map{height:calc(100dvh - 58px - env(safe-area-inset-top))}
+  .view-map{height:calc(100dvh - 58px - env(safe-area-inset-top));--m-sheet:min(55vh,55dvh)}
   .map-mobile-back{display:inline-flex;align-items:center;gap:4px;top:calc(58px + env(safe-area-inset-top) + 6px);left:max(10px,env(safe-area-inset-left));min-height:40px;padding:8px 14px;pointer-events:auto;z-index:960}
   .map-mobile-search{display:block;top:calc(58px + env(safe-area-inset-top) + 6px);right:max(10px,env(safe-area-inset-right));pointer-events:auto;z-index:960}
   .map-mobile-search .search-input{font-size:13px;min-height:40px;padding:9px 12px}
@@ -456,6 +463,26 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
     visibility:hidden!important;
     pointer-events:none!important;
   }
+  #map-detail-scrim.map-detail-scrim{
+    display:block!important;
+    position:fixed;
+    left:0;
+    right:0;
+    top:calc(58px + env(safe-area-inset-top));
+    bottom:var(--m-sheet);
+    z-index:985;
+    background:rgba(11,22,40,.58);
+    opacity:0;
+    visibility:hidden;
+    pointer-events:none;
+    transition:opacity .25s ease,visibility 0s linear .25s;
+  }
+  .view-map.map-popup-open #map-detail-scrim.map-detail-scrim{
+    opacity:1;
+    visibility:visible;
+    pointer-events:auto;
+    transition:opacity .25s ease,visibility 0s linear 0s;
+  }
   #map-detail-sheet.map-detail-sheet{
     display:flex!important;
     flex-direction:column;
@@ -464,18 +491,17 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
     right:0;
     bottom:0;
     z-index:990;
-    max-height:58vh;
-    height:min(58vh,58dvh);
-    background:var(--card-bg);
-    border:1px solid var(--border);
-    border-bottom:none;
-    border-radius:16px 16px 0 0;
-    box-shadow:0 -12px 40px rgba(0,0,0,.5);
+    max-height:var(--m-sheet);
+    height:var(--m-sheet);
+    background:transparent;
+    border:none;
+    box-shadow:none;
     transform:translateY(100%);
     transition:transform .28s ease,visibility 0s linear .28s;
     visibility:hidden;
     pointer-events:none;
-    padding-bottom:env(safe-area-inset-bottom);
+    padding:0;
+    padding-bottom:0;
   }
   #map-detail-sheet.map-detail-sheet.map-detail-sheet--open{
     transform:translateY(0);
@@ -483,44 +509,71 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
     pointer-events:auto;
     transition:transform .28s ease,visibility 0s linear 0s;
   }
-  .map-detail-sheet__header{
-    flex-shrink:0;
+  .map-detail-sheet__panel{
+    flex:1;
     display:flex;
-    justify-content:flex-end;
-    align-items:center;
-    min-height:44px;
-    padding:6px max(10px,env(safe-area-inset-right)) 2px max(10px,env(safe-area-inset-left));
-    padding-right:max(52px,env(safe-area-inset-right));
-    border-bottom:1px solid var(--border);
+    flex-direction:column;
+    min-height:0;
+    overflow:hidden;
+    background:var(--card-bg);
+    border:1px solid var(--border);
+    border-bottom:none;
+    border-radius:16px 16px 0 0;
+    box-shadow:0 -12px 40px rgba(0,0,0,.5);
+    padding-bottom:env(safe-area-inset-bottom);
   }
-  .map-detail-sheet__close{
+  .map-detail-sheet__handle{
+    flex-shrink:0;
+    width:36px;
+    height:5px;
+    border-radius:999px;
+    background:rgba(255,255,255,.32);
+    margin:10px auto 4px;
+  }
+  .map-detail-sheet__close--floating{
+    position:fixed;
+    right:max(14px,env(safe-area-inset-right));
+    bottom:calc(var(--m-sheet) - 22px);
+    z-index:996;
     box-sizing:border-box;
-    min-width:48px;
-    min-height:48px;
     width:48px;
     height:48px;
+    min-width:48px;
+    min-height:48px;
+    padding:0;
     margin:0;
-    margin-top:-4px;
     border:none;
-    border-radius:12px;
-    background:rgba(255,255,255,.08);
-    color:var(--text);
+    border-radius:50%;
+    background:var(--accent);
+    color:var(--navy);
     font-size:26px;
     line-height:1;
-    display:inline-flex;
+    font-weight:700;
+    display:flex;
     align-items:center;
     justify-content:center;
     cursor:pointer;
+    box-shadow:0 4px 18px rgba(0,0,0,.4);
     -webkit-tap-highlight-color:transparent;
+    visibility:hidden;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .2s ease,visibility 0s linear .2s;
   }
-  .map-detail-sheet__close:active{background:rgba(255,255,255,.14)}
+  #map-detail-sheet.map-detail-sheet.map-detail-sheet--open .map-detail-sheet__close--floating{
+    visibility:visible;
+    opacity:1;
+    pointer-events:auto;
+    transition:opacity .2s ease,visibility 0s linear 0s;
+  }
+  .map-detail-sheet__close--floating:active{filter:brightness(.92)}
   .map-detail-sheet__scroller{
     flex:1;
     min-height:0;
     overflow-y:auto;
     overflow-x:hidden;
     -webkit-overflow-scrolling:touch;
-    padding:8px 14px 18px;
+    padding:4px 14px 18px;
     padding-left:max(14px,env(safe-area-inset-left));
     padding-right:max(14px,env(safe-area-inset-right));
     color:var(--text);
@@ -732,11 +785,13 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
   <label><input type="radio" name="jma-snow-kind" value="6h">6h snow forecast</label>
 </div>
 </div><!-- /main -->
+<div id="map-detail-scrim" class="map-detail-scrim" aria-hidden="true" onclick="closeResortPopup()"></div>
 <div id="map-detail-sheet" class="map-detail-sheet" aria-hidden="true" role="dialog" aria-label="Resort details">
-  <div class="map-detail-sheet__header">
-    <button type="button" class="map-detail-sheet__close" aria-label="Close details" onclick="closeResortPopup()">×</button>
+  <button type="button" class="map-detail-sheet__close map-detail-sheet__close--floating" aria-label="Close details" onclick="closeResortPopup()">×</button>
+  <div class="map-detail-sheet__panel">
+    <div class="map-detail-sheet__handle" aria-hidden="true"></div>
+    <div class="map-detail-sheet__scroller" id="map-detail-sheet-body"></div>
   </div>
-  <div class="map-detail-sheet__scroller" id="map-detail-sheet-body"></div>
 </div>
 </div><!-- /view-map -->
 
@@ -2037,21 +2092,24 @@ function selectResort(id, opts){
 
   let mobileTopHtml="";
   if(isMobilePopup && hasData && ps){
-    const dates = getDates();
-    let dayStripHtml = '<div class="popup-day-strip">';
-    for(let i=0;i<7;i++){
-      const snowD = getSnowfallForDisplay(id, i);
-      const snowCm = snowD.cm!=null ? Math.round(snowD.cm) : null;
-      const isActive = i===targetDayOffset;
-      let label;
-      if(i===0) label="Today";
-      else if(i===1) label="Tomorrow";
-      else if(i===2) label="+2 days";
-      else label=`+${i}d`;
-      const snowText = snowCm!=null && snowCm>0 ? `❄ ${snowCm}cm` : "—";
-      dayStripHtml+=`<button type="button" class="popup-day-tab${isActive?" is-active":""}" data-offset="${i}" onclick="setTargetDayOffset(${i}); selectResort(${id},{noMove:true});"><div class="popup-day-label">${label}</div><div class="popup-day-snow">${snowText}</div></button>`;
-    }
+    const tab5Active = targetDayOffset>=2;
+    let dayStripHtml = '<div class="sheet-main-tabs" role="tablist">';
+    dayStripHtml+=`<button type="button" role="tab" class="sheet-main-tab${targetDayOffset===0?" is-active":""}" aria-selected="${targetDayOffset===0}" onclick="setTargetDayOffset(0);selectResort(${id},{noMove:true})">Today</button>`;
+    dayStripHtml+=`<button type="button" role="tab" class="sheet-main-tab${targetDayOffset===1?" is-active":""}" aria-selected="${targetDayOffset===1}" onclick="setTargetDayOffset(1);selectResort(${id},{noMove:true})">Tomorrow</button>`;
+    dayStripHtml+=`<button type="button" role="tab" class="sheet-main-tab${tab5Active?" is-active":""}" aria-selected="${tab5Active}" onclick="setTargetDayOffset(2);selectResort(${id},{noMove:true})">5-day</button>`;
     dayStripHtml+='</div>';
+    if(tab5Active){
+      dayStripHtml+='<div class="popup-day-strip sheet-sub-days">';
+      for(let i=2;i<7;i++){
+        const snowD = getSnowfallForDisplay(id, i);
+        const snowCm = snowD.cm!=null ? Math.round(snowD.cm) : null;
+        const isActive = i===targetDayOffset;
+        const label = i===2 ? "+2 days" : `+${i}d`;
+        const snowText = snowCm!=null && snowCm>0 ? `❄ ${snowCm}cm` : "—";
+        dayStripHtml+=`<button type="button" class="popup-day-tab${isActive?" is-active":""}" data-offset="${i}" onclick="setTargetDayOffset(${i}); selectResort(${id},{noMove:true});"><div class="popup-day-label">${label}</div><div class="popup-day-snow">${snowText}</div></button>`;
+      }
+      dayStripHtml+='</div>';
+    }
 
     let prevNightCm = 0;
     const phasePopup = getHourlyPhaseArrays(daily, r);
@@ -2244,11 +2302,13 @@ function selectResort(id, opts){
       if(currentPopup){ map.closePopup(currentPopup); currentPopup = null; }
       const bodyEl = document.getElementById("map-detail-sheet-body");
       const sheet = document.getElementById("map-detail-sheet");
+      const scrim = document.getElementById("map-detail-scrim");
       if(bodyEl) bodyEl.innerHTML = contentHtml;
       if(sheet){
         sheet.classList.add("map-detail-sheet--open");
         sheet.setAttribute("aria-hidden","false");
       }
+      if(scrim) scrim.setAttribute("aria-hidden","false");
       const vm = document.getElementById("view-map");
       if(vm) vm.classList.add("map-popup-open");
     } else {
@@ -2296,6 +2356,8 @@ function selectResortGroup(targetId, groupIds){
 function closeResortPopup(){
   const vm = document.getElementById("view-map");
   if(vm) vm.classList.remove("map-popup-open");
+  const scrim = document.getElementById("map-detail-scrim");
+  if(scrim) scrim.setAttribute("aria-hidden","true");
   const sheet = document.getElementById("map-detail-sheet");
   if(sheet){
     sheet.classList.remove("map-detail-sheet--open");
