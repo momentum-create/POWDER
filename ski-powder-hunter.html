@@ -1791,8 +1791,10 @@ function renderList(){
     const DLABELS=["今日","明日","明後日","+3日","+4日","+5日","+6日"];
     if(hasData&&daily.snowfall_sum){
       const jpdCard = getJmaPrevDaySnowForResort(r.id);
-      const prevDayBanner = (targetDayOffset===0 && jpdCard && jpdCard.total!=null)
-        ? `<div class="pw-prev-day-jma-line" title="${String(jpdCard.ruleTitle||"").replace(/"/g,"&quot;")}">前日（${formatJstCalendarShort(jpdCard.jst)}）合計（気象庁） <strong>${jpdCard.total.toFixed(1)}cm</strong><span class="snow-depth-source">（降水・気温から推計）</span></div>`
+      const prevDayLabel = (jpdCard && jpdCard.jst) ? formatJstCalendarShort(jpdCard.jst) : "前日";
+      const prevDayVal = (jpdCard && jpdCard.total!=null) ? `${jpdCard.total.toFixed(1)}cm` : "—";
+      const prevDayBanner = (targetDayOffset===0)
+        ? `<div class="pw-prev-day-jma-line" title="${String((jpdCard&&jpdCard.ruleTitle)||JMA_PREV_SNOW_RULE_TITLE_JA).replace(/"/g,"&quot;")}">前日（${prevDayLabel}）合計（気象庁） <strong>${prevDayVal}</strong><span class="snow-depth-source">（降水・気温から推計）</span></div>`
         : "";
       const adjusted = Array.from({length:7},(_,i)=>{ const v=getSnowfallAdjusted(daily,r,i); return v!=null?v:0; });
       const maxS = Math.max(...adjusted,1);
@@ -1823,11 +1825,19 @@ function renderList(){
         let prevLabels = [];
         let prevSnowMm = [];
         let prevRainMm = [];
+        let prevMissing = [];
         if(targetDayOffset===0 && jmaPrevBands && jmaPrevBands.h12_18!=null && jmaPrevBands.h18_24!=null){
           prevSnowMm = [ jmaPrevBands.h12_18*10, jmaPrevBands.h18_24*10 ];
           prevRainMm = [ 0, 0 ];
           prevSegsCm = [ jmaPrevBands.h12_18, jmaPrevBands.h18_24 ];
           prevLabels = ["前日12–18時（気象庁）","前日18–24時（気象庁）"];
+          prevMissing = [ false, false ];
+        } else if(targetDayOffset===0){
+          prevSnowMm = [ 0, 0 ];
+          prevRainMm = [ 0, 0 ];
+          prevSegsCm = [ 0, 0 ];
+          prevLabels = ["前日12–18時（気象庁）","前日18–24時（気象庁）"];
+          prevMissing = [ true, true ];
         } else if(targetDayOffset!==0 && dayIdx>=1){
           const prevSnowHours = snowArr.slice((dayIdx-1)*24,(dayIdx-1)*24+24);
           const prevRainHours = rainArr.slice((dayIdx-1)*24,(dayIdx-1)*24+24);
@@ -1835,6 +1845,7 @@ function renderList(){
           prevRainMm = [ seg(prevRainHours,14,19), seg(prevRainHours,19,24) ];
           prevSegsCm = prevSnowMm.map(mm=>mm/10);
           prevLabels = ["前日14-19","前日19-24"];
+          prevMissing = [ false, false ];
         }
         // 当日 0-5, 6-10, 11-15, 16-20, 21-24
         const daySnowHours = snowArr.slice(base,base+24);
@@ -1873,6 +1884,7 @@ function renderList(){
         const allLabels = [...prevLabels,...labels,...nextLabels];
         const allSnowMm = [...prevSnowMm,...segsSnowMm,...nextSnowMm];
         const allRainMm = [...prevRainMm,...segsRainMm,...nextRainMm];
+        const allMissing = [...prevMissing, ...new Array(segsCm.length).fill(false), ...new Array(nextSegsCm.length).fill(false)];
         const scaleBase = allCm.length ? Math.max(...allCm, 0.1) : 0.1;
         const dayStartIdx = prevLabels.length;
         const nextStartIdx = prevLabels.length + 5;
@@ -1892,7 +1904,8 @@ function renderList(){
             }
             const displayCm = cm >= 0.1 ? cm : (icon ? 0.1 : 0);
             const h = scaleBase>0 ? Math.max(icon ? 2 : 1, Math.round((displayCm/scaleBase)*16)) : (icon ? 2 : 1);
-            const txt = cm>=0.1 ? cm.toFixed(1) : (icon && cm<0.1 ? (rainMm>=0.1 ? rainMm.toFixed(1)+"mm" : "") : "");
+            const missing = !!allMissing[i];
+            const txt = missing ? "—" : (cm>=0.1 ? cm.toFixed(1) : (icon && cm<0.1 ? (rainMm>=0.1 ? rainMm.toFixed(1)+"mm" : "") : ""));
             const extraClass = i===dayStartIdx ? " day-start" : (i===nextStartIdx ? " next-start" : "");
             const snowBaseColor = snowColor(Math.max(cm,0.1));
             let fillStyle;
@@ -1905,7 +1918,7 @@ function renderList(){
             }
             const isJmaPrevBar = String(allLabels[i]).indexOf("（気象庁）")>=0;
             const titleStr = isJmaPrevBar
-              ? `${allLabels[i]}: 降雪相当 ${cm.toFixed(1)}cm（降水・気温から推計）`
+              ? (missing ? `${allLabels[i]}: —（観測欠測）` : `${allLabels[i]}: 降雪相当 ${cm.toFixed(1)}cm（降水・気温から推計）`)
               : (totalWater>=0.1 ? `${allLabels[i]}: 雪${snowMm.toFixed(1)}cm 雨${rainMm.toFixed(1)}mm` : allLabels[i]);
             return `<div class="hourly-snow-bar${extraClass}" title="${titleStr}">
               <div class="hourly-snow-bar-bg">
@@ -1953,8 +1966,8 @@ function renderList(){
             const sw = ps.summitWind;
             const windLevel = sw?windRankLevel(sw.summit||0):0;
             const jpdS = targetDayOffset===0 ? getJmaPrevDaySnowForResort(r.id) : null;
-            const prevStr = (jpdS && jpdS.total!=null)
-              ? `前日合計（気象庁） ${jpdS.total.toFixed(1)}cm`
+            const prevStr = (targetDayOffset===0)
+              ? `前日合計（気象庁） ${jpdS&&jpdS.total!=null ? jpdS.total.toFixed(1)+"cm" : "—"}`
               : (prevNightCm>0 ? `前夜〜朝まで ${prevNightCm.toFixed(1)}cm` : `前夜〜朝の新雪 0cm`);
             const dayStr = useDaySnowCm!=null ? useDaySnowCm.toFixed(1) : "--";
             const jmaForSummary = jmaSnowCache[r.id];
@@ -2220,8 +2233,8 @@ function selectResort(id, opts){
     const mkWindLabel = ()=> sw ? `${sw.summit}km/h${wDir?` ${wDir}`:""}` : "";
     const wdq = sw ? windDirQuality(sw.summitDir,r.region) : null;
     const jpdPop = targetDayOffset===0 ? getJmaPrevDaySnowForResort(r.id) : null;
-    const overnightStr = (jpdPop && jpdPop.total!=null)
-      ? `前日合計（気象庁） <strong>${jpdPop.total.toFixed(1)}cm</strong>`
+    const overnightStr = (targetDayOffset===0)
+      ? `前日合計（気象庁） <strong>${jpdPop&&jpdPop.total!=null ? jpdPop.total.toFixed(1)+"cm" : "—"}</strong>`
       : `前夜〜朝まで <strong>${prevNightCm.toFixed(1)}cm</strong>`;
     const dayTotalStr  = `当日合計 <strong>${daySnow.toFixed(1)}cm</strong>`;
     const jmaForSummary = jmaSnowCache[r.id];
@@ -2246,8 +2259,11 @@ function selectResort(id, opts){
         segments.push({labelKey,snowMm,rainMm});
       };
       if(targetDayOffset===0 && jpdPop && jpdPop.h12_18!=null && jpdPop.h18_24!=null){
-        segments.push({labelKey:"前日12–18（気象庁）",snowMm:jpdPop.h12_18*10,rainMm:0});
-        segments.push({labelKey:"前日18–24（気象庁）",snowMm:jpdPop.h18_24*10,rainMm:0});
+        segments.push({labelKey:"前日12–18（気象庁）",snowMm:jpdPop.h12_18*10,rainMm:0,missing:false});
+        segments.push({labelKey:"前日18–24（気象庁）",snowMm:jpdPop.h18_24*10,rainMm:0,missing:false});
+      } else if(targetDayOffset===0){
+        segments.push({labelKey:"前日12–18（気象庁）",snowMm:0,rainMm:0,missing:true});
+        segments.push({labelKey:"前日18–24（気象庁）",snowMm:0,rainMm:0,missing:true});
       } else if(targetDayOffset!==0 && dayIdx>=1){
         const basePrev=(dayIdx-1)*24;
         seg("前日夕方",basePrev+14,basePrev+24);
@@ -2278,6 +2294,7 @@ function selectResort(id, opts){
           else if(rainRatio>0.3) icon="❄🌧";
           else if(s.snowMm>0) icon="❄";
         }
+        const missing = !!s.missing;
         const h = maxCm>0 ? Math.max(icon?4:2, Math.round((snowCm||0.1)/maxCm*16)) : (icon?4:2);
         const baseColor = snowColor(Math.max(snowCm,0.1));
         let fillStyle;
@@ -2290,9 +2307,9 @@ function selectResort(id, opts){
         }
         const isJmaSeg = String(s.labelKey).indexOf("（気象庁）")>=0;
         const titleStr = isJmaSeg
-          ? `${s.labelKey}: 降雪相当 ${snowCm.toFixed(1)}cm（降水・気温から推計）`
+          ? (missing ? `${s.labelKey}: —（観測欠測）` : `${s.labelKey}: 降雪相当 ${snowCm.toFixed(1)}cm（降水・気温から推計）`)
           : `${s.labelKey}: 雪${snowCm.toFixed(1)}cm / 雨${rainCm.toFixed(1)}cm`;
-        hourlyHtml+=`<div class="popup-hourly-bar" title="${titleStr}"><div class="popup-hourly-bar-bg">${icon?`<span class="popup-hourly-icon">${icon}</span>`:""}<div class="popup-hourly-fill" style="height:${h}px;${fillStyle}"></div></div><div class="popup-hourly-label">${s.labelKey}</div></div>`;
+        hourlyHtml+=`<div class="popup-hourly-bar" title="${titleStr}"><div class="popup-hourly-bar-bg">${icon?`<span class="popup-hourly-icon">${icon}</span>`:""}<div class="popup-hourly-fill" style="height:${h}px;${fillStyle}"></div>${missing?`<div class="popup-hourly-icon" style="top:4px">—</div>`:""}</div><div class="popup-hourly-label">${s.labelKey}</div></div>`;
       });
       hourlyHtml+='</div>';
     }

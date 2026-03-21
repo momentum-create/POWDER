@@ -1848,8 +1848,10 @@ function renderList(){
     const DLABELS=["Today","Tomorrow","+2d","+3d","+4d","+5d","+6d"];
     if(hasData&&daily.snowfall_sum){
       const jpdCard = getJmaPrevDaySnowForResort(r.id);
-      const prevDayBanner = (targetDayOffset===0 && jpdCard && jpdCard.total!=null)
-        ? `<div class="pw-prev-day-jma-line" title="${String(jpdCard.ruleTitle||"").replace(/"/g,"&quot;")}">Prev day (${formatJstCalendarShort(jpdCard.jst)}) total (JMA) <strong>${jpdCard.total.toFixed(1)}cm</strong><span class="snow-depth-source"> (precip + temp est.)</span></div>`
+      const prevDayLabel = (jpdCard && jpdCard.jst) ? formatJstCalendarShort(jpdCard.jst) : "prev day";
+      const prevDayVal = (jpdCard && jpdCard.total!=null) ? `${jpdCard.total.toFixed(1)}cm` : "—";
+      const prevDayBanner = (targetDayOffset===0)
+        ? `<div class="pw-prev-day-jma-line" title="${String((jpdCard&&jpdCard.ruleTitle)||JMA_PREV_SNOW_RULE_TITLE_EN).replace(/"/g,"&quot;")}">Prev day (${prevDayLabel}) total (JMA) <strong>${prevDayVal}</strong><span class="snow-depth-source"> (precip + temp est.)</span></div>`
         : "";
       const adjusted = Array.from({length:7},(_,i)=>{ const v=getSnowfallAdjusted(daily,r,i); return v!=null?v:0; });
       const maxS = Math.max(...adjusted,1);
@@ -1875,12 +1877,19 @@ function renderList(){
         const snowArr = phase.snowMm;
         const rainArr = phase.rainMm||[];
         const jmaPrevBands = targetDayOffset===0 ? getJmaPrevDaySnowForResort(r.id) : null;
-        let prevSegsCm = [], prevLabels = [], prevSnowMm = [], prevRainMm = [];
+        let prevSegsCm = [], prevLabels = [], prevSnowMm = [], prevRainMm = [], prevMissing = [];
         if(targetDayOffset===0 && jmaPrevBands && jmaPrevBands.h12_18!=null && jmaPrevBands.h18_24!=null){
           prevSnowMm = [ jmaPrevBands.h12_18*10, jmaPrevBands.h18_24*10 ];
           prevRainMm = [ 0, 0 ];
           prevSegsCm = [ jmaPrevBands.h12_18, jmaPrevBands.h18_24 ];
           prevLabels = ["Prev 12–18h (JMA)","Prev 18–24h (JMA)"];
+          prevMissing = [ false, false ];
+        } else if(targetDayOffset===0){
+          prevSnowMm = [ 0, 0 ];
+          prevRainMm = [ 0, 0 ];
+          prevSegsCm = [ 0, 0 ];
+          prevLabels = ["Prev 12–18h (JMA)","Prev 18–24h (JMA)"];
+          prevMissing = [ true, true ];
         } else if(targetDayOffset!==0 && dayIdx>=1){
           const prevSnowHours = snowArr.slice((dayIdx-1)*24,(dayIdx-1)*24+24);
           const prevRainHours = rainArr.slice((dayIdx-1)*24,(dayIdx-1)*24+24);
@@ -1888,6 +1897,7 @@ function renderList(){
           prevRainMm = [ seg(prevRainHours,14,19), seg(prevRainHours,19,24) ];
           prevSegsCm = prevSnowMm.map(mm=>mm/10);
           prevLabels = ["Prev 14-19","Prev 19-24"];
+          prevMissing = [ false, false ];
         }
         const daySnowHours = snowArr.slice(base,base+24);
         const dayRainHours = rainArr.slice(base,base+24);
@@ -1921,6 +1931,7 @@ function renderList(){
         const allLabels = [...prevLabels,...labels,...nextLabels];
         const allSnowMm = [...prevSnowMm,...segsSnowMm,...nextSnowMm];
         const allRainMm = [...prevRainMm,...segsRainMm,...nextRainMm];
+        const allMissing = [...prevMissing, ...new Array(segsCm.length).fill(false), ...new Array(nextSegsCm.length).fill(false)];
         const scaleBase = allCm.length ? Math.max(...allCm, 0.1) : 0.1;
         const dayStartIdx = prevLabels.length;
         const nextStartIdx = prevLabels.length + 5;
@@ -1940,7 +1951,8 @@ function renderList(){
             }
             const displayCm = cm >= 0.1 ? cm : (icon ? 0.1 : 0);
             const h = scaleBase>0 ? Math.max(icon ? 2 : 1, Math.round((displayCm/scaleBase)*16)) : (icon ? 2 : 1);
-            const txt = cm>=0.1 ? cm.toFixed(1) : (icon && cm<0.1 ? (rainMm>=0.1 ? rainMm.toFixed(1)+"mm" : "") : "");
+            const missing = !!allMissing[i];
+            const txt = missing ? "—" : (cm>=0.1 ? cm.toFixed(1) : (icon && cm<0.1 ? (rainMm>=0.1 ? rainMm.toFixed(1)+"mm" : "") : ""));
             const extraClass = i===dayStartIdx ? " day-start" : (i===nextStartIdx ? " next-start" : "");
             const kindClass = icon ? (icon==="🌧" ? " bar-rain" : icon==="❄🌧" ? " bar-mixed" : " bar-snow") : "";
             const snowBaseColor = snowColor(Math.max(cm,0.1));
@@ -1954,7 +1966,7 @@ function renderList(){
             }
             const isJmaPrevBar = String(allLabels[i]).indexOf("(JMA)")>=0;
             const titleStr = isJmaPrevBar
-              ? `${allLabels[i]}: snow-equivalent ${cm.toFixed(1)}cm (precip + temp est.)`
+              ? (missing ? `${allLabels[i]}: — (missing observation)` : `${allLabels[i]}: snow-equivalent ${cm.toFixed(1)}cm (precip + temp est.)`)
               : (totalWater>=0.1 ? `${allLabels[i]}: snow ${snowMm.toFixed(1)}cm eq · rain ${rainMm.toFixed(1)}mm` : allLabels[i]);
             return `<div class="hourly-snow-bar${extraClass}${kindClass}" title="${titleStr}">
               <div class="hourly-snow-bar-bg">
@@ -2004,8 +2016,8 @@ function renderList(){
             const sw = ps.summitWind;
             const windLevel = sw?windRankLevel(sw.summit||0):0;
             const jpdS = targetDayOffset===0 ? getJmaPrevDaySnowForResort(r.id) : null;
-            const prevStrEn = (jpdS && jpdS.total!=null)
-              ? `Prev-day total (JMA) ${jpdS.total.toFixed(1)}cm`
+            const prevStrEn = (targetDayOffset===0)
+              ? `Prev-day total (JMA) ${jpdS&&jpdS.total!=null ? jpdS.total.toFixed(1)+"cm" : "—"}`
               : (prevNightCm>0 ? `Overnight–early: ${prevNightCm.toFixed(1)}cm` : `Overnight–early: 0cm`);
             const dayStrEn = useDaySnowCm!=null ? useDaySnowCm.toFixed(1) : "--";
             const jmaForSummary = jmaSnowCache[r.id];
@@ -2227,8 +2239,8 @@ function selectResort(id, opts){
     const mkWindLabel = ()=> sw ? `${sw.summit}km/h${wDir?` ${wDir}`:""}` : "";
     const wdq = sw ? windDirQuality(sw.summitDir,r.region) : null;
     const jpdPop = targetDayOffset===0 ? getJmaPrevDaySnowForResort(r.id) : null;
-    const overnightStr = (jpdPop && jpdPop.total!=null)
-      ? `Prev-day total (JMA) <strong>${jpdPop.total.toFixed(1)}cm</strong>`
+    const overnightStr = (targetDayOffset===0)
+      ? `Prev-day total (JMA) <strong>${jpdPop&&jpdPop.total!=null ? jpdPop.total.toFixed(1)+"cm" : "—"}</strong>`
       : `Overnight–morning <strong>${prevNightCm.toFixed(1)}cm</strong>`;
     const dayTotalStr  = `Day total <strong>${daySnow.toFixed(1)}cm</strong>`;
     const jmaForSummary = jmaSnowCache[r.id];
@@ -2252,8 +2264,11 @@ function selectResort(id, opts){
         segments.push({labelKey,snowMm,rainMm});
       };
       if(targetDayOffset===0 && jpdPop && jpdPop.h12_18!=null && jpdPop.h18_24!=null){
-        segments.push({labelKey:"Prev 12–18 (JMA)",snowMm:jpdPop.h12_18*10,rainMm:0});
-        segments.push({labelKey:"Prev 18–24 (JMA)",snowMm:jpdPop.h18_24*10,rainMm:0});
+        segments.push({labelKey:"Prev 12–18 (JMA)",snowMm:jpdPop.h12_18*10,rainMm:0,missing:false});
+        segments.push({labelKey:"Prev 18–24 (JMA)",snowMm:jpdPop.h18_24*10,rainMm:0,missing:false});
+      } else if(targetDayOffset===0){
+        segments.push({labelKey:"Prev 12–18 (JMA)",snowMm:0,rainMm:0,missing:true});
+        segments.push({labelKey:"Prev 18–24 (JMA)",snowMm:0,rainMm:0,missing:true});
       } else if(targetDayOffset!==0 && dayIdx>=1){
         const basePrev=(dayIdx-1)*24;
         seg("Prev eve",basePrev+14,basePrev+24);
@@ -2284,6 +2299,7 @@ function selectResort(id, opts){
           else if(rainRatio>0.3) icon="❄🌧";
           else if(s.snowMm>0) icon="❄";
         }
+        const missing = !!s.missing;
         const h = maxCm>0 ? Math.max(icon?4:2, Math.round((snowCm||0.1)/maxCm*16)) : (icon?4:2);
         const baseColor = snowColor(Math.max(snowCm,0.1));
         let fillStyle;
@@ -2296,9 +2312,9 @@ function selectResort(id, opts){
         }
         const isJmaSeg = String(s.labelKey).indexOf("(JMA)")>=0;
         const titleStr = isJmaSeg
-          ? `${s.labelKey}: snow-equivalent ${snowCm.toFixed(1)}cm (precip + temp est.)`
+          ? (missing ? `${s.labelKey}: — (missing observation)` : `${s.labelKey}: snow-equivalent ${snowCm.toFixed(1)}cm (precip + temp est.)`)
           : `${s.labelKey}: snow ${snowCm.toFixed(1)}cm / rain ${rainCm.toFixed(1)}cm`;
-        hourlyHtml+=`<div class="popup-hourly-bar" title="${titleStr}"><div class="popup-hourly-bar-bg">${icon?`<span class="popup-hourly-icon">${icon}</span>`:""}<div class="popup-hourly-fill" style="height:${h}px;${fillStyle}"></div></div><div class="popup-hourly-label">${s.labelKey}</div></div>`;
+        hourlyHtml+=`<div class="popup-hourly-bar" title="${titleStr}"><div class="popup-hourly-bar-bg">${icon?`<span class="popup-hourly-icon">${icon}</span>`:""}<div class="popup-hourly-fill" style="height:${h}px;${fillStyle}"></div>${missing?`<div class="popup-hourly-icon" style="top:4px">—</div>`:""}</div><div class="popup-hourly-label">${s.labelKey}</div></div>`;
       });
       hourlyHtml+='</div>';
     }
