@@ -286,7 +286,49 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
 
 /* Top page (軽いトップ) */
 .view-top{min-height:calc(100vh - 52px);display:flex;flex-direction:column;padding:24px 16px 32px;max-width:720px;margin:0 auto;overflow-y:auto}
-.view-top .top-hero{margin-bottom:20px}
+.view-top .top-hero{
+  margin-bottom:20px;
+  position:relative;
+  overflow:hidden;
+  border-radius:16px;
+  min-height:36vh; /* 動画ヒーローの存在感 */
+}
+.view-top .top-hero.is-no-video{
+  background-size:cover;
+  background-position:center;
+}
+.view-top .top-hero-video{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  z-index:0;
+  transform:scale(1.02); /* 端の微ブレ防止 */
+  filter:saturate(1.05) contrast(1.02);
+  pointer-events:none;
+}
+.view-top .top-hero::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(to bottom,
+    rgba(11,22,40,.20) 0%,
+    rgba(11,22,40,.75) 60%,
+    rgba(11,22,40,.98) 100%);
+  z-index:1;
+  pointer-events:none;
+}
+.view-top .top-hero > :not(.top-hero-video){
+  position:relative;
+  z-index:2;
+}
+@media(max-width:700px){
+  .view-top .top-hero{
+    min-height:28vh;
+    border-radius:12px;
+  }
+}
 .view-top .top-title{font-family:"DM Serif Display",serif;font-size:28px;color:#fff;margin-bottom:6px}
 .view-top .top-lead{font-size:13px;color:var(--text-dim);margin-bottom:16px}
 .view-top .top-date-wrap .date-label{font-size:10px;color:var(--text-dim);letter-spacing:2px;font-family:"Space Mono",monospace;margin-bottom:6px}
@@ -320,6 +362,22 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
 .view-top .top-cta-wrap{text-align:center;margin-top:28px;padding-top:20px;border-top:1px solid var(--border)}
 .view-top .top-cta-btn{background:var(--accent);color:var(--navy);border:none;padding:14px 28px;border-radius:12px;font-family:"Noto Sans JP",sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:opacity .2s}
 .view-top .top-cta-btn:hover{opacity:.9}
+.view-top .top-refresh-btn{
+  background:rgba(77,217,196,.15);
+  border:1px solid rgba(77,217,196,.35);
+  color:var(--accent);
+  border-radius:12px;
+  padding:10px 14px;
+  font-family:"Noto Sans JP",sans-serif;
+  font-size:13px;
+  font-weight:700;
+  cursor:pointer;
+  transition:background .2s, opacity .2s;
+  margin-top:12px;
+}
+.view-top .top-refresh-btn:hover{
+  background:rgba(77,217,196,.25);
+}
 .header-link{font-size:12px;color:var(--accent);text-decoration:none;margin-right:8px}
 .header-link:hover{text-decoration:underline}
 .view-map{height:calc(100vh - 52px);display:flex;flex-direction:column;overflow:hidden}
@@ -460,6 +518,19 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
 <!-- トップ: 日程 + その日のランキングTOP10（軽量） -->
 <div id="view-top" class="view-top">
   <section class="top-hero">
+    <video
+      class="top-hero-video"
+      autoplay
+      muted
+      loop
+      playsinline
+      preload="metadata"
+      poster="assets/track-final-dumps-poster.png"
+      aria-hidden="true"
+      tabindex="-1"
+    >
+      <source src="assets/track-final-dumps.mp4" type="video/mp4">
+    </video>
     <h1 class="top-title">Powder ranking</h1>
     <p class="top-lead">When to go? — Pick a date and see that day's TOP 10</p>
     <div class="top-date-wrap">
@@ -476,6 +547,7 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
         <option value="temp">Lowest temp</option>
       </select>
     </div>
+    <button type="button" class="top-refresh-btn" id="btn-top-refresh">Update TOP10 only</button>
     <div class="top-region-pills region-pills" id="top-region-pills">
       <div class="region-pill active" data-region="all">All Japan</div>
       <div class="region-pill" data-region="hokkaido">Hokkaido</div>
@@ -581,6 +653,7 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
   <label><input type="radio" name="jma-snow-kind" value="" checked>OFF</label>
   <label><input type="radio" name="jma-snow-kind" value="3h">3h snow forecast</label>
   <label><input type="radio" name="jma-snow-kind" value="6h">6h snow forecast</label>
+  <p class="jma-snow-hint" style="font-size:11px;line-height:1.35;opacity:.88;margin:6px 0 0;max-width:22em;">JMA tiles may <strong>disappear if zoomed in too far</strong> (try up to ~zoom level 8).</p>
 </div>
 <div id="jma-legend" class="map-overlay-legend">
   <div>Legend (3h snowfall)</div>
@@ -848,7 +921,6 @@ function fetchWeather(resort){
   if(resortFetchDebugCount < 5){
     resortFetchDebugCount++;
     console.log("[Resort debug] fetchWeather start", { id: resort.id, url });
-    fetch('http://127.0.0.1:7504/ingest/7a45a88b-734e-4e06-9139-2646ed4e0f41',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e56e9e'},body:JSON.stringify({sessionId:'e56e9e',runId:'resort_debug_pre',hypothesisId:'Q',location:'ski-powder-hunter-en.html:fetchWeather:start',message:'fetchWeather start',data:{id:resort.id,url},timestamp:Date.now()})}).catch(()=>{});
   }
   // #endregion
 
@@ -915,7 +987,6 @@ function fetchWeather(resort){
       // #region [Resort debug] fetchWeather done (cap 5)
       if(resortFetchDebugCount <= 5){
         console.log("[Resort debug] fetchWeather done", { id: resort.id, hasDaily: !!daily, hasHourly: !!(daily&&daily.hourly_snowfall) });
-        fetch('http://127.0.0.1:7504/ingest/7a45a88b-734e-4e06-9139-2646ed4e0f41',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e56e9e'},body:JSON.stringify({sessionId:'e56e9e',runId:'resort_debug_pre',hypothesisId:'Q2',location:'ski-powder-hunter-en.html:fetchWeather:done',message:'fetchWeather done',data:{id:resort.id,hasDaily:!!daily,hasHourly:!!(daily&&daily.hourly_snowfall)},timestamp:Date.now()})}).catch(()=>{});
       }
       // #endregion
 
@@ -929,7 +1000,6 @@ function fetchWeather(resort){
       // #region [Resort debug] fetchWeather error (cap 5)
       if(resortFetchDebugCount <= 5){
         console.log("[Resort debug] fetchWeather error", { id: resort.id, err: String(err && err.message ? err.message : err) });
-        fetch('http://127.0.0.1:7504/ingest/7a45a88b-734e-4e06-9139-2646ed4e0f41',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e56e9e'},body:JSON.stringify({sessionId:'e56e9e',runId:'resort_debug_pre',hypothesisId:'Q3',location:'ski-powder-hunter-en.html:fetchWeather:error',message:'fetchWeather error',data:{id:resort.id,err:String(err&&err.message?err.message:err)},timestamp:Date.now()})}).catch(()=>{});
       }
       // #endregion
       return null;
@@ -1437,7 +1507,6 @@ function renderTop10(){
       hasSnowfallSum: !!(sampleDaily && sampleDaily.snowfall_sum),
       sampleSnowfallSumType: sampleDaily && sampleDaily.snowfall_sum ? typeof sampleDaily.snowfall_sum : null
     });
-    fetch('http://127.0.0.1:7504/ingest/7a45a88b-734e-4e06-9139-2646ed4e0f41',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e56e9e'},body:JSON.stringify({sessionId:'e56e9e',runId:'debug_pre',hypothesisId:'R4',location:'ski-powder-hunter-en.html:renderTop10 stats',message:'renderTop10 stats',data:{withData:withData.length,regionFiltered:regionFiltered.length,loading,top10Len:top10.length,sampleId:sample?sample.id:null,hasSnowfallSum:!!(sampleDaily&&sampleDaily.snowfall_sum)},timestamp:Date.now()})}).catch(()=>{});
   }
   // #endregion
   if(top10.length===0){
@@ -2155,8 +2224,8 @@ const JMA_SNOW_CONFIG = {
 };
 
 const JMA_PROBE_Z = 7;
-const JMA_PROBE_LOOKBACK_MIN = 360;  // 6h
-const JMA_PROBE_STEP_MIN = 30;
+const JMA_PROBE_LOOKBACK_MIN = 720;
+const JMA_PROBE_STEP_MIN = 60;
 const JMA_PROBE_TIMEOUT_MS = 2500;
 let jmaSnowDebugProbeErrorCount = 0;
 let jmaSnowKnownGoodTested = { "3h": false, "6h": false };
@@ -2194,6 +2263,7 @@ function buildJmaSnowTileUrl(kind, timeStr){
   if(!cfg || !cfg.element || !timeStr) return null;
   const base = "https://www.jma.go.jp/bosai/jmatile/data/snow/";
   const element = cfg.element;
+  // JMA jmatile snow: same timeStr for ref/valid in path (verified)
   return `${base}${timeStr}/none/${timeStr}/surf/${element}/{z}/{x}/{y}.png`;
 }
 
@@ -2249,7 +2319,6 @@ async function probeJmaSnowTileExists(kind, timeStr, probeLatLng, z){
     img.onload = function(){
       clearTimeout(t);
       // #region [JMA snow debug] probe hit
-      fetch('http://127.0.0.1:7504/ingest/7a45a88b-734e-4e06-9139-2646ed4e0f41',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e56e9e'},body:JSON.stringify({sessionId:'e56e9e',runId:'debug_pre',hypothesisId:'E',location:'ski-powder-hunter-en.html:probeJmaSnowTileExists:onload',message:'probe hit',data:{kind,timeStr,z,point:{lat:probeLatLng.lat,lng:probeLatLng.lng},tile:{x,y},url},timestamp:Date.now()})}).catch(()=>{});
       // #endregion
       resolve(true);
     };
@@ -2258,7 +2327,6 @@ async function probeJmaSnowTileExists(kind, timeStr, probeLatLng, z){
       if(jmaSnowDebugProbeErrorCount < 3){
         jmaSnowDebugProbeErrorCount++;
         console.log("[JMA snow debug] probe error sample", { kind, timeStr, z, tile:{x,y}, leafletTile:{x:leafletTileX,y:leafletTileY}, url });
-        fetch('http://127.0.0.1:7504/ingest/7a45a88b-734e-4e06-9139-2646ed4e0f41',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e56e9e'},body:JSON.stringify({sessionId:'e56e9e',runId:'debug_pre',hypothesisId:'E',location:'ski-powder-hunter-en.html:probeJmaSnowTileExists:onerror',message:'probe error sample',data:{kind,timeStr,z,tile:{x,y},leafletTile:{x:leafletTileX,y:leafletTileY},url},timestamp:Date.now()})}).catch(()=>{});
 
         // #region [JMA snow debug] alt probe tests (no-cache query + y-flip)
         try{
@@ -2277,12 +2345,10 @@ async function probeJmaSnowTileExists(kind, timeStr, probeLatLng, z){
             img2.onload = function(){
               clearTimeout(t2);
               console.log("[JMA snow debug] alt probe result", { kind, timeStr, z, alt:'no-query', hit:true, url:urlNoQuery });
-              fetch('http://127.0.0.1:7504/ingest/7a45a88b-734e-4e06-9139-2646ed4e0f41',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e56e9e'},body:JSON.stringify({sessionId:'e56e9e',runId:'debug_pre',hypothesisId:'G',location:'ski-powder-hunter-en.html:altProbe(no-query)',message:'alt probe result',data:{kind,timeStr,z,hit:true,url:urlNoQuery},timestamp:Date.now()})}).catch(()=>{});
             };
             img2.onerror = function(){
               clearTimeout(t2);
               console.log("[JMA snow debug] alt probe result", { kind, timeStr, z, alt:'no-query', hit:false });
-              fetch('http://127.0.0.1:7504/ingest/7a45a88b-734e-4e06-9139-2646ed4e0f41',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e56e9e'},body:JSON.stringify({sessionId:'e56e9e',runId:'debug_pre',hypothesisId:'G',location:'ski-powder-hunter-en.html:altProbe(no-query)',message:'alt probe result',data:{kind,timeStr,z,hit:false},timestamp:Date.now()})}).catch(()=>{});
             };
             img2.src = urlNoQuery;
           })();
@@ -2296,12 +2362,10 @@ async function probeJmaSnowTileExists(kind, timeStr, probeLatLng, z){
             img3.onload = function(){
               clearTimeout(t3);
               console.log("[JMA snow debug] alt probe result", { kind, timeStr, z, alt:'y-flip', hit:true, yTms, url:urlYFlip });
-              fetch('http://127.0.0.1:7504/ingest/7a45a88b-734e-4e06-9139-2646ed4e0f41',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e56e9e'},body:JSON.stringify({sessionId:'e56e9e',runId:'debug_pre',hypothesisId:'F',location:'ski-powder-hunter-en.html:altProbe(y-flip)',message:'alt probe result',data:{kind,timeStr,z,hit:true,yTms,url:urlYFlip},timestamp:Date.now()})}).catch(()=>{});
             };
             img3.onerror = function(){
               clearTimeout(t3);
               console.log("[JMA snow debug] alt probe result", { kind, timeStr, z, alt:'y-flip', hit:false, yTms });
-              fetch('http://127.0.0.1:7504/ingest/7a45a88b-734e-4e06-9139-2646ed4e0f41',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e56e9e'},body:JSON.stringify({sessionId:'e56e9e',runId:'debug_pre',hypothesisId:'F',location:'ski-powder-hunter-en.html:altProbe(y-flip)',message:'alt probe result',data:{kind,timeStr,z,hit:false,yTms},timestamp:Date.now()})}).catch(()=>{});
             };
             img3.src = urlYFlip;
           })();
@@ -2373,7 +2437,6 @@ async function isJmaSnowTimeRenderable(kind, timeStr){
   const zNow = Math.round(map ? map.getZoom() : 7);
   const points = getJmaProbeLatLngs();
   // #region [JMA snow debug] fetchLatest begin
-  fetch('http://127.0.0.1:7504/ingest/7a45a88b-734e-4e06-9139-2646ed4e0f41',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e56e9e'},body:JSON.stringify({sessionId:'e56e9e',runId:'debug_pre',hypothesisId:'C',location:'ski-powder-hunter-en.html:fetchJmaSnowLatestTime:begin',message:'fetchLatest begin',data:{kind,zNow,lookbackMin,stepMin:JMA_PROBE_STEP_MIN,probePoints:points.length},timestamp:Date.now()})}).catch(()=>{});
   // #endregion
 
   const rNow = await probeAnyJmaTilePointExists(kind, timeStr, zNow, points);
@@ -2381,7 +2444,6 @@ async function isJmaSnowTimeRenderable(kind, timeStr){
     const pointKind = ['center','NE','NW','SE','SW'][rNow.index] || 'unknown';
     // #region [JMA snow debug] isRenderable result
     console.log("[JMA snow debug] isRenderable result", { kind, timeStr, hit:true, hitZ:zNow, pointIndex:rNow.index, point:pointKind });
-    fetch('http://127.0.0.1:7504/ingest/7a45a88b-734e-4e06-9139-2646ed4e0f41',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e56e9e'},body:JSON.stringify({sessionId:'e56e9e',runId:'debug_pre',hypothesisId:'E',location:'ski-powder-hunter-en.html:isJmaSnowTimeRenderable:return(hit zNow)',message:'isRenderable result',data:{kind,timeStr,hit:true,hitZ:zNow,pointIndex:rNow.index,point:pointKind},timestamp:Date.now()})}).catch(()=>{});
     // #endregion
     return { hit:true, hitZ:zNow, pointIndex:rNow.index };
   }
@@ -2392,55 +2454,75 @@ async function isJmaSnowTimeRenderable(kind, timeStr){
       const pointKind = ['center','NE','NW','SE','SW'][rFb.index] || 'unknown';
       // #region [JMA snow debug] isRenderable result
       console.log("[JMA snow debug] isRenderable result", { kind, timeStr, hit:true, hitZ:JMA_PROBE_Z, pointIndex:rFb.index, point:pointKind });
-      fetch('http://127.0.0.1:7504/ingest/7a45a88b-734e-4e06-9139-2646ed4e0f41',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e56e9e'},body:JSON.stringify({sessionId:'e56e9e',runId:'debug_pre',hypothesisId:'E',location:'ski-powder-hunter-en.html:isJmaSnowTimeRenderable:return(hit fallback)',message:'isRenderable result',data:{kind,timeStr,hit:true,hitZ:JMA_PROBE_Z,pointIndex:rFb.index,point:pointKind},timestamp:Date.now()})}).catch(()=>{});
       // #endregion
       return { hit:true, hitZ:JMA_PROBE_Z, pointIndex:rFb.index };
     }
   }
   // #region [JMA snow debug] isRenderable result
   console.log("[JMA snow debug] isRenderable result", { kind, timeStr, hit:false, hitZ:null, pointIndex:-1, point:'none' });
-  fetch('http://127.0.0.1:7504/ingest/7a45a88b-734e-4e06-9139-2646ed4e0f41',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e56e9e'},body:JSON.stringify({sessionId:'e56e9e',runId:'debug_pre',hypothesisId:'E',location:'ski-powder-hunter-en.html:isJmaSnowTimeRenderable:return(no hit)',message:'isRenderable result',data:{kind,timeStr,hit:false,hitZ:null,pointIndex:-1,point:'none'},timestamp:Date.now()})}).catch(()=>{});
   // #endregion
   return { hit:false, hitZ:null, pointIndex:-1 };
 }
 
+/** JMA jmatile times follow Japan Standard Time (no DST) */
+function getJstCalendarParts(d){
+  const fmt = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Asia/Tokyo",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false
+  });
+  const parts = fmt.formatToParts(d);
+  const n = (t) => parseInt(parts.find(p => p.type === t).value, 10);
+  return { y: n("year"), M: n("month"), d: n("day"), H: n("hour"), m: n("minute"), s: n("second") };
+}
+function jstWallToUtcMs(j){
+  return Date.UTC(j.y, j.M - 1, j.d, j.H, j.m, j.s) - 9 * 60 * 60 * 1000;
+}
 function formatJmaTimeStr(d){
-  const yyyy = d.getFullYear();
-  const MM = String(d.getMonth()+1).padStart(2,"0");
-  const dd = String(d.getDate()).padStart(2,"0");
-  const HH = String(d.getHours()).padStart(2,"0");
-  const mm = String(d.getMinutes()).padStart(2,"0");
-  const ss = "00";
-  return `${yyyy}${MM}${dd}${HH}${mm}${ss}`;
+  const p = getJstCalendarParts(d);
+  p.s = 0;
+  return (
+    String(p.y) +
+    String(p.M).padStart(2, "0") +
+    String(p.d).padStart(2, "0") +
+    String(p.H).padStart(2, "0") +
+    String(p.m).padStart(2, "0") +
+    "00"
+  );
 }
 
 async function fetchJmaSnowLatestTime(kind){
+  const lookbackMin = (kind === "6h" ? 1440 : JMA_PROBE_LOOKBACK_MIN);
   const now = new Date();
-  now.setSeconds(0); now.setMilliseconds(0);
-  const rounded = new Date(now);
-  const minutes = rounded.getMinutes();
-  rounded.setMinutes(Math.floor(minutes / JMA_PROBE_STEP_MIN) * JMA_PROBE_STEP_MIN);
-  const zNow = Math.round(map ? map.getZoom() : 7);
-  const points = getJmaProbeLatLngs();
+  now.setMilliseconds(0);
+  let jst = getJstCalendarParts(now);
+  jst.s = 0;
+  jst.m = Math.floor(jst.m / JMA_PROBE_STEP_MIN) * JMA_PROBE_STEP_MIN;
+  const anchorMs = jstWallToUtcMs(jst);
 
   // #region [JMA snow debug] fetchLatest range (no-logic-change)
-  const lookbackMin = (kind === "6h" ? 1440 : JMA_PROBE_LOOKBACK_MIN);
   try{
-    const firstStr = formatJmaTimeStr(rounded);
-    const lastT = new Date(rounded.getTime() - lookbackMin*60*1000);
+    const firstStr = formatJmaTimeStr(new Date(anchorMs));
+    const lastT = new Date(anchorMs - lookbackMin*60*1000);
     const lastStr = formatJmaTimeStr(lastT);
-    console.log("[JMA snow debug] fetchLatest range", { kind, rounded: firstStr, lookbackMin, last: lastStr, stepMin: JMA_PROBE_STEP_MIN });
+    console.log("[JMA snow debug] fetchLatest range", { kind, rounded: firstStr, lookbackMin, last: lastStr, stepMin: JMA_PROBE_STEP_MIN, tz: "Asia/Tokyo" });
   }catch(_){}
   // #endregion
 
+  const zNow = Math.round(map ? map.getZoom() : 7);
+  const points = getJmaProbeLatLngs();
   console.log("[JMA snow debug] fetchLatest begin", { kind, zNow, lookbackMin, stepMin:JMA_PROBE_STEP_MIN, points:points.length });
   for(let offset=0; offset<=lookbackMin; offset+=JMA_PROBE_STEP_MIN){
-    const t = new Date(rounded.getTime() - offset*60*1000);
+    const t = new Date(anchorMs - offset*60*1000);
     const timeStr = formatJmaTimeStr(t);
     const rNow = await probeAnyJmaTilePointExists(kind, timeStr, zNow, points);
     if(rNow.hit) {
       // #region [JMA snow debug] fetchLatest found
-      fetch('http://127.0.0.1:7504/ingest/7a45a88b-734e-4e06-9139-2646ed4e0f41',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e56e9e'},body:JSON.stringify({sessionId:'e56e9e',runId:'debug_pre',hypothesisId:'C',location:'ski-powder-hunter-en.html:fetchJmaSnowLatestTime:found(zNow)',message:'fetchLatest found',data:{kind,timeStr,hitZ:zNow,pointIndex:rNow.index},timestamp:Date.now()})}).catch(()=>{});
       // #endregion
       return timeStr;
     }
@@ -2448,14 +2530,12 @@ async function fetchJmaSnowLatestTime(kind){
       const rFb = await probeAnyJmaTilePointExists(kind, timeStr, JMA_PROBE_Z, points);
       if(rFb.hit) {
         // #region [JMA snow debug] fetchLatest found
-        fetch('http://127.0.0.1:7504/ingest/7a45a88b-734e-4e06-9139-2646ed4e0f41',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e56e9e'},body:JSON.stringify({sessionId:'e56e9e',runId:'debug_pre',hypothesisId:'C',location:'ski-powder-hunter-en.html:fetchJmaSnowLatestTime:found(fallback z)',message:'fetchLatest found',data:{kind,timeStr,hitZ:JMA_PROBE_Z,pointIndex:rFb.index},timestamp:Date.now()})}).catch(()=>{});
         // #endregion
         return timeStr;
       }
     }
   }
   // #region [JMA snow debug] fetchLatest not found
-  fetch('http://127.0.0.1:7504/ingest/7a45a88b-734e-4e06-9139-2646ed4e0f41',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e56e9e'},body:JSON.stringify({sessionId:'e56e9e',runId:'debug_pre',hypothesisId:'C',location:'ski-powder-hunter-en.html:fetchJmaSnowLatestTime:not found',message:'fetchLatest not found',data:{kind,returned:null},timestamp:Date.now()})}).catch(()=>{});
   // #endregion
   console.log("[JMA snow debug] fetchLatest not found", { kind });
 
@@ -2465,21 +2545,17 @@ async function fetchJmaSnowLatestTime(kind){
     const known = { timeStr:"20260318150000", z:6, x:56, y:24, label:"known6h(20260318 15:00,56,24)" };
     const rNoQ = await probeJmaSnowTileExistsByXY(kind, known.timeStr, known.z, known.x, known.y, false);
     console.log("[JMA snow debug] fetchLatest not-found known6h(no-query)", { kind, timeStr:known.timeStr, z:known.z, x:known.x, y:known.y, hit:rNoQ.hit, label:known.label });
-    fetch('http://127.0.0.1:7504/ingest/7a45a88b-734e-4e06-9139-2646ed4e0f41',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e56e9e'},body:JSON.stringify({sessionId:'e56e9e',runId:'debug_pre',hypothesisId:'J',location:'ski-powder-hunter-en.html:known6h existence check(no-query)',message:'known6h existence check',data:{kind,knownTimeStr:known.timeStr,z:known.z,x:known.x,y:known.y,hit:rNoQ.hit,label:known.label},timestamp:Date.now()})}).catch(()=>{});
 
     const rQ = await probeJmaSnowTileExistsByXY(kind, known.timeStr, known.z, known.x, known.y, true);
     console.log("[JMA snow debug] fetchLatest not-found known6h(query)", { kind, timeStr:known.timeStr, z:known.z, x:known.x, y:known.y, hit:rQ.hit, label:known.label });
-    fetch('http://127.0.0.1:7504/ingest/7a45a88b-734e-4e06-9139-2646ed4e0f41',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e56e9e'},body:JSON.stringify({sessionId:'e56e9e',runId:'debug_pre',hypothesisId:'J',location:'ski-powder-hunter-en.html:known6h existence check(query)',message:'known6h existence check',data:{kind,knownTimeStr:known.timeStr,z:known.z,x:known.x,y:known.y,hit:rQ.hit,label:known.label},timestamp:Date.now()})}).catch(()=>{});
 
     // Also verify whether THIS known tile is within the current search probePoints set.
     const rProbeZNow = await probeAnyJmaTilePointExists(kind, known.timeStr, zNow, points);
     console.log("[JMA snow debug] fetchLatest not-found known6h probeAny(zNow)", { kind, timeStr:known.timeStr, z:zNow, hit:rProbeZNow.hit, pointIndex:rProbeZNow.index, label:known.label });
-    fetch('http://127.0.0.1:7504/ingest/7a45a88b-734e-4e06-9139-2646ed4e0f41',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e56e9e'},body:JSON.stringify({sessionId:'e56e9e',runId:'debug_pre',hypothesisId:'L',location:'ski-powder-hunter-en.html:known6h probeAny(zNow)',message:'known6h probeAny on current probePoints',data:{kind,knownTimeStr:known.timeStr,zNow,hit:rProbeZNow.hit,pointIndex:rProbeZNow.index,label:known.label},timestamp:Date.now()})}).catch(()=>{});
 
     if(JMA_PROBE_Z !== zNow){
       const rProbeFb = await probeAnyJmaTilePointExists(kind, known.timeStr, JMA_PROBE_Z, points);
       console.log("[JMA snow debug] fetchLatest not-found known6h probeAny(fallbackZ)", { kind, timeStr:known.timeStr, z:JMA_PROBE_Z, hit:rProbeFb.hit, pointIndex:rProbeFb.index, label:known.label });
-      fetch('http://127.0.0.1:7504/ingest/7a45a88b-734e-4e06-9139-2646ed4e0f41',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e56e9e'},body:JSON.stringify({sessionId:'e56e9e',runId:'debug_pre',hypothesisId:'L',location:'ski-powder-hunter-en.html:known6h probeAny(fallbackZ)',message:'known6h probeAny on current probePoints',data:{kind,knownTimeStr:known.timeStr,fallbackZ:JMA_PROBE_Z,hit:rProbeFb.hit,pointIndex:rProbeFb.index,label:known.label},timestamp:Date.now()})}).catch(()=>{});
     }
   }
   // #endregion
@@ -2492,7 +2568,6 @@ async function fetchJmaSnowLatestTime(kind){
       const { x, y } = latLngToTileXY(probePoint.lat, probePoint.lng, zNow);
       const secCandidates = ["00","10","20"];
       console.log("[JMA snow debug] seconds probe", { kind, baseTimeStr, z:zNow, tile:{x,y}, secCandidates });
-      fetch('http://127.0.0.1:7504/ingest/7a45a88b-734e-4e06-9139-2646ed4e0f41',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e56e9e'},body:JSON.stringify({sessionId:'e56e9e',runId:'debug_pre',hypothesisId:'H',location:'ski-powder-hunter-en.html:secondsProbe:start',message:'seconds probe start',data:{kind,baseTimeStr,z:zNow,tile:{x,y}},timestamp:Date.now()})}).catch(()=>{});
 
       async function probeOnceSilent(timeStrAlt){
         const tplAlt = buildJmaSnowTileUrl(kind, timeStrAlt);
@@ -2515,7 +2590,6 @@ async function fetchJmaSnowLatestTime(kind){
         const altTimeStr = baseTimeStr.slice(0,12) + sec;
         const hit = await probeOnceSilent(altTimeStr);
         console.log("[JMA snow debug] seconds probe result", { kind, baseTimeStr, altTimeStr, z:zNow, tile:{x,y}, hit, sec });
-        fetch('http://127.0.0.1:7504/ingest/7a45a88b-734e-4e06-9139-2646ed4e0f41',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e56e9e'},body:JSON.stringify({sessionId:'e56e9e',runId:'debug_pre',hypothesisId:'H',location:'ski-powder-hunter-en.html:secondsProbe:result',message:'seconds probe result',data:{kind,baseTimeStr,altTimeStr,z:zNow,tile:{x,y},hit,sec},timestamp:Date.now()})}).catch(()=>{});
       }
     }
   }catch(_){}
@@ -2527,7 +2601,6 @@ async function ensureJmaSnowLayer(kind){
   if(!kind) return null;
   if(jmaSnowLayer && jmaSnowKind===kind && jmaSnowTimeStrByKind[kind]){
     console.log("[JMA snow debug] ensure fast-path return", { kind, hasLayer: !!jmaSnowLayer, cachedTime: jmaSnowTimeStrByKind[kind] });
-    fetch('http://127.0.0.1:7504/ingest/7a45a88b-734e-4e06-9139-2646ed4e0f41',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e56e9e'},body:JSON.stringify({sessionId:'e56e9e',runId:'debug_pre',hypothesisId:'I',location:'ski-powder-hunter-en.html:ensureJmaSnowLayer:fast-path',message:'ensure returned cached layer',data:{kind,cachedTime:jmaSnowTimeStrByKind[kind]},timestamp:Date.now()})}).catch(()=>{});
     return jmaSnowLayer;
   }
   // #region [JMA snow debug] known-good probes (existence verification)
@@ -2543,32 +2616,26 @@ async function ensureJmaSnowLayer(kind){
       const p = probes[i];
       const rNoQ = await probeJmaSnowTileExistsByXY(kind, p.knownTimeStr, p.z, p.x, p.y, false);
       console.log("[JMA snow debug] known-good probe(no-query)", { kind, timeStr:p.knownTimeStr, z:p.z, x:p.x, y:p.y, hit:rNoQ.hit, label:p.label });
-      fetch('http://127.0.0.1:7504/ingest/7a45a88b-734e-4e06-9139-2646ed4e0f41',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e56e9e'},body:JSON.stringify({sessionId:'e56e9e',runId:'debug_pre',hypothesisId:'K',location:'ski-powder-hunter-en.html:known-good probe(no-query)',message:'known-good probe',data:{kind,knownTimeStr,p,hit:rNoQ.hit},timestamp:Date.now()})}).catch(()=>{});
       const rQ = await probeJmaSnowTileExistsByXY(kind, p.knownTimeStr, p.z, p.x, p.y, true);
       console.log("[JMA snow debug] known-good probe(query)", { kind, timeStr:p.knownTimeStr, z:p.z, x:p.x, y:p.y, hit:rQ.hit, label:p.label });
-      fetch('http://127.0.0.1:7504/ingest/7a45a88b-734e-4e06-9139-2646ed4e0f41',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e56e9e'},body:JSON.stringify({sessionId:'e56e9e',runId:'debug_pre',hypothesisId:'K',location:'ski-powder-hunter-en.html:known-good probe(query)',message:'known-good probe',data:{kind,knownTimeStr,p,hit:rQ.hit},timestamp:Date.now()})}).catch(()=>{});
     }
   }
   // #endregion
   // #region [JMA snow debug] ensure begin
-  fetch('http://127.0.0.1:7504/ingest/7a45a88b-734e-4e06-9139-2646ed4e0f41',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e56e9e'},body:JSON.stringify({sessionId:'e56e9e',runId:'debug_pre',hypothesisId:'B',location:'ski-powder-hunter-en.html:ensureJmaSnowLayer:begin',message:'ensure begin',data:{kind,prevTimeStr:jmaSnowTimeStrByKind ? (jmaSnowTimeStrByKind[kind]||null) : null},timestamp:Date.now()})}).catch(()=>{});
   // #endregion
   const timeStr = await fetchJmaSnowLatestTime(kind);
   // #region [JMA snow debug] timeStr fetched
   const prevTimeStr = jmaSnowTimeStrByKind ? (jmaSnowTimeStrByKind[kind]||null) : null;
   console.log("[JMA snow debug] timeStr fetched", { kind, timeStr, prevTimeStr });
-  fetch('http://127.0.0.1:7504/ingest/7a45a88b-734e-4e06-9139-2646ed4e0f41',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e56e9e'},body:JSON.stringify({sessionId:'e56e9e',runId:'debug_pre',hypothesisId:'B',location:'ski-powder-hunter-en.html:ensureJmaSnowLayer:timeStr fetched',message:'timeStr fetched',data:{kind,timeStr,prevTimeStr},timestamp:Date.now()})}).catch(()=>{});
   // #endregion
   if(!timeStr) {
     // #region [JMA snow debug] ensure return null (timeStr null)
-    fetch('http://127.0.0.1:7504/ingest/7a45a88b-734e-4e06-9139-2646ed4e0f41',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e56e9e'},body:JSON.stringify({sessionId:'e56e9e',runId:'debug_pre',hypothesisId:'B',location:'ski-powder-hunter-en.html:ensureJmaSnowLayer:timeStr null',message:'ensure return null',data:{kind,reason:'timeStr null'},timestamp:Date.now()})}).catch(()=>{});
     // #endregion
     return null;
   }
   // Prevent disappearance: only switch when the current view can load at least one tile
   const renderable = await isJmaSnowTimeRenderable(kind, timeStr);
   // #region [JMA snow debug] ensure renderable check
-  fetch('http://127.0.0.1:7504/ingest/7a45a88b-734e-4e06-9139-2646ed4e0f41',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e56e9e'},body:JSON.stringify({sessionId:'e56e9e',runId:'debug_pre',hypothesisId:'B',location:'ski-powder-hunter-en.html:ensureJmaSnowLayer:renderable check',message:'renderable check',data:{kind,timeStr,hit:renderable.hit,hitZ:renderable.hitZ,pointIndex:renderable.pointIndex,existingLayer:!!jmaSnowLayer},timestamp:Date.now()})}).catch(()=>{});
   // #endregion
   if(!renderable.hit){
     return jmaSnowLayer || null;
@@ -2580,24 +2647,23 @@ async function ensureJmaSnowLayer(kind){
   const urlPattern = buildJmaSnowTileUrl(kind, timeStr);
   if(!urlPattern) {
     // #region [JMA snow debug] ensure return null (urlPattern null)
-    fetch('http://127.0.0.1:7504/ingest/7a45a88b-734e-4e06-9139-2646ed4e0f41',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e56e9e'},body:JSON.stringify({sessionId:'e56e9e',runId:'debug_pre',hypothesisId:'B',location:'ski-powder-hunter-en.html:ensureJmaSnowLayer:urlPattern null',message:'ensure return null',data:{kind,timeStr,reason:'urlPattern null'},timestamp:Date.now()})}).catch(()=>{});
     // #endregion
     return null;
   }
   if(jmaSnowLayer){
     // #region [JMA snow debug] switch url(setUrl)
-    fetch('http://127.0.0.1:7504/ingest/7a45a88b-734e-4e06-9139-2646ed4e0f41',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e56e9e'},body:JSON.stringify({sessionId:'e56e9e',runId:'debug_pre',hypothesisId:'B',location:'ski-powder-hunter-en.html:ensureJmaSnowLayer:switch(setUrl)',message:'switch url',data:{kind,timeStr},timestamp:Date.now()})}).catch(()=>{});
     // #endregion
     jmaSnowLayer.setUrl(urlPattern);
   }else{
     // #region [JMA snow debug] switch url(create)
-    fetch('http://127.0.0.1:7504/ingest/7a45a88b-734e-4e06-9139-2646ed4e0f41',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e56e9e'},body:JSON.stringify({sessionId:'e56e9e',runId:'debug_pre',hypothesisId:'B',location:'ski-powder-hunter-en.html:ensureJmaSnowLayer:switch(create)',message:'switch url',data:{kind,timeStr},timestamp:Date.now()})}).catch(()=>{});
     // #endregion
     jmaSnowLayer = L.tileLayer(urlPattern,{
       opacity:0.5,
       zIndex:50,
-      maxZoom:17,
-      minZoom:3
+      maxZoom:10,
+      minZoom:3,
+      maxNativeZoom:8,
+      minNativeZoom:6
     });
   }
   return jmaSnowLayer;
@@ -2611,7 +2677,6 @@ function startJmaSnowAutoRefresh(){
   if(!jmaSnowKind || !jmaSnowLayer) return;
   // #region [JMA snow debug] start auto refresh
   console.log("[JMA snow debug] start auto refresh", { kind:jmaSnowKind, prevTimeStr:(jmaSnowTimeStrByKind ? (jmaSnowTimeStrByKind[jmaSnowKind]||null) : null) });
-  fetch('http://127.0.0.1:7504/ingest/7a45a88b-734e-4e06-9139-2646ed4e0f41',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e56e9e'},body:JSON.stringify({sessionId:'e56e9e',runId:'debug_pre',hypothesisId:'D',location:'ski-powder-hunter-en.html:startJmaSnowAutoRefresh:start',message:'start auto refresh',data:{kind:jmaSnowKind},timestamp:Date.now()})}).catch(()=>{});
   // #endregion
   jmaSnowAutoTimer = setInterval(async ()=>{
     if(!jmaSnowKind || !jmaSnowLayer) return;
@@ -2622,7 +2687,6 @@ function startJmaSnowAutoRefresh(){
     const reason = !latest ? 'latest null' : (jmaSnowTimeStrByKind[kind] === latest ? 'same' : 'changed');
     // #region [JMA snow debug] auto tick
     console.log("[JMA snow debug] auto tick", { kind, prevTimeStr:prev, latestOrNull, reason });
-    fetch('http://127.0.0.1:7504/ingest/7a45a88b-734e-4e06-9139-2646ed4e0f41',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e56e9e'},body:JSON.stringify({sessionId:'e56e9e',runId:'debug_pre',hypothesisId:'D',location:'ski-powder-hunter-en.html:startJmaSnowAutoRefresh:tick',message:'auto tick',data:{kind,prevTimeStr:prev,latestOrNull,reason},timestamp:Date.now()})}).catch(()=>{});
     // #endregion
     if(reason !== 'changed') return;
     const renderable = await isJmaSnowTimeRenderable(kind, latest);
@@ -2664,7 +2728,6 @@ function initJmaSnowToggle(){
         const referrer = typeof document !== "undefined" ? document.referrer : null;
         console.log("[JMA snow debug] toggle ON", { kind, zoom:z, center:c?{lat:c.lat,lng:c.lng}:null, bounds:boundsSummary, href, protocol, referrer });
         jmaSnowDebugProbeErrorCount = 0;
-        fetch('http://127.0.0.1:7504/ingest/7a45a88b-734e-4e06-9139-2646ed4e0f41',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e56e9e'},body:JSON.stringify({sessionId:'e56e9e',runId:'debug_pre',hypothesisId:'A',location:'ski-powder-hunter-en.html:initJmaSnowToggle:change(on)',message:'toggle ON',data:{kind,zoom:z,center:c?{lat:c.lat,lng:c.lng}:null,bounds:boundsSummary,href,protocol,referrer},timestamp:Date.now()})}).catch(()=>{});
       }catch(e){}
       // #endregion
       ensureJmaSnowLayer(kind).then(layer=>{
@@ -2672,7 +2735,6 @@ function initJmaSnowToggle(){
         const hasLayer = !!layer;
         const url = layer && layer._url ? layer._url : null;
         console.log("[JMA snow debug] ensure result", { kind, hasLayer, url });
-        fetch('http://127.0.0.1:7504/ingest/7a45a88b-734e-4e06-9139-2646ed4e0f41',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e56e9e'},body:JSON.stringify({sessionId:'e56e9e',runId:'debug_pre',hypothesisId:'A',location:'ski-powder-hunter-en.html:initJmaSnowToggle:ensure result',message:'ensure result',data:{kind,hasLayer,url},timestamp:Date.now()})}).catch(()=>{});
         // #endregion
         if(!layer) return;
         if(!map.hasLayer(layer)) layer.addTo(map);
@@ -2842,6 +2904,40 @@ setInterval(()=>{
 // ─── View switch (トップ ⇔ マップ) ─────────────────────────────
 const GELENDE_SNOW_NOTE = "May be outdated. Confirm on the resort's official site.";
 const FEEDBACK_EMAIL = "your-email@example.com"; // TODO: set to your feedback inbox
+let topHeroSetEnabled = null;
+function initTopHeroVideoOnce(){
+  try{
+    const topHero = document.querySelector("#view-top .top-hero");
+    if(!topHero) return;
+    const video = topHero.querySelector("video.top-hero-video");
+    const posterUrl = video ? (video.getAttribute("poster") || "") : "";
+
+    topHeroSetEnabled = function(enabled){
+      if(video){
+        if(enabled){
+          topHero.classList.remove("is-no-video");
+          topHero.style.backgroundImage = "";
+          video.style.display = "";
+          try{ video.muted = true; video.play(); }catch(_){}
+        }else{
+          topHero.classList.add("is-no-video");
+          if(posterUrl) topHero.style.backgroundImage = `url("${posterUrl}")`;
+          try{ video.pause(); }catch(_){}
+          video.style.display = "none";
+        }
+      }else{
+        if(enabled) topHero.classList.remove("is-no-video");
+        else topHero.classList.add("is-no-video");
+      }
+    };
+
+    // 初回アクセスだけ動画アニメを許可（マップ復帰では常に無効）
+    const key = "topHeroVideoSeenOnce";
+    const allowAnimate = sessionStorage.getItem(key) !== "1";
+    if(allowAnimate) sessionStorage.setItem(key,"1");
+    topHeroSetEnabled(allowAnimate);
+  }catch(e){}
+}
 function openFeedback(kind, resortId){
   try{
     const r = RESORT_MAP[resortId];
@@ -2868,6 +2964,7 @@ function openFeedback(kind, resortId){
   }catch(e){}
 }
 function showTopView(){
+  if(topHeroSetEnabled) topHeroSetEnabled(false);
   document.getElementById("view-top").style.display="flex";
   document.getElementById("view-map").style.display="none";
   document.getElementById("link-to-top").style.display="none";
@@ -2876,6 +2973,7 @@ function showTopView(){
   document.body.style.overflow="hidden";
 }
 function showMapView(openResortId){
+  if(topHeroSetEnabled) topHeroSetEnabled(false);
   document.getElementById("view-top").style.display="none";
   document.getElementById("view-map").style.display="flex";
   document.getElementById("link-to-top").style.display="inline";
@@ -2907,6 +3005,15 @@ if(backTopBtn){
 // ─── Init ──────────────────────────────────────────────────────
 initDateButtons();
 initTopDateButtons();
+initTopHeroVideoOnce();
+{
+  const btnTopRefresh = document.getElementById("btn-top-refresh");
+  if(btnTopRefresh){
+    btnTopRefresh.addEventListener("click",()=>{
+      renderTop10();
+    });
+  }
+}
 RESORTS.forEach(r=>{ markers[r.id]=createMarker(r); });
 renderTop10();
 renderList();
@@ -2918,7 +3025,6 @@ document.getElementById("view-map").style.display="none";
 (function(){
   // #region [Resort debug] EN init cache load
   console.log("[Resort debug] init start (en)");
-  fetch('http://127.0.0.1:7504/ingest/7a45a88b-734e-4e06-9139-2646ed4e0f41',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e56e9e'},body:JSON.stringify({sessionId:'e56e9e',runId:'debug_pre',hypothesisId:'R',location:'ski-powder-hunter-en.html:resort init start',message:'init start',data:{},timestamp:Date.now()})}).catch(()=>{});
   // #endregion
   Promise.all([
     fetch("data/weather.json").then(function(r){ var lm=r.headers.get("Last-Modified"); if(lm) lastDataUpdated=new Date(lm); return r.ok?r.json():Promise.reject(); }).catch(function(){ return null; }),
@@ -2931,7 +3037,6 @@ document.getElementById("view-map").style.display="none";
     var obj=arr[0], jma=arr[1], resortSnow=arr[2], liftTimes=arr[3], operating=arr[4], namesEn=arr[5];
     // #region [Resort debug] EN cache loaded
     console.log("[Resort debug] init cache done", { hasWeather: !!obj, hasJma: !!jma, hasResortSnow: !!resortSnow, hasLiftTimes: !!liftTimes, hasOperating: !!operating, hasNamesEn: !!namesEn });
-    fetch('http://127.0.0.1:7504/ingest/7a45a88b-734e-4e06-9139-2646ed4e0f41',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e56e9e'},body:JSON.stringify({sessionId:'e56e9e',runId:'debug_pre',hypothesisId:'R2',location:'ski-powder-hunter-en.html:resort init cache done',message:'cache done',data:{hasWeather:!!obj,hasJma:!!jma,hasResortSnow:!!resortSnow,hasLiftTimes:!!liftTimes,hasOperating:!!operating,hasNamesEn:!!namesEn},timestamp:Date.now()})}).catch(()=>{});
     // #endregion
     // Apply English names first so displayNameEn() is correct on first paint
     if(namesEn&&typeof namesEn==="object"){
@@ -2955,7 +3060,6 @@ document.getElementById("view-map").style.display="none";
       // キャッシュに無い分だけ API 取得（キャッシュがあればほとんど走らない）
       var queuedIds = FETCH_ALL_ON_LOAD ? [...INITIAL_FETCH_IDS,...RESORTS.map(r=>r.id).filter(id=>!INITIAL_FETCH_IDS.includes(id))] : [...FEATURED_IDS];
       console.log("[Resort debug] queueFetch called", { queueCount: queuedIds.length });
-      fetch('http://127.0.0.1:7504/ingest/7a45a88b-734e-4e06-9139-2646ed4e0f41',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e56e9e'},body:JSON.stringify({sessionId:'e56e9e',runId:'debug_pre',hypothesisId:'R3',location:'ski-powder-hunter-en.html:resort init queueFetch',message:'queueFetch called',data:{queueCount:queuedIds.length},timestamp:Date.now()})}).catch(()=>{});
       queueFetch(queuedIds);
     });
 })();
