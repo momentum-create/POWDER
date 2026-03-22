@@ -95,6 +95,25 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
   #date-btns .date-btn .date-snow,#top-date-btns .date-btn .date-snow{font-size:16px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:clip}
 }
 @media (max-width:700px){
+  /* 案A §3.2: コンセプト図どおりビューポート全幅で5可視 — JMAと横並び禁止（IMPLEMENTATION_ORDER_DATE_SELECTOR_5_SLIDE_OPTION_A.md §3.2.3） */
+  .date-row-flex{
+    flex-direction:column;
+    align-items:stretch;
+    flex-wrap:nowrap;
+    gap:8px;
+  }
+  .date-row-flex .date-btns-viewport{
+    order:1;
+    width:100%;
+    flex:0 0 auto;
+    min-width:0;
+  }
+  .date-row-flex .prev-day-jma-chip{
+    order:2;
+    width:100%;
+    max-width:100%;
+    box-sizing:border-box;
+  }
   .date-btns-viewport{
     overflow-x:auto;
     overflow-y:hidden;
