@@ -72,7 +72,7 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
 .date-btns-viewport{width:100%;min-width:0;box-sizing:border-box}
 .date-row-flex .date-btns-viewport{flex:1;min-width:0}
 @media (min-width:701px){
-  #date-btns.date-btns-track,#top-date-btns.date-btns-track{
+  #date-btns.date-btns-track,#top-date-btns.date-btns-track,#map-date-btns.date-btns-track{
     display:grid;
     grid-template-columns:repeat(8,minmax(0,1fr));
     gap:4px;
@@ -80,7 +80,7 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
     padding-inline:8px;
     box-sizing:border-box;
   }
-  #date-btns .date-btn,#top-date-btns .date-btn{
+  #date-btns .date-btn,#top-date-btns .date-btn,#map-date-btns .date-btn{
     min-width:0;
     height:92px;
     padding:8px 6px 6px;
@@ -90,9 +90,9 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
     justify-content:space-between;
     flex:unset;
   }
-  #date-btns .date-btn .date-num,#top-date-btns .date-btn .date-num{font-size:10px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:clip}
-  #date-btns .date-btn .date-day,#top-date-btns .date-btn .date-day{font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:clip}
-  #date-btns .date-btn .date-snow,#top-date-btns .date-btn .date-snow{font-size:16px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:clip}
+  #date-btns .date-btn .date-num,#top-date-btns .date-btn .date-num,#map-date-btns .date-btn .date-num{font-size:10px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:clip}
+  #date-btns .date-btn .date-day,#top-date-btns .date-btn .date-day,#map-date-btns .date-btn .date-day{font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:clip}
+  #date-btns .date-btn .date-snow,#top-date-btns .date-btn .date-snow,#map-date-btns .date-btn .date-snow{font-size:16px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:clip}
 }
 @media (max-width:700px){
   /* 案A §3.2: コンセプト図どおりビューポート全幅で5可視 — JMAと横並び禁止（IMPLEMENTATION_ORDER_DATE_SELECTOR_5_SLIDE_OPTION_A.md §3.2.3） */
@@ -124,7 +124,7 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
     box-sizing:border-box;
   }
   .date-btns-viewport::-webkit-scrollbar{display:none}
-  #date-btns.date-btns-track,#top-date-btns.date-btns-track{
+  #date-btns.date-btns-track,#top-date-btns.date-btns-track,#map-date-btns.date-btns-track{
     display:flex;
     flex-direction:row;
     flex-wrap:nowrap;
@@ -136,7 +136,7 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
     padding-right:max(12px,calc(var(--chip-w,60px)*0.35));
     box-sizing:border-box;
   }
-  #date-btns .date-btn,#top-date-btns .date-btn{
+  #date-btns .date-btn,#top-date-btns .date-btn,#map-date-btns .date-btn{
     flex:0 0 var(--chip-w,60px);
     width:var(--chip-w,60px);
     min-width:0;
@@ -149,9 +149,16 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
     justify-content:space-between;
     box-sizing:border-box;
   }
-  #date-btns .date-btn .date-num,#top-date-btns .date-btn .date-num{font-size:10px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:clip}
-  #date-btns .date-btn .date-day,#top-date-btns .date-btn .date-day{font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:clip}
-  #date-btns .date-btn .date-snow,#top-date-btns .date-btn .date-snow{font-size:16px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:clip}
+  #date-btns .date-btn .date-num,#top-date-btns .date-btn .date-num,#map-date-btns .date-btn .date-num{font-size:10px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:clip}
+  #date-btns .date-btn .date-day,#top-date-btns .date-btn .date-day,#map-date-btns .date-btn .date-day{font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:clip}
+  #date-btns .date-btn .date-snow,#top-date-btns .date-btn .date-snow,#map-date-btns .date-btn .date-snow{font-size:16px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:clip}
+  /* 地図クローム内日付帯: トップ同様コンパクト＋案A 5可視 */
+  .map-mobile-chrome-date #map-date-btns .date-btn{
+    height:auto;
+    min-height:64px;
+    padding:5px 3px 4px;
+  }
+  .map-mobile-chrome-date #map-date-btns .date-btn .date-snow{font-size:14px}
 }
 .date-row-flex{display:flex;flex-wrap:wrap;align-items:flex-end;gap:8px;margin-bottom:2px}
 .prev-day-jma-chip{display:none;flex:0 0 auto;max-width:100%;font-size:9px;color:var(--text-dim);line-height:1.3;padding:6px 8px;border-radius:8px;background:rgba(77,217,196,.1);border:1px solid rgba(77,217,196,.22)}
@@ -447,60 +454,159 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
 /* No results */
 .no-results{padding:30px 20px;text-align:center;color:var(--text-dim);font-size:12px}
 
-/* Top page (軽いトップ) */
+/* Top page — 8-slot strip + toolbar（IMPLEMENTATION_ORDER_MOBILE_TOP_VISUAL_IMPLEMENTATION.md §6 案A・中央値・TOP10同集合） */
 .view-top{min-height:calc(100vh - 52px);display:flex;flex-direction:column;padding:24px 16px 32px;max-width:720px;margin:0 auto;overflow-y:auto}
 .view-top .top-hero{
-  margin-bottom:20px;
+  margin-bottom:16px;
   position:relative;
-  overflow:hidden;
   border-radius:16px;
-  min-height:36vh; /* 動画ヒーローの存在感 */
+  padding:16px 14px 12px;
+  background:linear-gradient(165deg,rgba(13,30,51,.95) 0%,rgba(11,22,40,.98) 100%);
+  border:1px solid var(--border);
+  overflow:visible;
 }
-.view-top .top-hero.is-no-video{
-  background-size:cover;
-  background-position:center;
+.view-top .top-hero.top-hero--static{min-height:0}
+.view-top .top-brand{margin-bottom:14px}
+.view-top .top-title{font-family:"DM Serif Display",serif;font-size:28px;color:#fff;margin-bottom:4px}
+.view-top .top-subtitle{font-size:13px;color:var(--text-dim);margin:0}
+.top-target-week-strip{margin-bottom:12px}
+.tw-strip-note{font-size:9px;line-height:1.35;color:var(--text-dim);opacity:.92;margin:0 0 8px}
+.tw-strip-grid{
+  display:grid;
+  grid-template-columns:repeat(8,minmax(0,1fr));
+  gap:2px 4px;
+  min-width:0;
 }
-.view-top .top-hero-video{
-  position:absolute;
-  inset:0;
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  z-index:0;
-  transform:scale(1.02); /* 端の微ブレ防止 */
-  filter:saturate(1.05) contrast(1.02);
-  pointer-events:none;
-}
-.view-top .top-hero::after{
-  content:"";
-  position:absolute;
-  inset:0;
-  background:linear-gradient(to bottom,
-    rgba(11,22,40,.20) 0%,
-    rgba(11,22,40,.75) 60%,
-    rgba(11,22,40,.98) 100%);
-  z-index:1;
-  pointer-events:none;
-}
-.view-top .top-hero > :not(.top-hero-video){
-  position:relative;
-  z-index:2;
-}
-@media(max-width:700px){
-  .view-top .top-hero{
-    min-height:28vh;
-    border-radius:12px;
+@media(max-width:400px){
+  .top-target-week-strip{
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    scroll-snap-type:x mandatory;
+    margin-left:-4px;margin-right:-4px;padding-left:4px;padding-right:4px;
+  }
+  .tw-strip-grid{
+    min-width:min(100%,352px);
+    grid-template-columns:repeat(8,minmax(44px,1fr));
   }
 }
-.view-top .top-title{font-family:"DM Serif Display",serif;font-size:28px;color:#fff;margin-bottom:6px}
-.view-top .top-lead{font-size:13px;color:var(--text-dim);margin-bottom:16px}
-.view-top .top-date-wrap .date-label{font-size:10px;color:var(--text-dim);letter-spacing:2px;font-family:"Space Mono",monospace;margin-bottom:6px}
-.view-top .top-date-wrap .date-btns-viewport{padding-bottom:2px}
-.view-top .top-date-wrap .date-btn{min-width:0}
-.top-region-pills{display:flex;flex-wrap:wrap;overflow-x:hidden;gap:5px;padding-bottom:4px;margin-bottom:8px}
-.top-region-pills::-webkit-scrollbar{height:4px}
+.tw-strip-cell{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  text-align:center;
+  padding:6px 2px 8px;
+  border-radius:8px;
+  border:1px solid transparent;
+  background:rgba(255,255,255,.04);
+  cursor:pointer;
+  transition:border-color .15s,background .15s;
+  scroll-snap-align:start;
+}
+.tw-strip-cell[data-slot="prev"]{cursor:default;opacity:.95}
+.tw-strip-cell--active{
+  border-color:rgba(77,217,196,.55);
+  background:rgba(77,217,196,.08);
+  box-shadow:0 0 0 1px rgba(77,217,196,.2);
+}
+.tw-strip-date{font-size:9px;font-family:"Space Mono",monospace;color:var(--text);line-height:1.15}
+.tw-strip-wd{font-size:8px;color:var(--text-dim);line-height:1.2;margin-top:2px}
+.tw-strip-bar-wrap{
+  margin-top:6px;
+  width:100%;
+  height:40px;
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+}
+.tw-strip-bar{
+  width:70%;
+  max-width:18px;
+  min-height:2px;
+  border-radius:3px 3px 0 0;
+  background:linear-gradient(to top,rgba(77,217,196,.25),rgba(77,217,196,.95));
+}
+.tw-strip-val{font-size:8px;color:var(--text-dim);margin-top:4px;font-family:"Space Mono",monospace;line-height:1}
+.top-toolbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  flex-wrap:nowrap;
+  margin-top:4px;
+}
+.top-toolbar-sort{display:flex;align-items:center;gap:6px;min-width:0;flex-shrink:1}
+.top-toolbar-label{font-size:10px;color:var(--text-dim);white-space:nowrap}
+.top-toolbar .top-sort-select{max-width:42vw}
+.top-toolbar-area{
+  flex:1;
+  min-width:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  padding:8px 10px;
+  border-radius:10px;
+  border:1px solid var(--border);
+  background:rgba(255,255,255,.06);
+  color:var(--text);
+  font-size:12px;
+  font-family:"Noto Sans JP",sans-serif;
+  cursor:pointer;
+}
+.top-toolbar-area-text{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.top-toolbar-chevron{font-size:8px;opacity:.75;flex-shrink:0}
+.top-toolbar-refresh{
+  flex-shrink:0;
+  padding:8px 12px;
+  border-radius:10px;
+  border:1px solid rgba(77,217,196,.35);
+  background:rgba(77,217,196,.12);
+  color:var(--accent);
+  font-size:12px;
+  font-weight:700;
+  cursor:pointer;
+  font-family:"Noto Sans JP",sans-serif;
+}
+.top-region-modal .top-region-pills{display:flex;flex-wrap:wrap;overflow-x:hidden;gap:5px;margin-bottom:16px}
 .top-region-pills .region-pill{flex-shrink:0}
-.view-top .top-sub{font-size:11px;color:var(--accent);font-family:"Space Mono",monospace;margin-top:14px;margin-bottom:4px}
+.top-region-modal{
+  position:fixed;
+  inset:0;
+  z-index:2000;
+  align-items:flex-end;
+  justify-content:center;
+}
+.top-region-modal__backdrop{
+  position:absolute;
+  inset:0;
+  background:rgba(0,0,0,.55);
+}
+.top-region-modal__panel{
+  position:relative;
+  width:100%;
+  max-width:720px;
+  max-height:72vh;
+  overflow-y:auto;
+  background:var(--navy-mid);
+  border:1px solid var(--border);
+  border-radius:16px 16px 0 0;
+  padding:16px 14px 20px;
+  padding-bottom:max(20px,env(safe-area-inset-bottom));
+}
+.top-region-modal__title{font-size:14px;font-weight:700;margin-bottom:12px}
+.top-region-modal__close{
+  width:100%;
+  padding:12px;
+  border-radius:10px;
+  border:1px solid var(--border);
+  background:transparent;
+  color:var(--text);
+  font-size:13px;
+  cursor:pointer;
+  font-family:"Noto Sans JP",sans-serif;
+}
+.view-top .top-sub{font-size:11px;color:var(--accent);font-family:"Space Mono",monospace;margin-top:12px;margin-bottom:4px}
 .view-top .top-updated{font-size:10px;color:var(--text-dim);font-family:"Space Mono",monospace;margin-bottom:12px}
 .view-top .top-ten-wrap{flex:1}
 .view-top .top-ten-list{display:flex;flex-direction:column;gap:10px}
@@ -517,8 +623,6 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
 .view-top .top-card-score{text-align:right;flex-shrink:0}
 .view-top .top-card-score-num{font-family:"Space Mono",monospace;font-size:26px;font-weight:700;line-height:1}
 .view-top .top-card-score-label{font-size:9px;letter-spacing:1px}
-.top-sort-row{display:flex;align-items:center;gap:6px;margin-bottom:8px;font-size:11px;color:var(--text-dim)}
-.top-sort-label{white-space:nowrap}
 .top-sort-select{background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--text-dim);font-size:11px;font-family:"Noto Sans JP",sans-serif;padding:4px 8px;outline:none;cursor:pointer}
 .top-sort-select option{background:var(--navy-mid)}
 .view-top .top-card-score.pw-score-excellent .top-card-score-num,.view-top .top-card-score.pw-score-excellent .top-card-score-label{color:var(--pw-excellent)}
@@ -528,22 +632,6 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
 .view-top .top-cta-wrap{text-align:center;margin-top:28px;padding-top:20px;border-top:1px solid var(--border)}
 .view-top .top-cta-btn{background:var(--accent);color:var(--navy);border:none;padding:14px 28px;border-radius:12px;font-family:"Noto Sans JP",sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:opacity .2s}
 .view-top .top-cta-btn:hover{opacity:.9}
-.view-top .top-refresh-btn{
-  background:rgba(77,217,196,.15);
-  border:1px solid rgba(77,217,196,.35);
-  color:var(--accent);
-  border-radius:12px;
-  padding:10px 14px;
-  font-family:"Noto Sans JP",sans-serif;
-  font-size:13px;
-  font-weight:700;
-  cursor:pointer;
-  transition:background .2s, opacity .2s;
-  margin-top:12px;
-}
-.view-top .top-refresh-btn:hover{
-  background:rgba(77,217,196,.25);
-}
 .header-link{font-size:12px;color:var(--accent);text-decoration:none;margin-right:8px}
 .header-link:hover{text-decoration:underline}
 .view-map{position:relative;height:calc(100vh - 52px);display:flex;flex-direction:column;overflow:hidden}
@@ -583,6 +671,8 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
     gap:0;
   }
   .map-mobile-chrome-row--top{ display:none; }
+  /* デスクトップ: 地図用日付帯はサイドバー #date-btns を使用（クローム内は非表示） */
+  .map-mobile-chrome-date{ display:none !important; }
   #jma-toggle.map-overlay-toggle{ position:static; }
 }
 .map-overlay-toggle{
@@ -616,11 +706,8 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
   .map-overlay{display:none}
   .view-top{padding:16px 12px 24px;padding-left:max(12px,env(safe-area-inset-left));padding-right:max(12px,env(safe-area-inset-right));padding-bottom:max(24px,env(safe-area-inset-bottom))}
   .view-top .top-title{font-size:24px}
-  .view-top .top-lead{font-size:12px}
-  .view-top .top-date-wrap .date-btns-viewport{scrollbar-width:none}
-  .view-top .top-date-wrap .date-btns-viewport::-webkit-scrollbar{display:none}
-  .view-top .top-date-wrap .date-btn{min-width:0}
-  .view-top .top-card{flex-wrap:wrap;gap:10px;padding:12px}
+  .view-top .top-subtitle{font-size:12px}
+   .view-top .top-card{flex-wrap:wrap;gap:10px;padding:12px}
   .view-top .top-card-body{min-width:0}
   .view-top .top-card-name{font-size:13px;word-break:keep-all;overflow-wrap:break-word}
   .view-top .top-card-meta{font-size:12px;gap:8px}
@@ -631,7 +718,35 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
   header .header-inner{min-height:58px}
   header{min-height:calc(58px + env(safe-area-inset-top))}
   .view-map{height:calc(100dvh - 58px - env(safe-area-inset-top));--m-sheet:min(55vh,55dvh)}
-  /* B-1/B-2: 地図クローム2段・同一インナー幅（No.3〜4 PROJECT_MOBILE_UI_REMEDIATION） */
+  /* B-1/B-2 + 地図用日付帯: 3段（戻る・検索 → ターゲット日 → JMA） */
+  .map-mobile-chrome-date{
+    width:100%;
+    min-width:0;
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+  }
+  .map-mobile-chrome-date .date-label{
+    font-size:10px;
+    letter-spacing:1px;
+    margin-bottom:4px;
+    color:var(--text-dim);
+    font-family:"Space Mono",monospace;
+  }
+  .map-mobile-chrome-date .date-row-flex{margin-bottom:0}
+  /* 右端フェード: 横スクロールで続きあり */
+  .map-mobile-chrome-date .date-btns-viewport.map-date-strip-viewport{
+    position:relative;
+    padding-inline:0;
+  }
+  .map-mobile-chrome-date .date-btns-viewport.map-date-strip-viewport::after{
+    content:"";
+    position:absolute;
+    top:0;right:0;bottom:0;width:32px;
+    pointer-events:none;
+    background:linear-gradient(to left,rgba(11,22,40,.97),rgba(11,22,40,0));
+    border-radius:0 8px 8px 0;
+  }
   .map-mobile-chrome{
     left:0;
     right:0;
@@ -897,54 +1012,33 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
   </div>
 </header>
 
-<!-- トップ: 日程 + その日のランキングTOP10（軽量） -->
+<!-- トップ: 8マス週間ストリップ + ツールバー + TOP10（IMPLEMENTATION_ORDER_MOBILE_TOP_VISUAL_IMPLEMENTATION.md） -->
 <div id="view-top" class="view-top">
-  <section class="top-hero">
-    <video
-      class="top-hero-video"
-      autoplay
-      muted
-      loop
-      playsinline
-      preload="metadata"
-      poster="assets/track-final-dumps-poster.png"
-      aria-hidden="true"
-      tabindex="-1"
-    >
-      <source src="assets/track-final-dumps.mp4" type="video/mp4">
-    </video>
-    <h1 class="top-title">パウダーランキング</h1>
-    <p class="top-lead">いつ行く？ — 日付を選んでその日のTOP10をチェック</p>
-    <div class="top-date-wrap">
-      <div class="date-label">ターゲット日</div>
-      <div class="date-row-flex">
-        <div class="prev-day-jma-chip" id="top-prev-day-jma-chip" aria-live="polite"></div>
-        <div class="date-btns-viewport">
-          <div class="date-btns date-btns-track" id="top-date-btns"></div>
-        </div>
+  <section class="top-hero top-hero--static">
+    <div class="top-brand">
+      <h1 class="top-title">パウダーランキング</h1>
+      <p class="top-subtitle">積雪とパウダー見通し</p>
+    </div>
+    <section class="top-target-week-strip" aria-label="週間降雪見立て（表示中上位の中央値）">
+      <p class="tw-strip-note" id="tw-strip-note">週間の棒は、表示中の上位スキー場（最大10）の予想降雪を日ごとに集めた中央値です。</p>
+      <div class="tw-strip-grid" id="tw-strip-grid"></div>
+    </section>
+    <div class="top-toolbar">
+      <div class="top-toolbar-sort">
+        <label for="top-sort-select" class="top-toolbar-label">並び替え</label>
+        <select id="top-sort-select" class="top-sort-select" title="並び替え">
+          <option value="powder">パウダースコア順</option>
+          <option value="snow">降雪量順</option>
+          <option value="depth">積雪量ランキング</option>
+          <option value="wind">風弱い順</option>
+          <option value="temp">気温低い順</option>
+        </select>
       </div>
-    </div>
-    <div class="top-sort-row">
-      <label for="top-sort-select" class="top-sort-label">並び替え:</label>
-      <select id="top-sort-select" class="top-sort-select">
-        <option value="powder">パウダースコア順</option>
-        <option value="snow">降雪量順</option>
-        <option value="depth">積雪量ランキング</option>
-        <option value="wind">風弱い順</option>
-        <option value="temp">気温低い順</option>
-      </select>
-    </div>
-    <button type="button" class="top-refresh-btn" id="btn-top-refresh">TOP10だけ更新</button>
-    <div class="top-region-pills region-pills" id="top-region-pills">
-      <div class="region-pill active" data-region="all">全国</div>
-      <div class="region-pill" data-region="hokkaido">北海道</div>
-      <div class="region-pill" data-region="tohoku">東北</div>
-      <div class="region-pill" data-region="niigata">新潟</div>
-      <div class="region-pill" data-region="nagano">長野</div>
-      <div class="region-pill" data-region="chubu">中部</div>
-      <div class="region-pill" data-region="kanto">関東</div>
-      <div class="region-pill" data-region="kansai">関西</div>
-      <div class="region-pill" data-region="chugoku">中国・四国</div>
+      <button type="button" class="top-toolbar-area" id="btn-top-area" aria-haspopup="dialog" aria-controls="top-region-modal">
+        <span class="top-toolbar-area-text" id="top-toolbar-area-label">全国</span>
+        <span class="top-toolbar-chevron" aria-hidden="true">▼</span>
+      </button>
+      <button type="button" class="top-toolbar-refresh" id="btn-top-refresh">更新</button>
     </div>
     <p class="top-sub" id="top-sub">選択日のパウダースコア TOP10</p>
     <p class="top-updated" id="top-updated"></p>
@@ -956,6 +1050,24 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
     <button type="button" class="top-cta-btn" id="btn-to-map">マップで全450ゲレンデを見る</button>
   </div>
 </div>
+<div id="top-region-modal" class="top-region-modal" style="display:none" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="top-region-modal-title">
+  <div class="top-region-modal__backdrop" id="top-region-modal-backdrop"></div>
+  <div class="top-region-modal__panel">
+    <div class="top-region-modal__title" id="top-region-modal-title">エリア</div>
+    <div class="top-region-pills region-pills" id="top-region-pills">
+      <div class="region-pill active" data-region="all">全国</div>
+      <div class="region-pill" data-region="hokkaido">北海道</div>
+      <div class="region-pill" data-region="tohoku">東北</div>
+      <div class="region-pill" data-region="niigata">新潟</div>
+      <div class="region-pill" data-region="nagano">長野</div>
+      <div class="region-pill" data-region="chubu">中部</div>
+      <div class="region-pill" data-region="kanto">関東</div>
+      <div class="region-pill" data-region="kansai">関西</div>
+      <div class="region-pill" data-region="chugoku">中国・四国</div>
+    </div>
+    <button type="button" class="top-region-modal__close" id="btn-top-region-close">閉じる</button>
+  </div>
+</div>
 
 <!-- マップビュー: サイドバー + 地図 -->
 <div id="view-map" class="view-map" style="display:none">
@@ -964,6 +1076,15 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
     <button type="button" class="map-mobile-back" id="btn-map-back-top">← ランキング</button>
     <div class="map-mobile-search">
       <input class="search-input" id="search-input-mobile" type="text" placeholder="ゲレンデ・都道府県…">
+    </div>
+  </div>
+  <div class="map-mobile-chrome-date date-selector" id="map-mobile-chrome-date">
+    <div class="date-label">ターゲット日</div>
+    <div class="date-row-flex">
+      <div class="prev-day-jma-chip" id="map-prev-day-jma-chip" aria-live="polite"></div>
+      <div class="date-btns-viewport map-date-strip-viewport">
+        <div class="date-btns date-btns-track" id="map-date-btns"></div>
+      </div>
     </div>
   </div>
   <div id="jma-toggle" class="map-overlay-toggle jma-toggle-stack">
@@ -1211,8 +1332,8 @@ function formatJstCalendarShort(ymd){
 }
 function updatePrevDayJmaChips(){
   const chip = document.getElementById("prev-day-jma-chip");
-  const topChip = document.getElementById("top-prev-day-jma-chip");
-  const hide = ()=>{ if(chip){ chip.style.display="none"; chip.innerHTML=""; } if(topChip){ topChip.style.display="none"; topChip.innerHTML=""; } };
+  const mapChip = document.getElementById("map-prev-day-jma-chip");
+  const hide = ()=>{ if(chip){ chip.style.display="none"; chip.innerHTML=""; } if(mapChip){ mapChip.style.display="none"; mapChip.innerHTML=""; } };
   const filtered = getFiltered();
   let maxV = -1;
   let has = false;
@@ -1245,7 +1366,7 @@ function updatePrevDayJmaChips(){
   }
   const inner = `<span title="${tip.replace(/"/g,"&quot;")}">${dateL} 前日合計（気象庁） <strong>${maxV.toFixed(maxV>=10?0:1)}cm</strong><span class="snow-depth-source">（表示中の最大）</span></span>`;
   if(chip){ chip.innerHTML=inner; chip.style.display="flex"; }
-  if(topChip){ topChip.innerHTML=inner; topChip.style.display="flex"; }
+  if(mapChip){ mapChip.innerHTML=inner; mapChip.style.display="flex"; }
 }
 let resortSnowCache = {};  // id -> { depth_cm, updated_at }（ゲレンデ公表・data/resort-snow.json または RESORTS.snowDepth）
 let liftTimesCache = {};   // id -> "8:00"（リフト開始時刻・data/lift-times.json または RESORTS[].liftStart）
@@ -1393,12 +1514,14 @@ function updateDateStripChipWidths(){
     const pr = parseFloat(st.paddingRight)||0;
     const inner = Math.max(0, vp.clientWidth - pl - pr);
     const gapPx = 4;
-    const chip = Math.max(52, (inner - 4 * gapPx) / 5);
+    const chip = Math.max(48, (inner - 4 * gapPx) / 5);
     vp.style.setProperty("--chip-w", chip + "px");
   });
 }
 
-/** アクティブ日付チップがビューポート内に収まるようスクロール */
+/** アクティブ日付チップがビューポート内に収まるようスクロール（案A §6.2 / §8）
+ *  指示書: 初期は「前日〜+3」の5チップを同一ビューに。中央寄せスクロールはそれを壊すため禁止。
+ *  targetDayOffset 0〜3: scrollLeft=0 固定。4〜6: 左寄せで完全表示（+4〜+6 用スライド）。 */
 function ensureActiveDateChipVisible(trackId){
   const track = document.getElementById(trackId);
   if(!track) return;
@@ -1410,13 +1533,13 @@ function ensureActiveDateChipVisible(trackId){
   }
   const active = track.querySelector(".date-btn.active");
   if(!active) return;
-  const vr = vp.getBoundingClientRect();
-  const r = active.getBoundingClientRect();
-  if(r.left >= vr.left - 0.5 && r.right <= vr.right + 0.5) return;
-  const cw = active.offsetWidth;
-  const w = vp.clientWidth;
-  const maxScroll = Math.max(0, vp.scrollWidth - w);
-  let target = active.offsetLeft - (w - cw) / 2;
+  const maxScroll = Math.max(0, vp.scrollWidth - vp.clientWidth);
+  if(typeof targetDayOffset==="number" && targetDayOffset <= 3){
+    vp.scrollLeft = 0;
+    return;
+  }
+  const pad = parseFloat(getComputedStyle(vp).paddingLeft) || 8;
+  let target = active.offsetLeft - pad;
   if(target < 0) target = 0;
   if(target > maxScroll) target = maxScroll;
   vp.scrollLeft = target;
@@ -1427,7 +1550,7 @@ function scheduleEnsureDateStripVisible(){
   requestAnimationFrame(function(){
     requestAnimationFrame(function(){
       ensureActiveDateChipVisible("date-btns");
-      ensureActiveDateChipVisible("top-date-btns");
+      ensureActiveDateChipVisible("map-date-btns");
     });
   });
 }
@@ -1442,7 +1565,7 @@ function initDateStripViewportLayout(){
       updateDateStripChipWidths();
       requestAnimationFrame(function(){
         ensureActiveDateChipVisible("date-btns");
-        ensureActiveDateChipVisible("top-date-btns");
+        ensureActiveDateChipVisible("map-date-btns");
       });
     });
   }
@@ -1498,7 +1621,7 @@ function renderDateButtonsInto(containerId){
   scheduleEnsureDateStripVisible();
 }
 function syncDateButtonsActive(){
-  document.querySelectorAll("#top-date-btns .date-btn, #date-btns .date-btn").forEach(b=>{
+  document.querySelectorAll("#date-btns .date-btn, #map-date-btns .date-btn").forEach(b=>{
     b.classList.toggle("active", parseInt(b.dataset.offset,10)===targetDayOffset);
   });
   scheduleEnsureDateStripVisible();
@@ -1507,15 +1630,17 @@ function initDateButtons(){
   renderDateButtonsInto("date-btns");
 }
 function initTopDateButtons(){
-  renderDateButtonsInto("top-date-btns");
+  renderDateButtonsInto("map-date-btns");
   const topSortEl = document.getElementById("top-sort-select");
   if(topSortEl){
     topSortEl.value = topSortMode;
     topSortEl.addEventListener("change",e=>{
       topSortMode = e.target.value;
+      try{ localStorage.setItem("powder.topSort", topSortMode); }catch(err){}
       renderTop10();
     });
   }
+  syncTopToolbarAreaLabel();
 }
 
 // ─── Open-Meteo fetch ──────────────────────────────────────────
@@ -2020,6 +2145,141 @@ function getFiltered(){
   return list;
 }
 
+// ─── TOP 週間8マスストリップ（案A・中央値・表示中TOP10と同集合）IMPLEMENTATION_ORDER_MOBILE_TOP_VISUAL_IMPLEMENTATION.md §6
+function medianCm(values){
+  const v = values.filter(function(x){ return x!=null && !Number.isNaN(x); });
+  if(v.length===0) return null;
+  v.sort(function(a,b){ return a-b; });
+  const mid = Math.floor(v.length/2);
+  if(v.length%2===1) return v[mid];
+  return (v[mid-1]+v[mid])/2;
+}
+function computeTop10ResortsForStrip(){
+  const regionFiltered = RESORTS.filter(function(r){
+    if(topActiveRegion==="all") return true;
+    if(topActiveRegion==="chugoku") return r.region==="chugoku"||r.region==="shikoku";
+    return r.region===topActiveRegion;
+  });
+  const withData = regionFiltered.filter(function(r){
+    const d = weatherCache[r.id];
+    return d&&d!=="loading"&&d.snowfall_sum;
+  });
+  const sorted = withData.slice().sort(function(a,b){
+    const da = weatherCache[a.id], db = weatherCache[b.id];
+    if(topSortMode==="powder"){
+      const sa = da&&da!=="loading"?calcPowderScore(da,a,targetDayOffset):null;
+      const sb = db&&db!=="loading"?calcPowderScore(db,b,targetDayOffset):null;
+      if(sa&&sb) return sb.score-sa.score;
+      if(sa) return -1;
+      if(sb) return 1;
+      return 0;
+    } else if(topSortMode==="snow"){
+      const sa = da&&da!=="loading"?getSnowfallAdjusted(da,a,targetDayOffset):null;
+      const sb = db&&db!=="loading"?getSnowfallAdjusted(db,b,targetDayOffset):null;
+      if(sa==null&&sb==null) return 0;
+      if(sa!=null&&sb!=null) return sb-sa;
+      if(sa!=null) return -1;
+      if(sb!=null) return 1;
+      return 0;
+    } else if(topSortMode==="depth"){
+      const depthA=getDepthForRanking(a.id,jmaSnowCache[a.id],da,a);
+      const depthB=getDepthForRanking(b.id,jmaSnowCache[b.id],db,b);
+      if(depthA!=null&&depthB!=null) return depthB-depthA;
+      if(depthA!=null) return -1;
+      if(depthB!=null) return 1;
+      return 0;
+    } else if(topSortMode==="wind"){
+      const wa=da&&da!=="loading"?(da.wind_speed_10m_max?.[getDayIndex(da,targetDayOffset)]||999):null;
+      const wb=db&&db!=="loading"?(db.wind_speed_10m_max?.[getDayIndex(db,targetDayOffset)]||999):null;
+      if(wa!=null&&wb!=null) return wa-wb;
+      if(wa!=null) return -1;
+      if(wb!=null) return 1;
+      return 0;
+    } else if(topSortMode==="temp"){
+      const ta=da&&da!=="loading"?(da.temperature_2m_min?.[getDayIndex(da,targetDayOffset)]??999):null;
+      const tb=db&&db!=="loading"?(db.temperature_2m_min?.[getDayIndex(db,targetDayOffset)]??999):null;
+      if(ta!=null&&tb!=null) return ta-tb;
+      if(ta!=null) return -1;
+      if(tb!=null) return 1;
+      return 0;
+    }
+    return 0;
+  });
+  let top10 = sorted.slice(0,10);
+  if(top10.length===0){
+    const fallbackTop10 = regionFiltered.slice().sort(function(a,b){
+      const sb = Number.isFinite(b.powderScore) ? b.powderScore : -1;
+      const sa = Number.isFinite(a.powderScore) ? a.powderScore : -1;
+      return sb - sa;
+    }).slice(0,10);
+    if(fallbackTop10.length>0) top10 = fallbackTop10;
+  }
+  return top10;
+}
+function renderTopWeeklyStrip(){
+  const grid = document.getElementById("tw-strip-grid");
+  if(!grid) return;
+  const top10 = computeTop10ResortsForStrip();
+  const dayNames = ["日","月","火","水","木","金","土"];
+  const dates = getDates();
+  const prevCal = new Date(dates[0]);
+  prevCal.setDate(prevCal.getDate()-1);
+  const prevMd = (prevCal.getMonth()+1)+"/"+prevCal.getDate();
+  const prevWd = dayNames[prevCal.getDay()];
+  const medians = new Array(8).fill(null);
+  if(top10.length>0){
+    const col0 = [];
+    const cols = [[],[],[],[],[],[],[]];
+    top10.forEach(function(r){
+      const daily = weatherCache[r.id];
+      if(!daily||daily==="loading") return;
+      const p = getPrevDayDisplayForResort(r.id, targetDayOffset, daily, r);
+      col0.push(p&&p.total!=null ? p.total : null);
+      for(let i=0;i<7;i++){
+        cols[i].push(getSnowfallAdjusted(daily,r,i));
+      }
+    });
+    medians[0] = medianCm(col0);
+    for(let i=0;i<7;i++) medians[i+1] = medianCm(cols[i]);
+  }
+  let maxM = 0;
+  medians.forEach(function(m){ if(m!=null && m>maxM) maxM = m; });
+  if(maxM<=0) maxM = 1;
+  const slots = [{ slot:"prev", label:prevMd, wd:prevWd, off:null, med:medians[0] }].concat(
+    dates.slice(0,7).map(function(d,i){
+      return { slot:"d"+i, label:(d.getMonth()+1)+"/"+d.getDate(), wd:dayNames[d.getDay()], off:i, med:medians[i+1] };
+    })
+  );
+  grid.innerHTML = slots.map(function(s){
+    const active = s.off!==null && s.off===targetDayOffset;
+    const h = s.med!=null ? Math.round((s.med/maxM)*100) : 0;
+    const hClamped = Math.max(2, Math.min(100, isFinite(h)?h:0));
+    const valStr = s.med!=null ? (s.med>=10 ? s.med.toFixed(0) : s.med.toFixed(1)) : "—";
+    const click = s.off===null ? "" : ' onclick="setTargetDayOffset('+s.off+')"';
+    return `<div class="tw-strip-cell${active?" tw-strip-cell--active":""}" data-slot="${s.slot}" role="button" aria-disabled="${s.off===null?"true":"false"}"${click}>
+      <div class="tw-strip-date">${s.label}</div>
+      <div class="tw-strip-wd">${s.wd}</div>
+      <div class="tw-strip-bar-wrap"><div class="tw-strip-bar" style="height:${s.med!=null?hClamped+"%":"2px"}"></div></div>
+      <div class="tw-strip-val">${valStr}</div>
+    </div>`;
+  }).join("");
+}
+function syncTopToolbarAreaLabel(){
+  const lab = document.getElementById("top-toolbar-area-label");
+  if(lab) lab.textContent = REGION_LABELS[topActiveRegion]||"全国";
+  document.querySelectorAll("#top-region-pills .region-pill").forEach(function(x){
+    x.classList.toggle("active", x.dataset.region===topActiveRegion);
+  });
+}
+function loadTopPrefsFromStorage(){
+  try{
+    const s = localStorage.getItem("powder.topSort");
+    if(s && ["powder","snow","depth","wind","temp"].includes(s)) topSortMode = s;
+    const reg = localStorage.getItem("powder.topRegion");
+    if(reg && typeof reg==="string" && REGION_LABELS[reg]) topActiveRegion = reg;
+  }catch(e){}
+}
+
 // ─── Top 10 ranking (トップ用) ─────────────────────────────────
 // マップと同一: 取得済みの全ゲレンデからパウダースコアでTOP10を算出（注目40件に限定しない）
 function renderTop10(){
@@ -2097,7 +2357,7 @@ function renderTop10(){
   }
 
   const listEl = document.getElementById("top-ten-list");
-  if(!listEl) return;
+  if(!listEl){ renderTopWeeklyStrip(); return; }
   if(top10.length===0){
     // Open-Meteo quota hit時でもトップが空にならないように、埋め込みデータでフォールバック表示
     const fallbackTop10 = regionFiltered
@@ -2128,11 +2388,13 @@ function renderTop10(){
           </div>
         </div>`;
       }).join("");
+      renderTopWeeklyStrip();
       return;
     }
     listEl.innerHTML = loading
       ? `<div class="loading-row"><div class="loading-spinner"></div>気象データ取得中…</div>`
       : `<div class="no-results">データ取得後に表示されます</div>`;
+    renderTopWeeklyStrip();
     return;
   }
   listEl.innerHTML = top10.map((r,i)=>{
@@ -2159,6 +2421,7 @@ function renderTop10(){
       </div>
     </div>`;
   }).join("");
+  renderTopWeeklyStrip();
 }
 
 // ─── Render list ───────────────────────────────────────────────
@@ -2453,7 +2716,7 @@ function renderList(){
     list.innerHTML+=`<div style="padding:10px;text-align:center;font-size:11px;color:var(--text-dim)">他 ${filtered.length-60} 件 — エリアを絞り込むと全件表示</div>`;
   }
   renderDateButtonsInto("date-btns");
-  renderDateButtonsInto("top-date-btns");
+  renderDateButtonsInto("map-date-btns");
 }
 
 // 付近の飲食・病院・スキーショップ・温泉（収益化用）。BY_RESORT[id] / BY_REGION[region] で上書き可能
@@ -3698,14 +3961,32 @@ function refreshMarkers(){
 }
 
 // ─── Events ────────────────────────────────────────────────────
+function closeTopRegionModal(){
+  const modal = document.getElementById("top-region-modal");
+  if(modal){ modal.style.display="none"; modal.setAttribute("aria-hidden","true"); }
+}
 document.querySelectorAll("#top-region-pills .region-pill").forEach(p=>{
   p.addEventListener("click",()=>{
     document.querySelectorAll("#top-region-pills .region-pill").forEach(x=>x.classList.remove("active"));
     p.classList.add("active");
     topActiveRegion = p.dataset.region;
+    try{ localStorage.setItem("powder.topRegion", topActiveRegion); }catch(e){}
+    syncTopToolbarAreaLabel();
+    closeTopRegionModal();
     renderTop10();
   });
 });
+const btnTopArea = document.getElementById("btn-top-area");
+const topRegionModalBackdrop = document.getElementById("top-region-modal-backdrop");
+const btnTopRegionClose = document.getElementById("btn-top-region-close");
+if(btnTopArea){
+  btnTopArea.addEventListener("click",function(){
+    const modal = document.getElementById("top-region-modal");
+    if(modal){ modal.style.display="flex"; modal.setAttribute("aria-hidden","false"); }
+  });
+}
+if(topRegionModalBackdrop) topRegionModalBackdrop.addEventListener("click", closeTopRegionModal);
+if(btnTopRegionClose) btnTopRegionClose.addEventListener("click", closeTopRegionModal);
 document.querySelectorAll(".region-pill").forEach(p=>{
   if(p.closest("#top-region-pills")) return;
   p.addEventListener("click",()=>{
@@ -3724,7 +4005,7 @@ document.querySelectorAll(".region-pill").forEach(p=>{
 
     renderList();
     renderDateButtonsInto("date-btns");
-    renderDateButtonsInto("top-date-btns");
+    renderDateButtonsInto("map-date-btns");
     if(activeRegion!=="all"){
       const pts=RESORTS.filter(r=>regionIds.includes(r.id));
       if(pts.length>0){
@@ -3790,6 +4071,10 @@ function initTopHeroVideoOnce(){
     const topHero = document.querySelector("#view-top .top-hero");
     if(!topHero) return;
     const video = topHero.querySelector("video.top-hero-video");
+    if(!video){
+      topHero.classList.add("is-no-video");
+      return;
+    }
     const posterUrl = video ? (video.getAttribute("poster") || "") : "";
 
     topHeroSetEnabled = function(enabled){
@@ -3887,6 +4172,7 @@ if(backTopBtn){
 }
 
 // ─── Init ──────────────────────────────────────────────────────
+loadTopPrefsFromStorage();
 initDateButtons();
 initTopDateButtons();
 initDateStripViewportLayout();
