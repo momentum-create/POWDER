@@ -645,6 +645,21 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
 .view-top .top-cta-btn:hover{opacity:.9}
 .header-link{font-size:12px;color:var(--accent);text-decoration:none;margin-right:8px}
 .header-link:hover{text-decoration:underline}
+/* モバイルのみ：トップヒーローが flex で潰れて週間ストリップが一覧に重なるのを防ぐ */
+@media(max-width:700px){
+  #view-top.view-top .top-hero{
+    flex-shrink:0;
+    min-height:min-content;
+  }
+  #view-top.view-top .top-hero.top-hero--static{
+    min-height:min-content;
+  }
+  #view-top.view-top .top-ten-wrap{
+    min-height:0;
+    position:relative;
+    z-index:1;
+  }
+}
 .view-map{position:relative;height:calc(100vh - 52px);display:flex;flex-direction:column;overflow:hidden}
 .view-map .main{flex:1;min-width:0}
 #map-detail-sheet.map-detail-sheet{display:none!important}
