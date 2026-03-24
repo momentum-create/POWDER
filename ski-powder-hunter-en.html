@@ -478,8 +478,11 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
   background:linear-gradient(165deg,rgba(13,30,51,.95) 0%,rgba(11,22,40,.98) 100%);
   border:1px solid var(--border);
   overflow:visible;
+  flex-shrink:0;
+  min-height:min-content;
 }
-.view-top .top-hero.top-hero--static{min-height:0}
+/* 動画なし静的ヒーロー：min-height:0 は flex 子が潰れ週間帯が一覧と重なるため禁止 */
+.view-top .top-hero.top-hero--static{min-height:min-content}
 .view-top .top-brand{margin-bottom:14px}
 .view-top .top-title{font-family:"DM Serif Display",serif;font-size:28px;color:#fff;margin-bottom:4px}
 .view-top .top-subtitle{font-size:13px;color:var(--text-dim);margin:0}
@@ -491,18 +494,7 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
   gap:2px 4px;
   min-width:0;
 }
-@media(max-width:400px){
-  .top-target-week-strip{
-    overflow-x:auto;
-    -webkit-overflow-scrolling:touch;
-    scroll-snap-type:x mandatory;
-    margin-left:-4px;margin-right:-4px;padding-left:4px;padding-right:4px;
-  }
-  .tw-strip-grid{
-    min-width:min(100%,352px);
-    grid-template-columns:repeat(8,minmax(44px,1fr));
-  }
-}
+/* Weekly strip narrow: IMPLEMENTATION_ORDER_MOBILE_NARROW_VIEWPORT_TOP.md §4 plan A — rules in max-width:700px only */
 .tw-strip-cell{
   min-width:0;
   display:flex;
@@ -619,7 +611,15 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
 }
 .view-top .top-sub{font-size:11px;color:var(--accent);font-family:"Space Mono",monospace;margin-top:12px;margin-bottom:4px}
 .view-top .top-updated{font-size:10px;color:var(--text-dim);font-family:"Space Mono",monospace;margin-bottom:12px}
-.view-top .top-ten-wrap{flex:1}
+/* List height = content only (avoid flex:1 gap pushing CTA away from last card) */
+.view-top .top-ten-wrap{
+  flex:0 1 auto;
+  min-width:0;
+  width:100%;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-start;
+}
 .view-top .top-ten-list{display:flex;flex-direction:column;gap:10px}
 .view-top .top-card{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:14px;display:flex;align-items:center;gap:14px;transition:border-color .2s}
 .view-top .top-card:hover{border-color:rgba(125,184,224,.4)}
@@ -640,26 +640,11 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
 .view-top .top-card-score.pw-score-good .top-card-score-num,.view-top .top-card-score.pw-score-good .top-card-score-label{color:var(--pw-good)}
 .view-top .top-card-score.pw-score-fair .top-card-score-num,.view-top .top-card-score.pw-score-fair .top-card-score-label{color:var(--pw-fair)}
 .view-top .top-card-score.pw-score-poor .top-card-score-num,.view-top .top-card-score.pw-score-poor .top-card-score-label{color:var(--pw-poor)}
-.view-top .top-cta-wrap{text-align:center;margin-top:28px;padding-top:20px;border-top:1px solid var(--border)}
+.view-top .top-cta-wrap{text-align:center;margin-top:28px;padding-top:20px;border-top:1px solid var(--border);flex-shrink:0}
 .view-top .top-cta-btn{background:var(--accent);color:var(--navy);border:none;padding:14px 28px;border-radius:12px;font-family:"Noto Sans JP",sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:opacity .2s}
 .view-top .top-cta-btn:hover{opacity:.9}
 .header-link{font-size:12px;color:var(--accent);text-decoration:none;margin-right:8px}
 .header-link:hover{text-decoration:underline}
-/* モバイルのみ：トップヒーローが flex で潰れて週間ストリップが一覧に重なるのを防ぐ */
-@media(max-width:700px){
-  #view-top.view-top .top-hero{
-    flex-shrink:0;
-    min-height:min-content;
-  }
-  #view-top.view-top .top-hero.top-hero--static{
-    min-height:min-content;
-  }
-  #view-top.view-top .top-ten-wrap{
-    min-height:0;
-    position:relative;
-    z-index:1;
-  }
-}
 .view-map{position:relative;height:calc(100vh - 52px);display:flex;flex-direction:column;overflow:hidden}
 .view-map .main{flex:1;min-width:0}
 #map-detail-sheet.map-detail-sheet{display:none!important}
@@ -698,6 +683,7 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
   .map-mobile-chrome-row--top{ display:none; }
   .map-mobile-chrome-date{ display:none !important; }
   #jma-toggle.map-overlay-toggle{ position:static; }
+  #jma-toggle .snow-forecast-toggle__title{display:none!important;}
 }
 .map-overlay-toggle{
   position:absolute;
@@ -724,15 +710,96 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
 }
 @media(max-width:700px){
   #view-map .sidebar{display:none}
-  #map{flex:1;min-height:calc(100vh - 58px);min-height:calc(100dvh - 58px)}
+  #map{flex:1;min-height:0}
+  .view-map .main{min-height:0}
   .map-overlay{display:none}
   .view-top{padding:16px 12px 24px;padding-left:max(12px,env(safe-area-inset-left));padding-right:max(12px,env(safe-area-inset-right));padding-bottom:max(24px,env(safe-area-inset-bottom))}
+  /* IMPLEMENTATION_ORDER_MOBILE_NARROW_VIEWPORT_TOP.md — A1–A4 (§4 plan A / §4.3 / §5 / §6) */
+  #view-top.view-top{
+    width:100%;
+    max-width:100%;
+    box-sizing:border-box;
+    min-width:0;
+    overflow-x:hidden;
+  }
+  #view-top.view-top .top-hero{
+    flex-shrink:0;
+    min-height:min-content;
+  }
+  #view-top.view-top .top-hero.top-hero--static{
+    min-height:min-content;
+  }
+  #view-top.view-top .top-ten-wrap{
+    flex:0 1 auto;
+    min-width:0;
+    display:flex;
+    flex-direction:column;
+    justify-content:flex-start;
+  }
+  .view-top .top-target-week-strip{
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    scroll-snap-type:x mandatory;
+    margin-left:-4px;
+    margin-right:-4px;
+    padding-left:4px;
+    padding-right:4px;
+    max-width:100%;
+    box-sizing:border-box;
+  }
+  .view-top .tw-strip-grid{
+    min-width:calc(8 * 40px + 7 * 4px);
+    grid-template-columns:repeat(8,minmax(40px,1fr));
+  }
+  .view-top .tw-strip-cell{min-width:0}
+  .view-top .top-toolbar{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+    align-items:stretch;
+    width:100%;
+    min-width:0;
+  }
+  .view-top .top-toolbar-sort{
+    grid-column:1;
+    grid-row:1;
+    min-width:0;
+    max-width:100%;
+  }
+  .view-top .top-toolbar .top-sort-select{
+    max-width:100%;
+    min-width:0;
+    width:100%;
+  }
+  .view-top .top-toolbar-area{
+    grid-column:2;
+    grid-row:1;
+    flex:unset;
+    min-width:0;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .view-top .top-toolbar-area-text{
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .view-top .top-toolbar-refresh{
+    grid-column:1 / -1;
+    grid-row:2;
+    justify-self:stretch;
+    width:100%;
+    max-width:100%;
+    text-align:center;
+    box-sizing:border-box;
+  }
   .view-top .top-title{font-size:24px}
   .view-top .top-subtitle{font-size:12px}
-   .view-top .top-card{flex-wrap:wrap;gap:10px;padding:12px}
+  .view-top .top-card{flex-wrap:wrap;gap:10px;padding:12px;min-width:0}
   .view-top .top-card-body{min-width:0}
   .view-top .top-card-name{font-size:13px;word-break:keep-all;overflow-wrap:break-word}
-  .view-top .top-card-meta{font-size:12px;gap:8px}
+  .view-top .top-card-meta{font-size:11px;gap:8px;display:flex;flex-wrap:wrap}
+  .view-top .top-card-score{flex-shrink:0}
   .view-top .top-card-score-num{font-size:22px}
   .view-top .top-cta-wrap{padding-top:16px;margin-top:20px}
   .view-top .top-cta-btn{width:100%;max-width:100%;padding:12px 16px;font-size:13px;min-height:44px}
@@ -774,7 +841,7 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
     padding:6px max(10px,env(safe-area-inset-right)) 0 max(10px,env(safe-area-inset-left));
     display:flex;
     flex-direction:column;
-    gap:8px;
+    gap:4px;
     z-index:960;
   }
   .map-mobile-chrome-row--top{
@@ -814,6 +881,14 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
     width:100%;
     max-width:min(52vw,280px);
   }
+  /* IMPLEMENTATION_ORDER_MAP_VIEW_SNOW_FORECAST_LAYOUT.md — #jma-toggle only */
+  #jma-toggle.map-overlay-toggle.jma-toggle-stack{
+    flex-direction:column;
+    align-items:stretch;
+    gap:0;
+    padding:4px 8px;
+    padding-bottom:4px;
+  }
   #jma-toggle.map-overlay-toggle{
     position:static;
     left:auto;
@@ -822,19 +897,59 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
     width:100%;
     max-width:none;
     flex-wrap:nowrap;
-    justify-content:center;
+    justify-content:flex-start;
     align-items:stretch;
-    gap:6px;
-    padding:6px;
-    font-size:12px;
+    gap:0;
+    font-size:10px;
     line-height:1.25;
-    border-radius:12px;
+    border-radius:8px;
     box-sizing:border-box;
   }
-  .map-overlay-toggle label{white-space:nowrap;text-align:center;flex:1;min-width:0;display:flex;align-items:center;justify-content:center;gap:4px;min-height:40px;padding:0 8px;border-radius:8px;background:rgba(255,255,255,.04)}
-  .map-overlay-toggle input{margin:0}
-  .jma-toggle-radios{flex-wrap:nowrap;justify-content:center;gap:6px}
-  .jma-snow-note{font-size:9px;white-space:normal}
+  #jma-toggle .jma-toggle-radios{
+    display:flex;
+    flex-direction:row;
+    align-items:center;
+    flex-wrap:nowrap;
+    gap:4px;
+    min-width:0;
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    justify-content:flex-start;
+  }
+  #jma-toggle .snow-forecast-toggle__title{
+    display:inline;
+    flex-shrink:0;
+    font-size:10px;
+    font-weight:700;
+    color:rgba(255,255,255,.78);
+    letter-spacing:0.02em;
+    white-space:nowrap;
+    line-height:1.2;
+  }
+  #jma-toggle.map-overlay-toggle label{
+    white-space:nowrap;
+    text-align:left;
+    flex:0 0 auto;
+    min-width:0;
+    display:inline-flex;
+    align-items:center;
+    justify-content:flex-start;
+    gap:4px;
+    min-height:0;
+    padding:2px 5px;
+    border-radius:4px;
+    background:transparent;
+    font-size:10px;
+    line-height:1.2;
+  }
+  #jma-toggle.map-overlay-toggle input[type="radio"]{
+    width:15px;
+    height:15px;
+    margin:0;
+    accent-color:var(--accent);
+    flex-shrink:0;
+  }
+  #jma-toggle .jma-snow-note{display:none!important}
   .view-map.map-popup-open .map-mobile-chrome{
     visibility:hidden!important;
     pointer-events:none!important;
@@ -1065,7 +1180,7 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
     <div class="top-ten-list" id="top-ten-list"></div>
   </div>
   <div class="top-cta-wrap">
-    <button type="button" class="top-cta-btn" id="btn-to-map">View all 450 resorts on map</button>
+    <button type="button" class="top-cta-btn" id="btn-to-map">View all resorts on map</button>
   </div>
 </div>
 <div id="top-region-modal" class="top-region-modal" style="display:none" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="top-region-modal-title">
@@ -1106,10 +1221,11 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
     </div>
   </div>
   <div id="jma-toggle" class="map-overlay-toggle jma-toggle-stack">
-    <div class="jma-toggle-radios">
+    <div class="jma-toggle-radios" role="group" aria-labelledby="snow-forecast-toggle-heading">
+      <span class="snow-forecast-toggle__title" id="snow-forecast-toggle-heading">Snow forecast</span>
       <label><input type="radio" name="jma-snow-kind" value="" checked>OFF</label>
-      <label><input type="radio" name="jma-snow-kind" value="3h" title="JMA mesh, 3h accumulation">Next 3h</label>
-      <label><input type="radio" name="jma-snow-kind" value="6h" title="JMA mesh, 6h accumulation">Next 6h</label>
+      <label><input type="radio" name="jma-snow-kind" value="3h" title="Snow forecast · JMA mesh · 3h accumulation">Next 3h</label>
+      <label><input type="radio" name="jma-snow-kind" value="6h" title="Snow forecast · JMA mesh · 6h accumulation">Next 6h</label>
     </div>
     <p class="jma-snow-note">※ JMA mesh (3h/6h accumulation)</p>
   </div>
@@ -2524,7 +2640,8 @@ function syncMapPins(){
   const filtered = getFiltered();
   const filteredIds = new Set(filtered.map(r=>r.id));
   let mapVisibleIds = mapShowAll ? filteredIds : new Set(filtered.filter(r=>FEATURED_IDS.has(r.id)).map(r=>r.id));
-  if(selectedId!=null && RESORT_MAP[selectedId] && filteredIds.has(selectedId)) mapVisibleIds = new Set([...mapVisibleIds, selectedId]);
+  // Selected resort always shows on map even if sidebar region filter would exclude it (e.g. top → map)
+  if(selectedId!=null && RESORT_MAP[selectedId]) mapVisibleIds = new Set([...mapVisibleIds, selectedId]);
   RESORTS.forEach(r=>{
     if(!markers[r.id]) return;
     if(mapVisibleIds.has(r.id)){if(!map.hasLayer(markers[r.id]))markers[r.id].addTo(map);}
@@ -3966,7 +4083,7 @@ function getCurrentMapVisibleIds(){
   const filtered = getFiltered();
   const filteredIds = new Set(filtered.map(r=>r.id));
   let mapVisibleIds = mapShowAll ? filteredIds : new Set(filtered.filter(r=>FEATURED_IDS.has(r.id)).map(r=>r.id));
-  if(selectedId!=null && RESORT_MAP[selectedId] && filteredIds.has(selectedId)) mapVisibleIds = new Set([...mapVisibleIds, selectedId]);
+  if(selectedId!=null && RESORT_MAP[selectedId]) mapVisibleIds = new Set([...mapVisibleIds, selectedId]);
   return mapVisibleIds;
 }
 
