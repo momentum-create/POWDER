@@ -848,7 +848,7 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
   border-right:1px solid var(--hairline);
 }
 #map-date-btns.map-date-btns-slot{display:contents}
-/* Phase 0-C: map date strip scroll affordance (fade + ›) */
+/* Phase 0-C: map date strip scroll affordance (fade + ···) */
 #view-map .date-scroll-affordance{
   position:relative;
   min-width:0;
@@ -870,10 +870,11 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
   display:flex;
   align-items:center;
   justify-content:flex-end;
-  padding-right:6px;
-  font-size:16px;
+  padding-right:4px;
+  font-size:11px;
   font-weight:700;
   line-height:1;
+  letter-spacing:0.02em;
   color:rgba(200,212,230,0.78);
 }
 #view-map .date-scroll-affordance::before{

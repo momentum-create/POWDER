@@ -989,7 +989,7 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
   border-right:1px solid var(--hairline);
 }
 #map-date-btns.map-date-btns-slot{display:contents}
-/* フェーズ 0-C: マップ日付帯 — 横スクロール affordance（右フェード + ›） */
+/* フェーズ 0-C: マップ日付帯 — 横スクロール affordance（右フェード + ···） */
 #view-map .date-scroll-affordance{
   position:relative;
   min-width:0;
@@ -1011,10 +1011,11 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
   display:flex;
   align-items:center;
   justify-content:flex-end;
-  padding-right:6px;
-  font-size:16px;
+  padding-right:4px;
+  font-size:11px;
   font-weight:700;
   line-height:1;
+  letter-spacing:0.02em;
   color:rgba(200,212,230,0.78);
 }
 #view-map .date-scroll-affordance::before{
@@ -1029,7 +1030,7 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
   background:linear-gradient(90deg,transparent 0%,rgba(17,28,45,0.55) 45%,rgba(17,28,45,0.96) 100%);
 }
 #view-map .date-scroll-affordance--overflow:not(.date-scroll-affordance--end)::after{
-  content:"›";
+  content:"···";
   opacity:1;
 }
 #view-map .date-scroll-affordance--scrolled::before{opacity:1}
@@ -5781,6 +5782,7 @@ function showMapView(openResortId){
     syncMapPins();
     setMapUiState(MAP_UI_STATES.IDLE);
     if(openResortId!=null&&openResortId!=="") selectResort(openResortId,{focusFromRanking:true});
+    if(typeof updateDateScrollAffordance==="function") updateDateScrollAffordance();
   },150);
   setTimeout(function(){ if(typeof scheduleEnsureDateStripVisible==="function") scheduleEnsureDateStripVisible(); }, 280);
 }
