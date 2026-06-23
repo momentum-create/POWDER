@@ -4561,7 +4561,7 @@ function selectResort(id, opts){
     const gmUrl=`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(r.name)}&query_place_id=&center=${r.lat},${r.lng}`;
     const gmBtn=`<a class="popup-btn popup-btn-secondary" href="${gmUrl}" target="_blank">Googleマップ ↗</a>`;
     if(isFromMapMobileSheet){
-      contentHtml+=`<div class="popup-btns"><button class="popup-btn popup-btn-primary" onclick="onDetailClick(${id})">詳細確認</button>${gmBtn}${urlBtn}</div>`;
+      contentHtml+=getGuideHookHtml(id)+`<div class="popup-btns"><button class="popup-btn popup-btn-primary" onclick="onDetailClick(${id})">詳細確認</button>${gmBtn}${urlBtn}</div>`;
     } else {
     if(operating){
       const periodStr = formatOperatingPeriod(operating.open, operating.close);
@@ -4630,7 +4630,7 @@ function selectResort(id, opts){
     if(isMobilePopup){
     contentHtml+=`<div class="popup-feedback"><button class="popup-feedback-btn" onclick="openFeedback('closed',${id})">営業してなかった</button><button class="popup-feedback-btn" onclick="openFeedback('low-snow',${id})">積雪がもっと少なかった</button></div>`;
     }
-    contentHtml+=`<div class="popup-btns"><button class="popup-btn popup-btn-primary" onclick="onDetailClick(${id})">詳細確認</button>${gmBtn}${urlBtn}</div>`;
+    contentHtml+=getGuideHookHtml(id)+`<div class="popup-btns"><button class="popup-btn popup-btn-primary" onclick="onDetailClick(${id})">詳細確認</button>${gmBtn}${urlBtn}</div>`;
     }
   }
   if(isMobilePopup && useFocusRankingShell){
@@ -4720,6 +4720,17 @@ function getResortGuideUrl(resortId){
     ||new URLSearchParams(location.search).get("lang")==="en";
   const q=isEn?"?lang=en":"";
   return base+"/"+g.registryId+"/"+q;
+}
+function getGuideHookHtml(resortId){
+  const g=RESORT_GUIDES&&RESORT_GUIDES.guides&&RESORT_GUIDES.guides[String(resortId)];
+  if(!g) return "";
+  const isEn=document.documentElement.lang==="en"
+    ||/-en\.html$/i.test(location.pathname)
+    ||new URLSearchParams(location.search).get("lang")==="en";
+  const loc=isEn?"en":"ja";
+  const line=(g.tagline&&g.tagline[loc])||(g.strategy&&g.strategy[loc])||"";
+  if(!line) return "";
+  return `<div class="popup-detail-row popup-guide-hook" style="margin-top:8px;font-size:12px;line-height:1.5;color:var(--text-dim)">${line}</div>`;
 }
 function onDetailClick(resortId){
   const url=getResortGuideUrl(resortId);

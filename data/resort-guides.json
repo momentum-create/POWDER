@@ -1,20 +1,316 @@
 {
+  "schemaVersion": "2026-06-23",
   "baseUrl": "https://guides.japowserch.com",
   "defaultLocale": "ja",
   "guides": {
-    "8":   { "registryId": "asahigaoka",     "tier": "mock" },
-    "35":  { "registryId": "otoifuji",       "tier": "mock" },
-    "39":  { "registryId": "shimukappu",     "tier": "mock" },
-    "40":  { "registryId": "minami-furano",  "tier": "mock" },
-    "50":  { "registryId": "biei",           "tier": "mock" },
-    "58":  { "registryId": "abashiri-lv",    "tier": "mock" },
-    "60":  { "registryId": "unabetsu",       "tier": "mock" },
-    "65":  { "registryId": "kiyosato",       "tier": "mock" },
-    "66":  { "registryId": "gokazan",        "tier": "mock", "note": "id 72 湧別町五鹿山ではなく 66" },
-    "453": { "registryId": "sapporo-kokusai", "tier": "mock" },
-    "454": { "registryId": "sapporo-teine",   "tier": "mock" },
-    "51":  { "registryId": "pippu",           "tier": "mock" },
-    "98":  { "registryId": "sichinohe",      "tier": "mock" },
-    "326": { "registryId": "tsunan",         "tier": "mock" }
+    "8": {
+      "registryId": "asahigaoka",
+      "tier": "mock",
+      "strategy": {
+        "ja": "ニセコ隣・二重料金",
+        "en": "Niseko Local · Dual Pricing"
+      },
+      "name": {
+        "ja": "倶知安町旭ヶ丘スキー場",
+        "en": "Kutchan Asahigaoka Ski Area"
+      },
+      "region": {
+        "ja": "北海道倶知安町",
+        "en": "Kutchan, Hokkaido"
+      },
+      "guideUrl": "https://guides.japowserch.com/asahigaoka/",
+      "guideUrlEn": "https://guides.japowserch.com/asahigaoka/?lang=en",
+      "tagline": {
+        "ja": "リフト待ちのない、ニセコの隠れたローカルヒル。",
+        "en": "Niseko's hidden local hill—without the lift lines."
+      }
+    },
+    "35": {
+      "registryId": "otoifuji",
+      "tier": "mock",
+      "strategy": {
+        "ja": "隠れJapow・CAT・駅徒歩",
+        "en": "Hidden Japow · CAT · Station Walk"
+      },
+      "name": {
+        "ja": "音威富士スキー場",
+        "en": "Otoifuji Ski Area"
+      },
+      "region": {
+        "ja": "北海道音威子府村",
+        "en": "Otoineppu, Hokkaido"
+      },
+      "guideUrl": "https://guides.japowserch.com/otoifuji/",
+      "guideUrlEn": "https://guides.japowserch.com/otoifuji/?lang=en",
+      "tagline": {
+        "ja": "日本最軽量級のドライJapow——上級者84%が選ぶ、駅から歩ける秘境。",
+        "en": "Japan's lightest dry Japow—84% advanced skiers, a hidden gem you can reach on foot from the station."
+      }
+    },
+    "39": {
+      "registryId": "shimukappu",
+      "tier": "mock",
+      "strategy": {
+        "ja": "ゼロ収益・エコシステム",
+        "en": "Zero Revenue · Ecosystem"
+      },
+      "name": {
+        "ja": "国設占冠中央スキー場",
+        "en": "Shimukappu Central Ski Area"
+      },
+      "region": {
+        "ja": "北海道占冠村",
+        "en": "Shimukappu, Hokkaido"
+      },
+      "guideUrl": "https://guides.japowserch.com/shimukappu/",
+      "guideUrlEn": "https://guides.japowserch.com/shimukappu/?lang=en",
+      "tagline": {
+        "ja": "リフトなし、混雑なし、純パウダー——牽引2基だけの、上級者100%の秘境。",
+        "en": "No chairlifts, no crowds, pure powder—two rope tows, 100% advanced skiers, a hidden gem beside Tomamu."
+      }
+    },
+    "40": {
+      "registryId": "minami-furano",
+      "tier": "mock",
+      "strategy": {
+        "ja": "Secret Powder Pass",
+        "en": "Secret Powder Pass"
+      },
+      "name": {
+        "ja": "国設南ふらのスキー場",
+        "en": "Kokusetsu Minami-Furano Ski Area"
+      },
+      "region": {
+        "ja": "北海道南富良野町",
+        "en": "Minami-Furano, Hokkaido"
+      },
+      "guideUrl": "https://guides.japowserch.com/minami-furano/",
+      "guideUrlEn": "https://guides.japowserch.com/minami-furano/?lang=en",
+      "tagline": {
+        "ja": "巨大リゾートのど真ん中にある、静かなパウダー。",
+        "en": "Quiet powder in the heart of mega-resorts."
+      }
+    },
+    "50": {
+      "registryId": "biei",
+      "tier": "mock",
+      "strategy": {
+        "ja": "スノーウェルネス",
+        "en": "Snow Wellness"
+      },
+      "name": {
+        "ja": "美瑛町民スキー場",
+        "en": "Biei Town Ski Area"
+      },
+      "region": {
+        "ja": "北海道",
+        "en": "Hokkaido"
+      },
+      "guideUrl": "https://guides.japowserch.com/biei/",
+      "guideUrlEn": "https://guides.japowserch.com/biei/?lang=en",
+      "tagline": {
+        "ja": "滑らない人のための、スノーウェルネス・ハブ",
+        "en": "A snow wellness hub for people who don't ski"
+      }
+    },
+    "51": {
+      "registryId": "pippu",
+      "tier": "mock",
+      "strategy": {
+        "ja": "雪・食・温泉の隠れ家",
+        "en": "Snow · Food · Onsen Hideaway"
+      },
+      "name": {
+        "ja": "ぴっぷスキー場",
+        "en": "Pippu Ski Area"
+      },
+      "region": {
+        "ja": "北海道上川郡比布町",
+        "en": "Pippu, Hokkaido"
+      },
+      "guideUrl": "https://guides.japowserch.com/pippu/",
+      "guideUrlEn": "https://guides.japowserch.com/pippu/?lang=en",
+      "tagline": {
+        "ja": "大雪山を借景に、超乾雪と入浴券つきリフト——メガリゾートの対抗軸。",
+        "en": "Dry powder under the Daisetsu range—lift tickets bundled with bath access, away from mega-resort crowds."
+      }
+    },
+    "58": {
+      "registryId": "abashiri-lv",
+      "tier": "mock",
+      "strategy": {
+        "ja": "湖と海の絶景・温泉と蟹",
+        "en": "Lake & Sea Panorama · Onsen & Crab"
+      },
+      "name": {
+        "ja": "網走レークビュースキー場",
+        "en": "Abashiri Lake View Ski Area"
+      },
+      "region": {
+        "ja": "北海道網走市",
+        "en": "Abashiri, Hokkaido"
+      },
+      "guideUrl": "https://guides.japowserch.com/abashiri-lv/",
+      "guideUrlEn": "https://guides.japowserch.com/abashiri-lv/?lang=en",
+      "tagline": {
+        "ja": "網走湖とオホーツク海を眼下に——極寒の粉雪と、驚きの低価格。",
+        "en": "Lake Abashiri and the Okhotsk Sea below—Okhotsk powder at strikingly low prices."
+      }
+    },
+    "60": {
+      "registryId": "unabetsu",
+      "tier": "mock",
+      "strategy": {
+        "ja": "流氷没入・手ぶら2時間",
+        "en": "Drift Ice · Hands-free 2h"
+      },
+      "name": {
+        "ja": "ウナベツスキー場",
+        "en": "Unabetsu Ski Area"
+      },
+      "region": {
+        "ja": "北海道斜里町",
+        "en": "Shari, Hokkaido"
+      },
+      "guideUrl": "https://guides.japowserch.com/unabetsu/",
+      "guideUrlEn": "https://guides.japowserch.com/unabetsu/?lang=en",
+      "tagline": {
+        "ja": "流氷へ飛び込むような、世界稀有の滑走体験",
+        "en": "A rare worldwide run that feels like diving into drift ice"
+      }
+    },
+    "65": {
+      "registryId": "kiyosato",
+      "tier": "mock",
+      "strategy": {
+        "ja": "緑駅徒歩5分・NAP",
+        "en": "5 min from Midori Stn · NAP"
+      },
+      "name": {
+        "ja": "清里町営緑スキー場",
+        "en": "Kiyosato Midori Ski Area"
+      },
+      "region": {
+        "ja": "北海道清里町",
+        "en": "Kiyosato, Hokkaido"
+      },
+      "guideUrl": "https://guides.japowserch.com/kiyosato/",
+      "guideUrlEn": "https://guides.japowserch.com/kiyosato/?lang=en",
+      "tagline": {
+        "ja": "Train · Powder · Onsen",
+        "en": "Train · Powder · Onsen"
+      }
+    },
+    "66": {
+      "registryId": "gokazan",
+      "tier": "mock",
+      "note": "id 72 湧別町五鹿山ではなく 66",
+      "strategy": {
+        "ja": "流氷×サロマ湖・Resort Pass",
+        "en": "Drift Ice × Lake Saroma · Pass"
+      },
+      "name": {
+        "ja": "五鹿山スキー場",
+        "en": "Gokazan Ski Area"
+      },
+      "region": {
+        "ja": "北海道湧別町",
+        "en": "Yubetsu, Hokkaido"
+      },
+      "guideUrl": "https://guides.japowserch.com/gokazan/",
+      "guideUrlEn": "https://guides.japowserch.com/gokazan/?lang=en",
+      "tagline": {
+        "ja": "流氷とサロマ湖を、同時に見下ろす。",
+        "en": "Overlook drift ice and Lake Saroma at once."
+      }
+    },
+    "98": {
+      "registryId": "sichinohe",
+      "tier": "mock",
+      "strategy": {
+        "ja": "新幹線10分・温泉",
+        "en": "Shinkansen 10 min · Onsen"
+      },
+      "name": {
+        "ja": "七戸町営スキー場",
+        "en": "Sichinohe Town Ski Area"
+      },
+      "region": {
+        "ja": "青森県",
+        "en": "Aomori"
+      },
+      "guideUrl": "https://guides.japowserch.com/sichinohe/",
+      "guideUrlEn": "https://guides.japowserch.com/sichinohe/?lang=en",
+      "tagline": {
+        "ja": "七戸町営スキー場",
+        "en": "Sichinohe Town Ski Area"
+      }
+    },
+    "326": {
+      "registryId": "tsunan",
+      "tier": "mock",
+      "strategy": {
+        "ja": "機能転換・English Adventure",
+        "en": "Pivot · English Adventure"
+      },
+      "name": {
+        "ja": "マウンテンパーク津南",
+        "en": "Mountain Park Tsunan"
+      },
+      "region": {
+        "ja": "新潟県津南町",
+        "en": "Tsunan, Niigata"
+      },
+      "guideUrl": "https://guides.japowserch.com/tsunan/",
+      "guideUrlEn": "https://guides.japowserch.com/tsunan/?lang=en",
+      "tagline": {
+        "ja": "雪から、アンバンドリングする。",
+        "en": "Unbundling from snow."
+      }
+    },
+    "453": {
+      "registryId": "sapporo-kokusai",
+      "tier": "mock",
+      "strategy": {
+        "ja": "ゴールデントライアングル",
+        "en": "Golden Triangle · Regional"
+      },
+      "name": {
+        "ja": "札幌国際スキー場",
+        "en": "Sapporo Kokusai Ski Resort"
+      },
+      "region": {
+        "ja": "北海道札幌市",
+        "en": "Sapporo, Hokkaido"
+      },
+      "guideUrl": "https://guides.japowserch.com/sapporo-kokusai/",
+      "guideUrlEn": "https://guides.japowserch.com/sapporo-kokusai/?lang=en",
+      "tagline": {
+        "ja": "Japowの中心で、札幌・定山渓・小樽をつなぐ。",
+        "en": "Japow at the center—linking Sapporo, Jozankei, and Otaru."
+      }
+    },
+    "454": {
+      "registryId": "sapporo-teine",
+      "tier": "mock",
+      "strategy": {
+        "ja": "スノー＆カルチャー",
+        "en": "Snow & Culture"
+      },
+      "name": {
+        "ja": "札幌手稲スキー場",
+        "en": "Sapporo Teine Ski Resort"
+      },
+      "region": {
+        "ja": "北海道札幌市",
+        "en": "Sapporo, Hokkaido"
+      },
+      "guideUrl": "https://guides.japowserch.com/sapporo-teine/",
+      "guideUrlEn": "https://guides.japowserch.com/sapporo-teine/?lang=en",
+      "tagline": {
+        "ja": "パウダーと200万人都市、定山渓と小樽を結ぶスノー＆カルチャー・リゾートパッケージ。",
+        "en": "Snow & Culture resort package linking powder, a 2M city, Jozankei onsen, and Otaru."
+      }
+    }
   }
 }
