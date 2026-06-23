@@ -268,6 +268,28 @@
         "en": "Unbundling from snow."
       }
     },
+    "284": {
+      "registryId": "kirigamine",
+      "tier": "mock",
+      "strategy": {
+        "ja": "エントリー向けファミリーゲレンデ",
+        "en": "Entry-Level Family Snow · Panorama Plateau"
+      },
+      "name": {
+        "ja": "ファミリーゲレンデ霧ヶ峰スキー場",
+        "en": "Family Gerende Kirigamine Ski Area"
+      },
+      "region": {
+        "ja": "長野県諏訪市",
+        "en": "Suwa, Nagano"
+      },
+      "guideUrl": "https://guides.japowserch.com/kirigamine/",
+      "guideUrlEn": "https://guides.japowserch.com/kirigamine/?lang=en",
+      "tagline": {
+        "ja": "360度の山並みと、驚きの低価格——家族の雪山デビューに。",
+        "en": "360° mountain views at striking family prices—your safest first snow day."
+      }
+    },
     "453": {
       "registryId": "sapporo-kokusai",
       "tier": "mock",
