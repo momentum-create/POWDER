@@ -4,19 +4,24 @@
   "guides": {
     "8":   { "registryId": "asahigaoka",     "tier": "mock" },
     "35":  { "registryId": "otoifuji",       "tier": "mock" },
-    "36":  { "registryId": "kamikawa-nakayama", "tier": "mock" },
     "39":  { "registryId": "shimukappu",     "tier": "mock" },
     "40":  { "registryId": "minami-furano",  "tier": "mock" },
     "50":  { "registryId": "biei",           "tier": "mock" },
-    "51":  { "registryId": "pippu",           "tier": "mock" },
     "58":  { "registryId": "abashiri-lv",    "tier": "mock" },
     "60":  { "registryId": "unabetsu",       "tier": "mock" },
     "65":  { "registryId": "kiyosato",       "tier": "mock" },
     "66":  { "registryId": "gokazan",        "tier": "mock", "note": "id 72 湧別町五鹿山ではなく 66" },
-    "98":  { "registryId": "sichinohe",      "tier": "mock" },
-    "284": { "registryId": "kirigamine",     "tier": "mock" },
-    "326": { "registryId": "tsunan",         "tier": "mock" },
     "453": { "registryId": "sapporo-kokusai", "tier": "mock" },
-    "454": { "registryId": "sapporo-teine",   "tier": "mock" }
+    "454": { "registryId": "sapporo-teine",   "tier": "mock" },
+    "51":  { "registryId": "pippu",           "tier": "mock" },
+    "98":  { "registryId": "sichinohe",      "tier": "mock" },
+    "326": { "registryId": "tsunan",         "tier": "mock" },
+    "284": { "registryId": "kirigamine",     "tier": "mock" },
+    "36":  { "registryId": "kamikawa-nakayama", "tier": "mock" },
+    "163": { "registryId": "shinjo",           "tier": "mock" },
+    "52":  { "registryId": "hinode",           "tier": "mock" },
+    "29":  { "registryId": "takaho",           "tier": "mock" },
+    "310": { "registryId": "koshi-kogen",      "tier": "mock" },
+    "167": { "registryId": "nishikawa",        "tier": "mock" }
   }
 }
