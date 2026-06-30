@@ -6,5 +6,24 @@ test-results/
 playwright-report/
 gemini_result_daily.md
 .cursor/debug*.log
+
+# ── 公開リポジトリに載せない（ローカル開発用） ──
+.claude/
+.cursor/
+
+# 作業メモ・生成物（ルート）
+GITHUB_公開手順.md
+ゲレンデ追加とリンク確認.md
+不足ゲレンデ候補.md
+gemini_result_jma.md
+
+# docs: 外部向け以外はローカルのみ（下の ! で例外）
+docs/*
+!docs/README.md
+!docs/REDDIT-PUBLISH.md
+!docs/BUZZ-GUARD.md
+!docs/OPS-WEATHER.md
+!docs/SECURITY-AUDIT-2026-06-30.md
+
 # 別プロジェクトの handoff が誤って置かれないよう
 docs/agent-handoff.md

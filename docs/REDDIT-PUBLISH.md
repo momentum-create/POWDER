@@ -27,6 +27,38 @@
 - 「滑走 OK と出たら行っていい」
 - 「気象庁より正確」
 
+## 固定文案（コピペ用・レビューなしで変えない）
+
+以下は **Reddit / SNS 投稿の正本**。ベータ・参考表示・非安全助言を固定する。
+
+### 英語（r/SideProject / r/skiing 等）
+
+```
+[Beta] JapawSerch — Japan ski resort powder forecast dashboard (personal project)
+
+Static map + ranking for ~450 Japanese resorts. Combines Open-Meteo forecasts with JMA snow data/tiles.
+
+⚠️ Reference / entertainment only — NOT go/no-go or avalanche/safety advice. Always follow official resort and local conditions.
+
+GitHub: https://github.com/momentum-create/POWDER
+Live (JA): https://www.japowserch.com/ski-powder-hunter.html
+
+Bug reports & wrong data: GitHub Issues welcome.
+```
+
+### 日本語（r/japanski 等）
+
+```
+日本のゲレンデ天気を一覧する個人開発ベータです（JapawSerch）。
+
+Open-Meteo と気象庁データの参考表示です。滑走判断・安全助言はしません。現地・公式情報を優先してください。
+
+GitHub: https://github.com/momentum-create/POWDER
+公開サイト: https://www.japowserch.com/ski-powder-hunter.html
+
+データ誤り・バグは GitHub Issues で歓迎します。
+```
+
 ## 投稿文案（英語・r/SideProject 向け例）
 
 > **[Beta] JapawSerch — Japan ski resort powder forecast dashboard (personal project)**  
@@ -48,3 +80,5 @@
 - パウダー判定文言の弱め（「参考」表記）
 - Git 履歴の `.env` 実値チェック（問題なし）
 - **Buzz Guard**（`scripts/buzz-guard.js`、`_headers`、`vercel.json`、`api/forecast.js`）— 詳細は [docs/BUZZ-GUARD.md](BUZZ-GUARD.md)
+- **サーバー配信 JMA 降雪タイル時刻**（`data/jma-snow-tile-times.json`、Actions）— [docs/OPS-WEATHER.md](OPS-WEATHER.md)
+- **Service Worker**（`sw.js`）— `/data/*.json` の 10 分キャッシュ（ヘッダ非対応ホスト向け）

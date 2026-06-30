@@ -241,6 +241,25 @@ async function main() {
   const dir = path.dirname(outPath);
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
   fs.writeFileSync(outPath, JSON.stringify(out, null, 2), "utf8");
+  let latestObserved = null;
+  for (const entry of Object.values(out)) {
+    const at = entry && entry.observed_at;
+    if (at && (!latestObserved || at > latestObserved)) latestObserved = at;
+  }
+  const metaPath = path.join(dir, "jma-snow-meta.json");
+  fs.writeFileSync(
+    metaPath,
+    JSON.stringify(
+      {
+        generated_at: new Date().toISOString(),
+        latest_observed_at: latestObserved,
+        resort_count: Object.keys(out).length,
+      },
+      null,
+      2
+    ),
+    "utf8"
+  );
   const withDepth = Object.values(out).filter((v) => v.depth_cm != null).length;
   const with3h = Object.values(out).filter((v) => v.snowfall_3h_cm != null).length;
   const with24h = Object.values(out).filter((v) => v.snowfall_24h_cm != null).length;

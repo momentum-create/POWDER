@@ -1,5 +1,9 @@
 /data/*
   Cache-Control: public, max-age=600, stale-while-revalidate=3600
 
+/sw.js
+  Cache-Control: public, max-age=0, must-revalidate
+  Service-Worker-Allowed: /
+
 /privacy.html
   Cache-Control: public, max-age=86400

@@ -9,6 +9,16 @@ Reddit 等の急増トラフィック向け。実装日: 2026-06-30
 
 ホストが GitHub Pages のみの場合は、手前の CDN（Cloudflare 等）で同様の Cache-Control を設定してください。
 
+**フォールバック:** ルートの `sw.js` が `/data/*.json` を 10 分 TTL でキャッシュ（ヘッダが効かないホスト向け）。
+
+## 1b. JMA 降雪タイル時刻（サーバー配信）
+
+- `scripts/fetch-jma-snow-tile-times.js` → `data/jma-snow-tile-times.json`
+- GitHub Actions: **Update JMA snow tile times**（毎時 :30 UTC）
+- クライアントは `generated_at` が 2 時間以内なら **JMA への時刻プローブループをスキップ**
+
+詳細: [OPS-WEATHER.md](OPS-WEATHER.md)
+
 ## 2. ブラウザ側ガード（`scripts/buzz-guard.js`）
 
 | 機能 | 内容 |

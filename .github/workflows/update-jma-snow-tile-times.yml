@@ -1,14 +1,14 @@
-# 1時間ごとに全ゲレンデの天気を取得し、data/weather.json に保存してコミット・プッシュする
-name: Update weather cache
+# JMA snow tile times — server-published latest timeStr
+
+name: Update JMA snow tile times
 
 on:
   schedule:
-    - cron: "0 * * * *"   # 毎時 0 分（UTC）。日本時間では 9:00, 10:00, ... など
-    - cron: "15 * * * *"  # フェイルオーバー用（runner 取得失敗時の取りこぼしを減らす）
-  workflow_dispatch:      # 手動実行も可能
+    - cron: "30 * * * *"
+  workflow_dispatch:
 
 concurrency:
-  group: update-weather-cache
+  group: update-jma-snow-tile-times
   cancel-in-progress: true
 
 permissions:
@@ -18,7 +18,7 @@ permissions:
 jobs:
   update:
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 15
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -29,8 +29,8 @@ jobs:
           node-version: "22"
           package-manager-cache: false
 
-      - name: Fetch weather and write data/weather.json
-        run: node scripts/fetch-weather-hourly.js
+      - name: Probe JMA tiles and write data/jma-snow-tile-times.json
+        run: node scripts/fetch-jma-snow-tile-times.js
         env:
           TZ: Asia/Tokyo
 
@@ -38,11 +38,11 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/weather.json
+          git add data/jma-snow-tile-times.json
           if git diff --staged --quiet; then
-            echo "No changes to weather cache."
+            echo "No changes to JMA snow tile times."
           else
-           git commit -m "chore: update weather cache [automated]"
+            git commit -m "chore: update JMA snow tile times [automated]"
             git pull --rebase origin main
             git push origin main
           fi

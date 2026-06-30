@@ -1,4 +1,5 @@
 {
   "snowApiBase": "",
-  "snowApiBaseNote": "Vercel 等で /api/forecast プロキシをデプロイしたら same-origin または https://example.com を指定。空のままなら data/weather.json + 制限付き直叩き。"
+  "snowApiBaseNote": "Vercel 等で /api/forecast プロキシをデプロイしたら same-origin または https://example.com を指定。空のままなら data/weather.json + 制限付き直叩き。",
+  "jmaSnowTileTimesUrl": "data/jma-snow-tile-times.json"
 }

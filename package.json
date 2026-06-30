@@ -4,7 +4,9 @@
   "description": "Japowserch tooling — resort names EN generator",
   "private": true,
   "scripts": {
-    "generate-resort-names-en": "node scripts/generate-resort-names-en.js"
+    "generate-resort-names-en": "node scripts/generate-resort-names-en.js",
+    "fetch-jma-snow": "node scripts/fetch-jma-snow.js",
+    "fetch-jma-snow-tile-times": "node scripts/fetch-jma-snow-tile-times.js"
   },
   "dependencies": {
     "kuroshiro": "^1.2.0",

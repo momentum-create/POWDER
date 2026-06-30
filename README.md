@@ -25,11 +25,9 @@
 ## プロジェクト構成
 
 - `ski-powder-hunter.html` / `ski-powder-hunter-en.html`: メイン表示ページ
-- `data/`: ゲレンデ名・観測データ・サンプル
-- `scripts/`: データ加工・確認スクリプト（Node/Python）
-- `ask_gemini.py`: Gemini 単発実行
-- `scripts/daily_x_proposal.py`: 日次のX投稿案生成パイプライン
-- `.cursor/rules/`: Cursor 運用ルール
+- `data/`: ゲレンデ名・観測データ・キャッシュ JSON
+- `scripts/`: データ取得・加工（Node）
+- `docs/`: 公開向けドキュメント（一覧は [docs/README.md](docs/README.md)）
 
 ## セットアップ
 
@@ -51,6 +49,12 @@ pip install -r requirements.txt
 
 `.env` に `GEMINI_API_KEY=...` を設定（`.env.example` 参照）。**`.env` はコミットしない。**
 
+## よく使うコマンド
+
+- リゾート英語名生成: `npm run generate-resort-names-en`
+- 天気キャッシュ更新（ローカル）: `node scripts/fetch-weather-hourly.js`
+- 気象庁積雪・タイル時刻: `npm run fetch-jma-snow` / `npm run fetch-jma-snow-tile-times`
+
 ## Git（push はこのフォルダから）
 
 このフォルダが **Git 管理の正本** です。リモートは `https://github.com/momentum-create/POWDER.git`（リポジトリ名は POWDER のまま）。
@@ -64,20 +68,13 @@ git pull --rebase origin main
 git push origin main
 ```
 
-GitHub Desktop を使う場合も、**ローカルリポジトリのパスを `JAPOWSERCH` に変更**してください。旧 `Desktop\Cloude\POWDER` には `.git` はありません。
-
-## よく使うコマンド
-
-- リゾート英語名生成: `npm run generate-resort-names-en`
-- Gemini 単発: `python ask_gemini.py "質問文"`
-- Gemini（長文入力）: `python ask_gemini.py --prompt-file daily_prompt.txt -o gemini_result.md`
-- 日次X案: `python scripts/daily_x_proposal.py`
+GitHub Desktop を使う場合も、**ローカルリポジトリのパスを `JAPOWSERCH` に変更**してください。
 
 ## 運用方針
 
-- `JAPOWSERCH` で Japowserch 本体の作業を継続（ローカルは OneDrive からデスクトップへ移動済み）
-- Gemini は「必要な作業だけ」補助的に利用
-- `momentumX` は別運用（内容を自動共有しない）
+- 本番サイト: https://www.japowserch.com/
+- データ更新: GitHub Actions（[docs/OPS-WEATHER.md](docs/OPS-WEATHER.md)）
+- エージェント・UX 仕様・手順書は **リポジトリ外（ローカルの `.claude/` 等）** で管理
 
 ## セキュリティ
 
