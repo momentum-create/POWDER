@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=DM+Serif+Display:ital@0;1&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="scripts/buzz-guard.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/wanakana@5.3.1/umd/wanakana.min.js"></script>
 <script src="data/resort-names-en.js"></script>
 <style>
@@ -2104,8 +2105,8 @@ const RESORT_MAP = Object.fromEntries(RESORTS.map(r=>[r.id,r]));
   });
 })();
 
-// 自前API（B+C）を使う場合はベースURLを指定（例: "http://localhost:8000"）。空なら Open-Meteo 直叩き
-const SNOW_API_BASE = "";
+// Own API via data/site-config.json snowApiBase, or Vercel /api/forecast. Empty = Open-Meteo direct.
+let SNOW_API_BASE = "";
 // true: 起動時・地域選択時に全件をキュー（450件まとめて取得）。false: 注目40件＋地域50件のみ
 const FETCH_ALL_ON_LOAD = false;
 // 起動時に最初に取得する4件（トップ表示で見せたいゲレンデ）
@@ -2638,6 +2639,7 @@ function initTopDateButtons(){
 function fetchWeather(resort){
   if(weatherCache[resort.id]!==undefined) return Promise.resolve(weatherCache[resort.id]);
   if(weatherCache[resort.id]==="loading") return Promise.resolve(null);
+  if(typeof PowderBuzzGuard!=="undefined" && !PowderBuzzGuard.consumeLiveFetch(1)) return Promise.resolve(null);
   weatherCache[resort.id]="loading";
 
   const useOwnApi = typeof SNOW_API_BASE==="string"&&SNOW_API_BASE.length>0;
@@ -2744,7 +2746,16 @@ function fetchWeather(resort){
 // Queue-based batch fetcher
 function queueFetch(ids){
   const toFetch = ids.filter(id=>weatherCache[id]===undefined);
-  toFetch.forEach(id=>{
+  if(!toFetch.length) return;
+  let allowed = toFetch.length;
+  if(typeof PowderBuzzGuard!=="undefined"){
+    allowed = PowderBuzzGuard.allowLiveFetch(toFetch.length);
+    if(allowed<=0){
+      console.warn("[BuzzGuard] Open-Meteo session cap reached; skipping queue");
+      return;
+    }
+  }
+  toFetch.slice(0, allowed).forEach(id=>{
     if(!fetchQueue.includes(id)) fetchQueue.push(id);
   });
   processQueue();
@@ -4757,6 +4768,7 @@ function mountJmaSnowLayerFromTimeStr(kind, timeStr){
 }
 function refreshJmaSnowTimeInBackground(kind){
   if(!kind) return;
+  if(typeof PowderBuzzGuard!=="undefined" && !PowderBuzzGuard.allowJmaProbe()) return;
   const t0 = Date.now();
   const myKind = kind;
   console.log("[JMA snow debug] bg refresh start", { kind: myKind });
@@ -5020,12 +5032,21 @@ function formatJmaTimeStr(d){
 }
 
 async function fetchJmaSnowLatestTime(kind){
-  const lookbackMin = (kind === "6h" ? 1440 : JMA_PROBE_LOOKBACK_MIN);
+  const storedProbe = readJmaSnowStoredTime(kind);
+  if(typeof PowderBuzzGuard!=="undefined" && !PowderBuzzGuard.allowJmaProbe()){
+    return storedProbe || null;
+  }
+  const lookbackMin = (typeof PowderBuzzGuard!=="undefined")
+    ? PowderBuzzGuard.jmaProbeLookbackMin(kind, !!storedProbe)
+    : (kind === "6h" ? 1440 : JMA_PROBE_LOOKBACK_MIN);
+  const stepMin = (typeof PowderBuzzGuard!=="undefined")
+    ? PowderBuzzGuard.jmaProbeStepMin(!!storedProbe)
+    : JMA_PROBE_STEP_MIN;
   const now = new Date();
   now.setMilliseconds(0);
   let jst = getJstCalendarParts(now);
   jst.s = 0;
-  jst.m = Math.floor(jst.m / JMA_PROBE_STEP_MIN) * JMA_PROBE_STEP_MIN;
+  jst.m = Math.floor(jst.m / stepMin) * stepMin;
   const anchorMs = jstWallToUtcMs(jst);
 
   // #region [JMA snow debug] fetchLatest range (no-logic-change)
@@ -5042,7 +5063,8 @@ async function fetchJmaSnowLatestTime(kind){
   const zAlt = getJmaSnowAlternateProbeZ(zNow);
   const points = getJmaProbeLatLngs();
   console.log("[JMA snow debug] fetchLatest begin", { kind, zNow, zAlt, mapZoom:mapZ, lookbackMin, stepMin:JMA_PROBE_STEP_MIN, points:points.length });
-  for(let offset=0; offset<=lookbackMin; offset+=JMA_PROBE_STEP_MIN){
+  for(let offset=0; offset<=lookbackMin; offset+=stepMin){
+    if(typeof PowderBuzzGuard!=="undefined" && !PowderBuzzGuard.consumeJmaProbe(1)) break;
     const t = new Date(anchorMs - offset*60*1000);
     const timeStr = formatJmaTimeStr(t);
     const rNow = await probeAnyJmaTilePointExists(kind, timeStr, zNow, points);
@@ -5467,8 +5489,14 @@ document.getElementById("sort-select").addEventListener("change",e=>{
   renderList();
 });
 document.getElementById("btn-fetch-remaining").addEventListener("click",()=>{
-  const ids=getFiltered().map(r=>r.id);
-  queueFetch(ids);
+  if(typeof PowderBuzzGuard!=="undefined"){
+    if(!PowderBuzzGuard.canUseFetchRemaining()) return;
+    PowderBuzzGuard.markFetchRemainingUsed();
+    PowderBuzzGuard.updateFetchRemainingUi();
+  }
+  const ids=getFiltered().map(r=>r.id).filter(id=>weatherCache[id]===undefined);
+  const cap=(typeof PowderBuzzGuard!=="undefined")?PowderBuzzGuard.MAX_FETCH_REMAINING_PER_CLICK:ids.length;
+  queueFetch(ids.slice(0,cap));
 });
 function updateMapPinButtons(){
   const feat=document.getElementById("btn-map-featured"), all=document.getElementById("btn-map-all");
@@ -5712,8 +5740,18 @@ document.getElementById("view-map").style.display="none";
   // #region [Resort debug] EN init cache load
   console.log("[Resort debug] init start (en)");
   // #endregion
+  var configPromise=(typeof PowderBuzzGuard!=="undefined")
+    ? PowderBuzzGuard.loadSiteConfig("data/site-config.json").then(function(){ SNOW_API_BASE=PowderBuzzGuard.resolveSnowApiBase(); })
+    : Promise.resolve();
+  var weatherPromise=(typeof PowderBuzzGuard!=="undefined")
+    ? PowderBuzzGuard.fetchWeatherJson("data/weather.json").then(function(r){
+        if(r&&r.lastModified) lastDataUpdated=new Date(r.lastModified);
+        return r?r.data:null;
+      })
+    : fetch("data/weather.json").then(function(r){ var lm=r.headers.get("Last-Modified"); if(lm) lastDataUpdated=new Date(lm); return r.ok?r.json():Promise.reject(); }).catch(function(){ return null; });
   Promise.all([
-    fetch("data/weather.json").then(function(r){ var lm=r.headers.get("Last-Modified"); if(lm) lastDataUpdated=new Date(lm); return r.ok?r.json():Promise.reject(); }).catch(function(){ return null; }),
+    configPromise,
+    weatherPromise,
     fetch("data/jma-snow.json").then(function(r){ return r.ok?r.json():Promise.reject(); }).catch(function(){ return null; }),
     fetch("data/resort-snow.json").then(function(r){ return r.ok?r.json():Promise.reject(); }).catch(function(){ return null; }),
     fetch("data/lift-times.json").then(function(r){ return r.ok?r.json():Promise.reject(); }).catch(function(){ return null; }),
@@ -5722,7 +5760,7 @@ document.getElementById("view-map").style.display="none";
     fetch("data/jma-prevday-hourly.json").then(function(r){ return r.ok?r.json():Promise.reject(); }).catch(function(){ return null; }),
     loadResortGuides().catch(function(){ return null; })
   ]).then(function(arr){
-    var obj=arr[0], jma=arr[1], resortSnow=arr[2], liftTimes=arr[3], operating=arr[4], namesEn=arr[5], prevHourly=arr[6], resortGuides=arr[7];
+    var obj=arr[1], jma=arr[2], resortSnow=arr[3], liftTimes=arr[4], operating=arr[5], namesEn=arr[6], prevHourly=arr[7], resortGuides=arr[8];
     // #region [Resort debug] EN cache loaded
     console.log("[Resort debug] init cache done", { hasWeather: !!obj, hasJma: !!jma, hasResortSnow: !!resortSnow, hasLiftTimes: !!liftTimes, hasOperating: !!operating, hasNamesEn: !!namesEn, hasPrevDayHourly: !!prevHourly });
     // #endregion
@@ -5751,6 +5789,7 @@ document.getElementById("view-map").style.display="none";
       var queuedIds = FETCH_ALL_ON_LOAD ? [...INITIAL_FETCH_IDS,...RESORTS.map(r=>r.id).filter(id=>!INITIAL_FETCH_IDS.includes(id))] : [...FEATURED_IDS];
       console.log("[Resort debug] queueFetch called", { queueCount: queuedIds.length });
       queueFetch(queuedIds);
+      if(typeof PowderBuzzGuard!=="undefined") PowderBuzzGuard.updateFetchRemainingUi();
     });
 })();
 var el=document.getElementById("fetch-policy-desc");if(el) el.textContent="";

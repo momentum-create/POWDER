@@ -47,3 +47,4 @@
 - `tier: mock` ガイドリンク非表示
 - パウダー判定文言の弱め（「参考」表記）
 - Git 履歴の `.env` 実値チェック（問題なし）
+- **Buzz Guard**（`scripts/buzz-guard.js`、`_headers`、`vercel.json`、`api/forecast.js`）— 詳細は [docs/BUZZ-GUARD.md](BUZZ-GUARD.md)
