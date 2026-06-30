@@ -6,3 +6,5 @@ test-results/
 playwright-report/
 gemini_result_daily.md
 .cursor/debug*.log
+# 別プロジェクトの handoff が誤って置かれないよう
+docs/agent-handoff.md

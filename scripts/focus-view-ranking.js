@@ -109,11 +109,11 @@
 
     var verdict;
     if (level === "go") {
-      verdict = isJa ? "滑走 OK" : "Good to go";
+      verdict = isJa ? "条件良好（参考）" : "Favorable (ref.)";
     } else if (level === "nogo") {
-      verdict = isJa ? dayRef + "は厳しい" : "Not recommended";
+      verdict = isJa ? dayRef + "は参考上厳しめ" : dayRef + " unfavorable (ref.)";
     } else {
-      verdict = isJa ? dayRef + "は注意" : "Use caution";
+      verdict = isJa ? dayRef + "は参考上注意" : dayRef + " caution (ref.)";
     }
 
     var daySnow =

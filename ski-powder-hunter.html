@@ -590,6 +590,11 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
 .info-banner.open .info-banner-detail{display:block}
 .info-banner-toggle{font-size:8px;color:var(--accent);cursor:pointer;margin-top:2px;user-select:none}
 .info-banner-toggle:hover{text-decoration:underline}
+.site-footer{margin:8px 12px 12px;padding:8px 10px;border-top:1px solid var(--border);font-size:8px;color:var(--text-dim);line-height:1.45}
+.site-footer a{color:var(--accent)}
+.site-footer__disclaimer{margin:0 0 6px}
+.site-footer__sources,.site-footer__links{margin:4px 0 0}
+.popup-partner-note{font-size:8px;color:var(--text-dim);margin-top:2px;padding:0 6px}
 
 /* No results */
 .no-results{padding:30px 20px;text-align:center;color:var(--text-dim);font-size:12px}
@@ -2215,7 +2220,8 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
 
   <!-- Info banner（コンパクト＋折りたたみ） -->
   <div class="info-banner" id="info-banner">
-    <div class="info-banner-detail">降雪は標高補正済み。各ゲレンデの緯度・経度・標高でOpen-Meteoを取得するため、近くでもグリッド差で数値が異なる場合があります（「付近」表記で別地点の予報を参照することがあります）。警報・注意報は<a href="https://www.jma.go.jp/jma/kishou/know/kurashi/snow.html" target="_blank" rel="noopener" style="color:var(--accent)">気象庁</a>で確認してください。</div>
+    <strong>❄️ パウダースコア</strong>は予報降雪・風・気温から算出した<strong>参考指数</strong>です。滑走可否・安全判断は<strong>行いません</strong>。ゲレンデ公式・<a href="https://www.jma.go.jp/jma/kishou/know/kurashi/snow.html" target="_blank" rel="noopener" style="color:var(--accent)">気象庁</a>・現地確認が最優先です（ベータ・個人開発）。
+    <div class="info-banner-detail">降雪は標高補正済み。各ゲレンデの緯度・経度・標高で Open-Meteo を取得するため、近くでもグリッド差で数値が異なる場合があります（「付近」表記で別地点の予報を参照することがあります）。警報・注意報は気象庁で確認してください。雪崩・バックカントリー・オフピステは対象外です。3〜4日先は目安、以降は変動しやすいです。</div>
     <div class="info-banner-toggle" id="info-banner-toggle">▼ 詳しく</div>
   </div>
 
@@ -2237,6 +2243,11 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
   </div>
 
   <div class="resort-list" id="resort-list"></div>
+  <footer class="site-footer" id="site-footer">
+    <p class="site-footer__disclaimer">本サービスは娯楽・情報整理目的の参考表示です。公式予報・リゾート公式・現地判断を優先してください。利用は自己責任です。</p>
+    <p class="site-footer__sources">データ出典: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> · <a href="https://www.jma.go.jp/" target="_blank" rel="noopener">気象庁</a>（積雪・タイル） · <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> · <a href="https://carto.com/attributions/" target="_blank" rel="noopener">CARTO</a></p>
+    <p class="site-footer__links"><a href="privacy.html">プライバシー</a> · <a href="https://github.com/momentum-create/POWDER" target="_blank" rel="noopener">GitHub</a></p>
+  </footer>
 </div>
 
 <div class="map-stage" id="map-stage">
@@ -4636,7 +4647,7 @@ function selectResort(id, opts){
       contentHtml+=`</div></div>`;
     }
     if(r.region==="hokkaido" && isMobilePopup){
-      contentHtml+=`<div class="popup-nearby popup-partner-shop"><div class="popup-nearby-title">おすすめショップ</div><a class="popup-nearby-item" href="${PARTNER_SHOP.url}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit;display:flex;justify-content:space-between;align-items:center;gap:8px;padding:4px 6px;border-radius:6px;"><span>${PARTNER_SHOP.name}</span><span style="color:var(--accent);font-size:10px">地図 ↗</span></a></div>`;
+      contentHtml+=`<div class="popup-nearby popup-partner-shop"><div class="popup-nearby-title">おすすめショップ（運営者関係）</div><a class="popup-nearby-item" href="${PARTNER_SHOP.url}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit;display:flex;justify-content:space-between;align-items:center;gap:8px;padding:4px 6px;border-radius:6px;"><span>${PARTNER_SHOP.name}</span><span style="color:var(--accent);font-size:10px">地図 ↗</span></a><div class="popup-partner-note">運営者との関係で掲載している紹介リンクです（広告ではありません）。</div></div>`;
     }
     if(isMobilePopup){
     contentHtml+=`<div class="popup-feedback"><button class="popup-feedback-btn" onclick="openFeedback('closed',${id})">営業してなかった</button><button class="popup-feedback-btn" onclick="openFeedback('low-snow',${id})">積雪がもっと少なかった</button></div>`;
@@ -4725,6 +4736,7 @@ function selectResort(id, opts){
 function getResortGuideUrl(resortId){
   const g=RESORT_GUIDES&&RESORT_GUIDES.guides&&RESORT_GUIDES.guides[String(resortId)];
   if(!g) return null;
+  if(g.tier==="mock"||g.tier==="draft") return null;
   const isEn=document.documentElement.lang==="en"
     ||/-en\.html$/i.test(location.pathname)
     ||new URLSearchParams(location.search).get("lang")==="en";
@@ -4916,31 +4928,16 @@ function refreshJmaSnowTimeInBackground(kind){
       const latest = await fetchJmaSnowLatestTime(myKind);
       if(jmaSnowKind !== myKind || !jmaSnowLayer) return;
       if(!latest){
-        // #region agent log
-        try{
-          fetch("http://127.0.0.1:7504/ingest/7a45a88b-734e-4e06-9139-2646ed4e0f41",{method:"POST",headers:{"Content-Type":"application/json","X-Debug-Session-Id":"e56e9e"},body:JSON.stringify({sessionId:"e56e9e",location:"ski-powder-hunter.html:refreshJmaSnowTimeInBackground",message:"jma bg refresh no latest",data:{kind:myKind,elapsedMs:Date.now()-t0},timestamp:Date.now(),hypothesisId:"H-instant"})}).catch(function(){});
-        }catch(_){}
-        // #endregion
         return;
       }
       const prev = jmaSnowTimeStrByKind ? (jmaSnowTimeStrByKind[myKind] || null) : null;
       if(prev === latest){
         writeJmaSnowStoredTime(myKind, latest);
-        // #region agent log
-        try{
-          fetch("http://127.0.0.1:7504/ingest/7a45a88b-734e-4e06-9139-2646ed4e0f41",{method:"POST",headers:{"Content-Type":"application/json","X-Debug-Session-Id":"e56e9e"},body:JSON.stringify({sessionId:"e56e9e",location:"ski-powder-hunter.html:refreshJmaSnowTimeInBackground",message:"jma bg refresh same latest",data:{kind:myKind,latest,elapsedMs:Date.now()-t0},timestamp:Date.now(),hypothesisId:"H-instant"})}).catch(function(){});
-        }catch(_){}
-        // #endregion
         return;
       }
       const renderable = await isJmaSnowTimeRenderable(myKind, latest);
       if(jmaSnowKind !== myKind || !jmaSnowLayer) return;
       if(!renderable.hit){
-        // #region agent log
-        try{
-          fetch("http://127.0.0.1:7504/ingest/7a45a88b-734e-4e06-9139-2646ed4e0f41",{method:"POST",headers:{"Content-Type":"application/json","X-Debug-Session-Id":"e56e9e"},body:JSON.stringify({sessionId:"e56e9e",location:"ski-powder-hunter.html:refreshJmaSnowTimeInBackground",message:"jma bg refresh latest not renderable",data:{kind:myKind,latest,elapsedMs:Date.now()-t0},timestamp:Date.now(),hypothesisId:"H-instant"})}).catch(function(){});
-        }catch(_){}
-        // #endregion
         return;
       }
       jmaSnowTimeStrByKind[myKind] = latest;
@@ -4948,11 +4945,7 @@ function refreshJmaSnowTimeInBackground(kind){
       const urlPattern = buildJmaSnowTileUrl(myKind, latest);
       if(urlPattern) jmaSnowLayer.setUrl(urlPattern);
       writeJmaSnowStoredTime(myKind, latest);
-      // #region agent log
-      try{
-        fetch("http://127.0.0.1:7504/ingest/7a45a88b-734e-4e06-9139-2646ed4e0f41",{method:"POST",headers:{"Content-Type":"application/json","X-Debug-Session-Id":"e56e9e"},body:JSON.stringify({sessionId:"e56e9e",location:"ski-powder-hunter.html:refreshJmaSnowTimeInBackground",message:"jma bg refresh applied new timeStr",data:{kind:myKind,prev,latest,elapsedMs:Date.now()-t0},timestamp:Date.now(),hypothesisId:"H-instant"})}).catch(function(){});
-      }catch(_){}
-      // #endregion
+      refreshJmaMeshSnowCache(myKind, latest);
       console.log("[JMA snow debug] bg refresh applied", { kind: myKind, prev, latest, elapsedMs: Date.now() - t0 });
     }catch(e){
       console.warn("[JMA snow debug] bg refresh error", e);
@@ -4965,12 +4958,6 @@ const JmaSnowTileLayer = L.TileLayer.extend({
     var z = L.GridLayer.prototype._clampZoom.call(this, zoom);
     if(z === undefined){ return z; }
     if((z % 2) === 1){
-      // #region agent log
-      try{
-        var mz = Math.round(zoom);
-        fetch("http://127.0.0.1:7504/ingest/7a45a88b-734e-4e06-9139-2646ed4e0f41",{method:"POST",headers:{"Content-Type":"application/json","X-Debug-Session-Id":"e56e9e"},body:JSON.stringify({sessionId:"e56e9e",location:"ski-powder-hunter.html:JmaSnowTileLayer._clampZoom",message:"jma tile zoom forced even",data:{mapRoundedZoom:mz,nativeZoomBefore:z,tileZoomAfter:z-1},timestamp:Date.now(),hypothesisId:"H-evenZ"})}).catch(function(){});
-      }catch(_){}
-      // #endregion
       z--;
     }
     return z;
@@ -5361,11 +5348,6 @@ async function ensureJmaSnowLayer(kind){
     const layerTry = mountJmaSnowLayerFromTimeStr(kind, stored);
     if(layerTry){
       console.log("[JMA snow debug] instant path (localStorage)", { kind, timeStr: stored });
-      // #region agent log
-      try{
-        fetch("http://127.0.0.1:7504/ingest/7a45a88b-734e-4e06-9139-2646ed4e0f41",{method:"POST",headers:{"Content-Type":"application/json","X-Debug-Session-Id":"e56e9e"},body:JSON.stringify({sessionId:"e56e9e",location:"ski-powder-hunter.html:ensureJmaSnowLayer",message:"jma instant path applied",data:{kind,timeStr:stored},timestamp:Date.now(),hypothesisId:"H-instant"})}).catch(function(){});
-      }catch(_){}
-      // #endregion
       refreshJmaSnowTimeInBackground(kind);
       return layerTry;
     }

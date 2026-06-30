@@ -1,7 +1,26 @@
 ﻿# Japowserch (JAPOWSERCH)
 
-日本のスキー場情報を扱う本体プロジェクトです。ブランド名は **Japowserch**。ローカルの作業フォルダは **JAPOWSERCH**（例: `デスクトップ\Cloude\JAPOWSERCH`）。GitHub 上のリポジトリ名は **`japowserch`** を推奨しますが、既存の別名でも問題ありません。  
+日本のスキー場情報を扱う本体プロジェクトです（**ベータ・個人開発**）。ブランド名は **Japowserch**。ローカルの作業フォルダは **JAPOWSERCH**（例: `デスクトップ\Cloude\JAPOWSERCH`）。GitHub 上のリポジトリ名は **`japowserch`** を推奨しますが、既存の別名でも問題ありません。  
 このリポジトリ内で、必要に応じて Gemini 連携（文案生成・補助）も使える構成にしています。
+
+**正規リポジトリ:** https://github.com/momentum-create/POWDER  
+**ライセンス:** [MIT](LICENSE) · **プライバシー:** [privacy.html](privacy.html)  
+**Reddit 等の公開時:** [docs/REDDIT-PUBLISH.md](docs/REDDIT-PUBLISH.md)
+
+## 免責（要約）
+
+本アプリのスコア・ランキングは**参考指数**であり、滑走可否・安全判断・公式予報の代替ではありません。ゲレンデ公式・気象庁・現地判断を優先してください。
+
+## データ出典
+
+| データ | 出典 |
+|--------|------|
+| 予報（降雪・風・気温） | [Open-Meteo](https://open-meteo.com/) |
+| 積雪観測・降雪タイル | [気象庁](https://www.jma.go.jp/) |
+| 地図 | [OpenStreetMap](https://www.openstreetmap.org/copyright) · [CARTO](https://carto.com/attributions/) |
+| ゲレンデ名・座標等 | リポジトリ内 `data/`（手動・スクリプト整備） |
+
+第三者データの利用・再配布は各提供元の条件に従います。詳細は各 HTML フッターも参照。
 
 ## プロジェクト構成
 
@@ -30,7 +49,7 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
-`.env` に `GEMINI_API_KEY=...` を設定（`.env.example` 参照）。
+`.env` に `GEMINI_API_KEY=...` を設定（`.env.example` 参照）。**`.env` はコミットしない。**
 
 ## Git（push はこのフォルダから）
 
@@ -59,3 +78,7 @@ GitHub Desktop を使う場合も、**ローカルリポジトリのパスを `J
 - `JAPOWSERCH` で Japowserch 本体の作業を継続（ローカルは OneDrive からデスクトップへ移動済み）
 - Gemini は「必要な作業だけ」補助的に利用
 - `momentumX` は別運用（内容を自動共有しない）
+
+## セキュリティ
+
+公開前監査メモ: [docs/SECURITY-AUDIT-2026-06-30.md](docs/SECURITY-AUDIT-2026-06-30.md)
