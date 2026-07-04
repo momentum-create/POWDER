@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>JapawSearch</title>
+<title>Japowsearch</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=DM+Serif+Display:ital@0;1&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
@@ -1840,7 +1840,7 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
 <header>
   <div class="header-inner">
     <div class="logo">
-      <span class="logo-main">JapawSearch</span>
+      <span class="logo-main">Japowsearch</span>
       <span class="logo-tag"></span>
     </div>
     <div class="header-right">
@@ -1916,7 +1916,7 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
   <div class="hw-strip">
     <div class="hw-deadzone" aria-hidden="true"></div>
     <div class="hw-strip-main">
-      <span class="brand">JapawSearch</span>
+      <span class="brand">Japowsearch</span>
       <span class="hw-strip-hint">Display only</span>
     </div>
   </div>
@@ -2307,8 +2307,8 @@ function updatePrevDayJmaChips(){
 let resortSnowCache = {};  // id -> { depth_cm, updated_at }（ゲレンデ公表・data/resort-snow.json または RESORTS.snowDepth）
 let liftTimesCache = {};   // id -> "8:00"（リフト開始・data/lift-times.json or RESORTS[].liftStart）
 let operatingCache = {};   // id -> { open: "12-01", close: "04-30" }（営業期間・data/resort-operating.json or RESORTS）
-let RESORT_GUIDES = null;  // guides.japowserch.com integration (remote JSON first)
-const RESORT_GUIDES_REMOTE_URL = "https://guides.japowserch.com/resort-guides.json";
+let RESORT_GUIDES = null;  // guides.japowsearch.com integration (remote JSON first)
+const RESORT_GUIDES_REMOTE_URL = "https://guides.japowsearch.com/resort-guides.json";
 let lastDataUpdated = null; // 表示用「最終更新」時刻（weather.json の Last-Modified または API 取得時）
 const fetchQueue = [];
 let fetchInFlight = 0;
@@ -4545,13 +4545,8 @@ function getResortGuideUrl(resortId){
   const g=RESORT_GUIDES&&RESORT_GUIDES.guides&&RESORT_GUIDES.guides[String(resortId)];
   if(!g) return null;
   if(g.tier==="mock"||g.tier==="draft") return null;
-  const isEn=document.documentElement.lang==="en"
-    ||/-en\.html$/i.test(location.pathname)
-    ||new URLSearchParams(location.search).get("lang")==="en";
-  if(isEn&&g.guideUrlEn) return g.guideUrlEn;
-  if(g.guideUrl) return g.guideUrl;
   if(!g.registryId) return null;
-  const base=(RESORT_GUIDES.baseUrl||"https://guides.japowserch.com").replace(/\/$/,"");
+  const base=(RESORT_GUIDES.baseUrl||"https://guides.japowsearch.com").replace(/\/$/,"");
   const q=isEn?"?lang=en":"";
   return base+"/"+g.registryId+"/"+q;
 }

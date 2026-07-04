@@ -1,4 +1,4 @@
-# Reddit 公開ガイド（JapawSerch / POWDER）
+# Reddit 公開ガイド（Japowsearch / POWDER）
 
 更新: 2026-06-30
 
@@ -7,11 +7,11 @@
 | 種別 | URL |
 |------|-----|
 | **GitHub（正）** | https://github.com/momentum-create/POWDER |
-| **公開サイト（JA）** | https://www.japowserch.com/ski-powder-hunter.html |
-| **公開サイト（EN）** | https://www.japowserch.com/ski-powder-hunter-en.html |
-| **トップ（リダイレクト等）** | https://www.japowserch.com/ |
+| **公開サイト（JA）** | https://www.japowsearch.com/ski-powder-hunter.html |
+| **公開サイト（EN）** | https://www.japowsearch.com/ski-powder-hunter-en.html |
+| **トップ（リダイレクト等）** | https://www.japowsearch.com/ |
 
-`Seeker-x1/POWDER` は fork 用。Reddit では **momentum-create/POWDER** と **www.japowserch.com** を貼る。
+`Seeker-x1/POWDER` は fork 用。Reddit では **momentum-create/POWDER** と **www.japowsearch.com** を貼る。
 
 > **用語:** 「公開 URL」= 一般ユーザーがブラウザで開く本番サイト（上表）。「デモ URL」は同じものを指していた（別環境の staging はない）。Reddit には GitHub + 公開サイトのどちらか、または両方。
 
@@ -61,7 +61,7 @@ GitHub: https://github.com/momentum-create/POWDER
 
 ## 投稿文案（英語・r/SideProject 向け例）
 
-> **[Beta] JapawSerch — Japan ski resort powder forecast dashboard (personal project)**  
+> **[Beta] Japowsearch — Japan ski resort powder forecast dashboard (personal project)**  
 > Static HTML map + ranking for ~450 JP resorts. Combines Open-Meteo forecasts with JMA snow observations/tiles. **Reference only — not safety or go/no-go advice.** Avalanche/backcountry out of scope.  
 > GitHub: https://github.com/momentum-create/POWDER  
 > Feedback on data bugs welcome.

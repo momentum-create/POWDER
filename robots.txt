@@ -1,6 +1,6 @@
-# Japowserch — Search Console 用（クロール許可 + サイトマップ）
+# Japowsearch — Search Console 用（クロール許可 + サイトマップ）
 # カスタムドメインが apex のみの場合は、Search Console のプロパティと合わせて Sitemap URL を書き換えてください。
 User-agent: *
 Allow: /
 
-Sitemap: https://www.japowserch.com/sitemap.xml
+Sitemap: https://www.japowsearch.com/sitemap.xml

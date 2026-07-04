@@ -1,5 +1,5 @@
 {
-  "baseUrl": "https://guides.japowserch.com",
+  "baseUrl": "https://guides.japowsearch.com",
   "defaultLocale": "ja",
   "guides": {
     "8":   { "registryId": "asahigaoka",     "tier": "mock" },
