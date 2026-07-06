@@ -4545,7 +4545,7 @@ function getResortGuideUrl(resortId){
   const g=RESORT_GUIDES&&RESORT_GUIDES.guides&&RESORT_GUIDES.guides[String(resortId)];
   if(!g||!g.registryId) return null;
   const base=(RESORT_GUIDES.baseUrl||"https://guides.japowserch.com").replace(/\/$/,"");
-  const q=isEn?"?lang=en":"";
+  const q=(document.documentElement.lang||"").toLowerCase().indexOf("en")===0?"?lang=en":"";
   return base+"/"+g.registryId+"/"+q;
 }
 function loadResortGuides(){
