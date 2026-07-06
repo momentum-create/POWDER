@@ -2493,8 +2493,8 @@ function updatePrevDayJmaChips(){
 let resortSnowCache = {};  // id -> { depth_cm, updated_at }（ゲレンデ公表・data/resort-snow.json または RESORTS.snowDepth）
 let liftTimesCache = {};   // id -> "8:00"（リフト開始時刻・data/lift-times.json または RESORTS[].liftStart）
 let operatingCache = {};   // id -> { open: "12-01", close: "04-30" }（営業期間・data/resort-operating.json または RESORTS[].openDate/closeDate）
-let RESORT_GUIDES = null;  // guides.japowsearch.com 連携（本番 JSON 優先）
-const RESORT_GUIDES_REMOTE_URL = "https://guides.japowsearch.com/resort-guides.json";
+let RESORT_GUIDES = null;  // guides.japowserch.com 連携（本番 JSON 優先）
+const RESORT_GUIDES_REMOTE_URL = "https://guides.japowserch.com/resort-guides.json";
 let lastDataUpdated = null; // 表示用「最終更新」時刻（weather.json の Last-Modified または API 取得時）
 const fetchQueue = [];
 let fetchInFlight = 0;
@@ -4749,10 +4749,8 @@ function selectResort(id, opts){
 
 function getResortGuideUrl(resortId){
   const g=RESORT_GUIDES&&RESORT_GUIDES.guides&&RESORT_GUIDES.guides[String(resortId)];
-  if(!g) return null;
-  if(g.tier==="mock"||g.tier==="draft") return null;
-  if(!g.registryId) return null;
-  const base=(RESORT_GUIDES.baseUrl||"https://guides.japowsearch.com").replace(/\/$/,"");
+  if(!g||!g.registryId) return null;
+  const base=(RESORT_GUIDES.baseUrl||"https://guides.japowserch.com").replace(/\/$/,"");
   const q=isEn?"?lang=en":"";
   return base+"/"+g.registryId+"/"+q;
 }
