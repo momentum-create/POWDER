@@ -1,0 +1,74 @@
+[
+  {
+    "id": "hokkaido",
+    "nameJa": "北海道",
+    "nameEn": "Hokkaido",
+    "titleJa": "北海道のスキー場 パウダーランキング・積雪予報",
+    "titleEn": "Hokkaido ski resorts | Powder ranking",
+    "descriptionJa": "北海道のスキー場をパウダースコア・積雪・気象データで比較。ニセコ・ルスツ・キロロなど人気ゲレンデの降雪見通しをJapowsearchで確認。",
+    "descriptionEn": "Compare Hokkaido ski resorts by powder score, snowfall, and JMA weather. Niseko, Rusutsu, Kiroro and more on Japowsearch."
+  },
+  {
+    "id": "tohoku",
+    "nameJa": "東北",
+    "nameEn": "Tohoku",
+    "titleJa": "東北のスキー場 パウダーランキング・積雪予報",
+    "titleEn": "Tohoku ski resorts | Powder ranking",
+    "descriptionJa": "東北エリアのスキー場をパウダースコア順にランキング。青森・岩手・秋田・山形・福島の積雪・風・気温をひとつの画面で比較。",
+    "descriptionEn": "Powder ranking for Tohoku ski areas—Aomori, Iwate, Akita, Yamagata, Fukushima—with snowfall and wind data."
+  },
+  {
+    "id": "niigata",
+    "nameJa": "新潟",
+    "nameEn": "Niigata",
+    "titleJa": "新潟のスキー場 パウダーランキング・積雪予報",
+    "titleEn": "Niigata ski resorts | Powder ranking",
+    "descriptionJa": "新潟県のスキー場を降雪量・パウダースコアで比較。苗場・湯沢高原・ガーラ湯沢など、日付を選んでTOP10を確認。",
+    "descriptionEn": "Niigata ski resorts ranked by powder score and snowfall—Myoko, Yuzawa, Gala, and more on Japowsearch."
+  },
+  {
+    "id": "nagano",
+    "nameJa": "長野",
+    "nameEn": "Nagano",
+    "titleJa": "長野のスキー場 パウダーランキング・積雪予報",
+    "titleEn": "Nagano ski resorts | Powder ranking",
+    "descriptionJa": "長野県のスキー場をパウダースコア・積雪で比較。白馬・志賀・野沢温泉・戸狩など、気象庁データ付きランキング。",
+    "descriptionEn": "Nagano powder ranking—Hakuba, Shiga, Nozawa, Togari—with JMA snowfall and weather in one view."
+  },
+  {
+    "id": "chubu",
+    "nameJa": "中部（甲信越・北陸）",
+    "nameEn": "Chubu",
+    "titleJa": "中部・甲信越のスキー場 パウダーランキング",
+    "titleEn": "Chubu ski resorts | Powder ranking",
+    "descriptionJa": "山梨・富山・石川・福井など中部エリアのスキー場をパウダースコア順に表示。降雪予報と風の弱い順ソートも可能。",
+    "descriptionEn": "Chubu region ski resorts by powder score—Yamanashi, Toyama, Ishikawa—with snowfall forecasts."
+  },
+  {
+    "id": "kanto",
+    "nameJa": "関東",
+    "nameEn": "Kanto",
+    "titleJa": "関東のスキー場 パウダーランキング・積雪予報",
+    "titleEn": "Kanto ski resorts | Powder ranking",
+    "descriptionJa": "関東近郊のスキー場を日付別にランキング。栃木・群馬のゲレンデの積雪・パウダー見通しをマップと一覧で比較。",
+    "descriptionEn": "Kanto ski areas near Tokyo—Tochigi, Gunma—ranked by powder score and snowfall forecast."
+  },
+  {
+    "id": "kansai",
+    "nameJa": "関西",
+    "nameEn": "Kansai",
+    "titleJa": "関西のスキー場 パウダーランキング",
+    "titleEn": "Kansai ski resorts | Powder ranking",
+    "descriptionJa": "関西エリアのスキー場をパウダースコア・降雪量で比較。三重・滋賀などのゲレンデ情報と気象データ。",
+    "descriptionEn": "Kansai ski resorts compared by powder score and snowfall—Mie, Shiga, and nearby areas."
+  },
+  {
+    "id": "chugoku",
+    "nameJa": "中国・四国",
+    "nameEn": "Chugoku & Shikoku",
+    "titleJa": "中国・四国のスキー場 パウダーランキング",
+    "titleEn": "Chugoku & Shikoku ski resorts",
+    "descriptionJa": "中国・四国エリアのスキー場をパウダースコア順に表示。鳥取・広島・愛媛などの積雪・気象データ。",
+    "descriptionEn": "Chugoku and Shikoku ski areas ranked by powder score with snowfall and weather data."
+  }
+]
