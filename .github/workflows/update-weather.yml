@@ -5,11 +5,13 @@ on:
   schedule:
     - cron: "0 * * * *"   # 毎時 0 分（UTC）。日本時間では 9:00, 10:00, ... など
     - cron: "15 * * * *"  # フェイルオーバー用（runner 取得失敗時の取りこぼしを減らす）
+    - cron: "30 * * * *"  # フェイルオーバー2
+    - cron: "45 * * * *"  # フェイルオーバー3
   workflow_dispatch:      # 手動実行も可能
 
 concurrency:
   group: update-weather-cache
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 permissions:
   contents: write
@@ -17,8 +19,8 @@ permissions:
 
 jobs:
   update:
-    runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -43,8 +45,16 @@ jobs:
             echo "No changes to weather cache."
           else
            git commit -m "chore: update weather cache [automated]"
-            git pull --rebase origin main
-            git push origin main
+            for i in 1 2 3 4 5; do
+              if git pull --rebase -X theirs origin main && git push origin HEAD:main; then
+                echo "Push succeeded on attempt ${i}."
+                exit 0
+              fi
+              echo "Push race detected (attempt ${i}/5), retrying..."
+              sleep 5
+            done
+            echo "Failed to push after 5 attempts."
+            exit 1
           fi
 
   notify-failure:

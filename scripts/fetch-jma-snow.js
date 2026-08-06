@@ -163,10 +163,18 @@ async function main() {
   let sncCsvText;
   try {
     const res = await fetch(JMA_SNC_CSV_URL, { headers: { "User-Agent": "SkiResortGuide/1.0" } });
+    if (res.status === 404) {
+      console.error("気象庁積雪CSVはオフシーズンのため未公開 (404)。既存キャッシュを維持します。");
+      process.exit(0);
+    }
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     sncCsvText = await res.text();
   } catch (e) {
     console.error("気象庁積雪CSVの取得に失敗しました:", e.message);
+    if (fs.existsSync(outPath)) {
+      console.error("既存の data/jma-snow.json を維持して終了します。");
+      process.exit(0);
+    }
     process.exit(1);
   }
 
