@@ -7,7 +7,7 @@
 const fs = require("fs");
 const path = require("path");
 
-const htmlPath = path.join(__dirname, "..", "ski-powder-hunter.html");
+const htmlPath = path.join(__dirname, "..", "index.html");
 const stationsPath = path.join(__dirname, "..", "data", "amedas-stations.json");
 const outPath = path.join(__dirname, "..", "data", "jma-snow.json");
 

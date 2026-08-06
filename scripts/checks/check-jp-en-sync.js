@@ -6,7 +6,7 @@ const fs = require("fs");
 const path = require("path");
 
 const root = path.resolve(__dirname, "../..");
-const ja = fs.readFileSync(path.join(root, "ski-powder-hunter.html"), "utf8");
+const ja = fs.readFileSync(path.join(root, "index.html"), "utf8");
 const en = fs.readFileSync(path.join(root, "ski-powder-hunter-en.html"), "utf8");
 
 const pairs = [

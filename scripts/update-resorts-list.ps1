@@ -1,5 +1,5 @@
 # ゲレンデ名の置き換えスクリプト（UTF-8 で読み書き）
-# 次の3ファイルを一括更新: RESORTS一覧.txt, ski-powder-hunter.html, ski-powder-hunter-en.html
+# 次の3ファイルを一括更新: RESORTS一覧.txt, index.html, ski-powder-hunter-en.html
 #
 # 使い方:
 #   .\update-resorts-list.ps1 -Old "旧ゲレンデ名" -New "新ゲレンデ名"
@@ -23,7 +23,7 @@ $files = @(
         Utf8Bom = $true
     },
     @{
-        Path = Join-Path $rootDir "ski-powder-hunter.html"
+        Path = Join-Path $rootDir "index.html"
         Utf8Bom = $false
     },
     @{

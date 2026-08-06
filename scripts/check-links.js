@@ -1,6 +1,6 @@
 /**
  * ゲレンデ公式URLのリンク確認スクリプト
- * ski-powder-hunter.html から RESORTS を読み取り、各 url に HEAD リクエストを送って確認する。
+ * index.html から RESORTS を読み取り、各 url に HEAD リクエストを送って確認する。
  * 使い方: node scripts/check-links.js
  */
 const fs = require('fs');
@@ -8,7 +8,7 @@ const path = require('path');
 const https = require('https');
 const http = require('http');
 
-const htmlPath = path.join(__dirname, '..', 'ski-powder-hunter.html');
+const htmlPath = path.join(__dirname, '..', 'index.html');
 const html = fs.readFileSync(htmlPath, 'utf8');
 
 // RESORTS 配列を抽出（括弧のバランスを取る）

@@ -1,6 +1,6 @@
 const fs = require("fs");
 const path = require("path");
-const htmlPath = path.join(__dirname, "..", "ski-powder-hunter.html");
+const htmlPath = path.join(__dirname, "..", "index.html");
 const html = fs.readFileSync(htmlPath, "utf8");
 
 const startMarker = "const RESORTS = ";

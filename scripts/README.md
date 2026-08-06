@@ -5,7 +5,7 @@
 **update-resorts-list.ps1** … ゲレンデ名の変更時に、次の3ファイルを一括で置換します。
 
 - RESORTS一覧.txt
-- ski-powder-hunter.html
+- index.html
 - ski-powder-hunter-en.html
 
 UTF-8 で読み書きするため、日本語の名前変更でも確実に置換できます。

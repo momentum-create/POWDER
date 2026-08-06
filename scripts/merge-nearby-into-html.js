@@ -1,12 +1,12 @@
 /**
- * data/nearby.json を読み、各リゾートに nearby を追加して ski-powder-hunter.html の RESORTS を更新する。
+ * data/nearby.json を読み、各リゾートに nearby を追加して index.html の RESORTS を更新する。
  * 実行: node scripts/merge-nearby-into-html.js
  * 前提: 先に node scripts/nearby-driving.js で data/nearby.json を生成しておく。
  */
 const fs = require("fs");
 const path = require("path");
 
-const htmlPath = path.join(__dirname, "..", "ski-powder-hunter.html");
+const htmlPath = path.join(__dirname, "..", "index.html");
 const nearbyPath = path.join(__dirname, "..", "data", "nearby.json");
 
 const html = fs.readFileSync(htmlPath, "utf8");

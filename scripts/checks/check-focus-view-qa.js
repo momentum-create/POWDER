@@ -326,7 +326,7 @@ async function main() {
     { w: 390, h: 844 },
     { w: 700, h: 900 },
   ];
-  const files = ["ski-powder-hunter.html", "ski-powder-hunter-en.html"];
+  const files = ["index.html", "ski-powder-hunter-en.html"];
   const browser = await chromium.launch({ headless: true });
   const context = await browser.newContext();
   const page = await context.newPage();

@@ -9,7 +9,7 @@
 const fs = require("fs");
 const path = require("path");
 
-const htmlPath = path.join(__dirname, "..", "ski-powder-hunter.html");
+const htmlPath = path.join(__dirname, "..", "index.html");
 const outPath = path.join(__dirname, "..", "data", "weather.json");
 
 // 1 リクエストあたりの最大待機 (ms)。これを超えたら諦めて次に進む。

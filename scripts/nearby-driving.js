@@ -7,7 +7,7 @@ const fs = require("fs");
 const path = require("path");
 const https = require("https");
 
-const htmlPath = path.join(__dirname, "..", "ski-powder-hunter.html");
+const htmlPath = path.join(__dirname, "..", "index.html");
 const dataDir = path.join(__dirname, "..", "data");
 const outPath = path.join(dataDir, "nearby.json");
 const cachePath = path.join(dataDir, "nearby-osrm-cache.json");

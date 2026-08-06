@@ -4,10 +4,10 @@
 const fs = require("fs");
 const path = require("path");
 
-const htmlPath = path.join(__dirname, "..", "ski-powder-hunter.html");
+const htmlPath = path.join(__dirname, "..", "index.html");
 const jmaPath = path.join(__dirname, "..", "data", "jma-snow.json");
 
-// ski-powder-hunter.html から RESORTS 配列を抜き出す
+// index.html から RESORTS 配列を抜き出す
 function extractResorts(html) {
   const startMarker = "const RESORTS = ";
   const startIdx = html.indexOf(startMarker);

@@ -6,7 +6,7 @@ const fs = require("fs");
 const path = require("path");
 
 const root = path.resolve(__dirname, "../..");
-const files = ["ski-powder-hunter.html", "ski-powder-hunter-en.html"].map((f) =>
+const files = ["index.html", "ski-powder-hunter-en.html"].map((f) =>
   path.join(root, f)
 );
 

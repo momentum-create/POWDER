@@ -4,7 +4,7 @@
 const fs = require("fs");
 const path = require("path");
 
-const htmlPath = path.join(__dirname, "..", "ski-powder-hunter.html");
+const htmlPath = path.join(__dirname, "..", "index.html");
 const jmaPath = path.join(__dirname, "..", "data", "jma-snow.json");
 
 const THRESHOLD_KM = 200;

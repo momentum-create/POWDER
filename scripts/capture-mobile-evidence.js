@@ -1,7 +1,7 @@
 const { chromium } = require("playwright");
 const path = require("path");
 
-const BASE_URL = "http://127.0.0.1:4173/ski-powder-hunter.html";
+const BASE_URL = "http://127.0.0.1:4173/";
 const OUT_DIR = path.resolve(__dirname, "..", "docs", "qa", "evidence", "2026-03-23-mobile-pass");
 
 async function clickByLabels(page, labels) {
