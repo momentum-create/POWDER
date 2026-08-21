@@ -12,9 +12,9 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, "..");
-const site = "https://www.japowsearch.com";
+const site = "https://japowsearch.com";
 const ogImage = `${site}/assets/track-final-dumps-poster.png`;
-const today = "2026-08-04";
+const today = "2026-08-22";
 
 const regions = JSON.parse(
   fs.readFileSync(path.join(root, "data", "seo-regions.json"), "utf8"),

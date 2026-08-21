@@ -72,7 +72,7 @@ GitHub Desktop を使う場合も、**ローカルリポジトリのパスを `J
 
 ## 運用方針
 
-- 本番サイト: https://www.japowsearch.com/
+- 本番サイト: https://japowsearch.com/
 - データ更新: GitHub Actions（[docs/OPS-WEATHER.md](docs/OPS-WEATHER.md)）
 - エージェント・UX 仕様・手順書は **リポジトリ外（ローカルの `.claude/` 等）** で管理
 

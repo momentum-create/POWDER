@@ -7,11 +7,11 @@
 | 種別 | URL |
 |------|-----|
 | **GitHub（正）** | https://github.com/momentum-create/POWDER |
-| **公開サイト（JA）** | https://www.japowsearch.com/ski-powder-hunter.html |
-| **公開サイト（EN）** | https://www.japowsearch.com/ski-powder-hunter-en.html |
-| **トップ（リダイレクト等）** | https://www.japowsearch.com/ |
+| **公開サイト（JA）** | https://japowsearch.com/ |
+| **公開サイト（EN）** | https://japowsearch.com/ski-powder-hunter-en.html |
+| **トップ** | https://japowsearch.com/ |
 
-`Seeker-x1/POWDER` は fork 用。Reddit では **momentum-create/POWDER** と **www.japowsearch.com** を貼る。
+`Seeker-x1/POWDER` は fork 用。Reddit では **momentum-create/POWDER** と **japowsearch.com** を貼る。
 
 > **用語:** 「公開 URL」= 一般ユーザーがブラウザで開く本番サイト（上表）。「デモ URL」は同じものを指していた（別環境の staging はない）。Reddit には GitHub + 公開サイトのどちらか、または両方。
 
