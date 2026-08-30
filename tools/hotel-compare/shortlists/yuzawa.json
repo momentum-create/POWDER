@@ -1,0 +1,90 @@
+{
+  "hub": "yuzawa",
+  "title": "Yuzawa hub",
+  "headline": "Quote the Echigo-Yuzawa shortlist",
+  "lede": "Enter dates once. Bulk quote opens Hotellook for Yuzawa. West-exit walk hotels first; NASPA and Sierra use hotel shuttles — still the same station knot at night.",
+  "destinations": {
+    "hotellook": "Yuzawa",
+    "agodaCity": "yuzawa-jp",
+    "bookingSs": "Echigo-Yuzawa"
+  },
+  "hotels": [
+    {
+      "id": "inamoto",
+      "name": "Inamoto",
+      "meta": "Closest onsen walk · west exit ~2 min",
+      "official": "https://www.oyadoinamoto.jp/",
+      "agoda": "echigo-no-oyado-inamoto",
+      "booking": "echigo-no-oyado-inamoto",
+      "tripcom": "",
+      "phone": "025-784-2251",
+      "bookOfficialFirst": true
+    },
+    {
+      "id": "yuzawa-grand",
+      "name": "Yuzawa Grand Hotel",
+      "meta": "~2 min walk · easy Path B parking",
+      "official": "https://yuzawagrandhotel.jp/en/",
+      "agoda": "yuzawa-grand-hotel",
+      "booking": "yuzawa-grand-hotel",
+      "tripcom": "",
+      "phone": "",
+      "bookOfficialFirst": false
+    },
+    {
+      "id": "hatago-isen",
+      "name": "HATAGO Isen",
+      "meta": "Room-only / English desk · station-front",
+      "official": "https://hatago-isen.jp/reservation/",
+      "agoda": "ryokan-echigo-yuzawa-hatago-isen",
+      "booking": "ryokan-echigo-yuzawa-hatago-isen",
+      "tripcom": "",
+      "phone": "025-784-3361",
+      "bookOfficialFirst": false
+    },
+    {
+      "id": "kagetsu",
+      "name": "Shosenkaku Kagetsu",
+      "meta": "2-meal kaiseki · west exit ~5 min",
+      "official": "https://www.shousenkaku-kagetsu.com/",
+      "agoda": "echigoyuzawa-onsen-shosenkaku-kagetsu-ryokan",
+      "booking": "echigoyuzawa-onsen-shosenkaku-kagetsu-ryokan",
+      "tripcom": "",
+      "phone": "025-784-2540",
+      "bookOfficialFirst": false
+    },
+    {
+      "id": "futaba",
+      "name": "Hotel Futaba",
+      "meta": "2-meal + hilltop · west exit ~7 min",
+      "official": "https://hotel-futaba.com/",
+      "agoda": "hotel-futaba",
+      "booking": "hotel-futaba-yuzawa",
+      "tripcom": "",
+      "phone": "025-784-3357",
+      "bookOfficialFirst": false
+    },
+    {
+      "id": "naspa",
+      "name": "NASPA New Otani",
+      "meta": "West shuttle · biggest Path B lot",
+      "official": "https://www.naspa.co.jp/",
+      "agoda": "naspa-new-otani",
+      "booking": "naspa-new-otani",
+      "tripcom": "",
+      "phone": "025-780-6111",
+      "bookOfficialFirst": false
+    },
+    {
+      "id": "sierra",
+      "name": "Hotel Sierra Resort Yuzawa",
+      "meta": "East shuttle · Iwappara side",
+      "official": "https://sierraresort.jp/yuzawa/",
+      "agoda": "sierra-resort-yuzawa",
+      "booking": "sierra-resort-yuzawa",
+      "tripcom": "",
+      "phone": "025-787-3250",
+      "bookOfficialFirst": false
+    }
+  ]
+}

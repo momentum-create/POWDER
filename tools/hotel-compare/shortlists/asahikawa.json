@@ -1,0 +1,90 @@
+{
+  "hub": "asahikawa",
+  "title": "Asahikawa hub",
+  "headline": "Quote the Asahikawa shortlist",
+  "lede": "Enter dates once. Bulk quote opens Hotellook (Travelpayouts) with Agoda, Booking, and other OTAs on one page. Official sites stay on each row — prefer those if the rate is close, especially OMO7 (ski shuttles).",
+  "destinations": {
+    "hotellook": "Asahikawa",
+    "agodaCity": "asahikawa-jp",
+    "bookingSs": "Asahikawa"
+  },
+  "hotels": [
+    {
+      "id": "omo7",
+      "name": "OMO7 Asahikawa",
+      "meta": "Best no-car hub · book official first",
+      "official": "https://hoshinoresorts.com/en/hotels/omo7asahikawa/",
+      "agoda": "hoshino-resorts-omo7-asahikawa",
+      "booking": "xing-ye-rizoto-omo7-xu-chuan",
+      "tripcom": "",
+      "phone": "",
+      "bookOfficialFirst": true
+    },
+    {
+      "id": "wbf-grande",
+      "name": "Hotel WBF Grande Asahikawa",
+      "meta": "Ski-hotel vibe · Kamui bus tickets",
+      "official": "https://www.hotelwbf.com/grande-asahikawa/en/",
+      "agoda": "hotel-wbf-grande-asahikawa",
+      "booking": "hotel-rasso-grande-asahikawa",
+      "tripcom": "",
+      "phone": "",
+      "bookOfficialFirst": false
+    },
+    {
+      "id": "route-inn-grand",
+      "name": "Hotel Route Inn Grand Asahikawa Ekimae",
+      "meta": "~2 min from station · onsen",
+      "official": "https://www.route-inn.co.jp/hotel_list/hokkaido/index_hotel_id_635/",
+      "agoda": "hotel-route-inn-grand-asahikawa-ekimae",
+      "booking": "route-inn-grand-asahikawa-ekimae",
+      "tripcom": "",
+      "phone": "",
+      "bookOfficialFirst": false
+    },
+    {
+      "id": "koko",
+      "name": "KOKO HOTEL Asahikawa Ekimae",
+      "meta": "Station-front · former Hotel Wing",
+      "official": "https://koko-hotels.com/asahikawa_station/",
+      "agoda": "hotel-wing-international-asahikawa-ekimae-h10564887",
+      "booking": "wing-international-asahikawa-ekimae",
+      "tripcom": "",
+      "phone": "",
+      "bookOfficialFirst": false
+    },
+    {
+      "id": "dormy-inn",
+      "name": "Dormy Inn Asahikawa",
+      "meta": "Rooftop onsen Kamui no Yu",
+      "official": "https://dormy-hotels.com/dormyinn/hotels/asahikawa/",
+      "agoda": "dormy-inn-asahikawa-natural-hot-spring",
+      "booking": "dormy-inn-asahikawa",
+      "tripcom": "",
+      "phone": "",
+      "bookOfficialFirst": false
+    },
+    {
+      "id": "super-hotel",
+      "name": "Super Hotel Asahikawa",
+      "meta": "Budget onsen business stay",
+      "official": "https://www.superhotel.co.jp/s_hotels/asahikawa/",
+      "agoda": "super-hotel-asahikawa_3",
+      "booking": "super-hotel-asahikawa",
+      "tripcom": "",
+      "phone": "",
+      "bookOfficialFirst": false
+    },
+    {
+      "id": "amanek",
+      "name": "Hotel AMANEK Asahikawa",
+      "meta": "~3 min north exit · winter ski support",
+      "official": "https://en.amanekhotels.jp/asahikawa/",
+      "agoda": "hotel-amanek-asahikawa-ekimae",
+      "booking": "amanek-asahikawa-ekimae",
+      "tripcom": "",
+      "phone": "",
+      "bookOfficialFirst": false
+    }
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "hub": "hakuba",
+  "title": "Hakuba hub",
+  "headline": "Quote the Happo BT shortlist",
+  "lede": "Enter dates once. Bulk quote opens Hotellook for Hakuba. Official and Trip.com links stay on each row — Maruishi and Shiroumaso are ryokan rates with dinner; confirm meals on Trip.com.",
+  "destinations": {
+    "hotellook": "Hakuba",
+    "agodaCity": "hakuba-jp",
+    "bookingSs": "Hakuba"
+  },
+  "hotels": [
+    {
+      "id": "maruishi",
+      "name": "Maruishi",
+      "meta": "Inn Japanese dinner · ~5 min walk · Trip.com for English",
+      "official": "http://www.happo.jp/",
+      "agoda": "",
+      "booking": "",
+      "tripcom": "https://www.trip.com/hotels/hakuba-hotel-detail-17452890/hakuba-happo-onsen-maruishi/",
+      "phone": "0261-72-2116",
+      "bookOfficialFirst": true
+    },
+    {
+      "id": "shiroumaso",
+      "name": "Shiroumaso",
+      "meta": "Inn Japanese dinner · ~2 min walk · Trip.com for English",
+      "official": "https://shiroumaso.com/",
+      "agoda": "",
+      "booking": "",
+      "tripcom": "https://www.trip.com/hotels/hakuba-hotel-detail-705790/hakuba-onsen-ryokan-shirouma-so/",
+      "phone": "0261-72-2121",
+      "bookOfficialFirst": true
+    },
+    {
+      "id": "the-happo",
+      "name": "THE HAPPO",
+      "meta": "Eat out every night · English desk · ~3 min walk",
+      "official": "https://the-happo.com/",
+      "agoda": "the-happo-by-hakuba-hotel-group",
+      "booking": "the-happo-by-hakuba-group",
+      "tripcom": "",
+      "phone": "",
+      "bookOfficialFirst": false
+    },
+    {
+      "id": "moegi",
+      "name": "Hakuba Moegi HOTEL",
+      "meta": "Ski-access first · 10 rooms · ~8 min walk",
+      "official": "https://www.hotelmoegi.com/",
+      "agoda": "hotel-moegi",
+      "booking": "hakuba-moegi-hotel",
+      "tripcom": "",
+      "phone": "",
+      "bookOfficialFirst": false
+    },
+    {
+      "id": "panorama",
+      "name": "Hakuba Panorama Hotel",
+      "meta": "Standard + Taproom downstairs · ~5 min walk",
+      "official": "https://tenguproperties.com/hakuba-panorama-hotel/",
+      "agoda": "hakuba-panorama-hotel",
+      "booking": "hakuba-panorama-hotel",
+      "tripcom": "",
+      "phone": "",
+      "bookOfficialFirst": false
+    }
+  ]
+}
