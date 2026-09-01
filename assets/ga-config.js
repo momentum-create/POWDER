@@ -1,2 +1,2 @@
 /** Set your GA4 Measurement ID from Google Analytics → Admin → Data streams. */
-window.__GA4_MEASUREMENT_ID = "";
+window.__GA4_MEASUREMENT_ID = "G-SZT43DTJ9E";
