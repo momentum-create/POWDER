@@ -21,6 +21,8 @@
 <meta name="twitter:image" content="https://japowsearch.com/assets/track-final-dumps-poster.png">
 <link rel="icon" href="https://japowsearch.com/assets/track-final-dumps-poster.png">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"CollectionPage","name":"スキー場エリア一覧","url":"https://japowsearch.com/regions/"}</script>
+<script src="/assets/ga-config.js"></script>
+<script src="/assets/analytics.js"></script>
 <style>
 :root{--navy:#0b1628;--accent:#4dd9c4;--text:#e8edf3;--dim:#8aa0b8;--border:rgba(125,170,210,.18)}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -31,21 +33,24 @@ header{border-bottom:1px solid var(--border);padding:1rem 0;margin-bottom:2rem}
 .logo{font-family:Georgia,serif;font-size:1.25rem;color:#fff;text-decoration:none}
 nav.meta{font-size:.75rem;color:var(--dim);margin-top:.5rem}
 h1{font-size:1.75rem;margin:1rem 0 .75rem;line-height:1.3}
+h2{font-size:1.1rem;margin:1.25rem 0 .5rem;color:#fff}
 .lead{color:var(--dim);margin-bottom:1.5rem}
-.cta{display:inline-block;margin:1.5rem 0;padding:.75rem 1.25rem;border:1px solid var(--accent);border-radius:10px;color:var(--accent);text-decoration:none;font-weight:700}
-ul.resorts{list-style:none;display:grid;gap:.35rem;margin:1rem 0 2rem}
-ul.resorts li{font-size:.9rem;color:var(--dim)}
-ul.resorts strong{color:var(--text)}
+.cta{display:inline-block;margin:1rem .5rem 1rem 0;padding:.75rem 1.25rem;border:1px solid var(--accent);border-radius:10px;color:var(--accent);text-decoration:none;font-weight:700}
+.cta-secondary{border-color:var(--border);color:var(--text)}
+ul.resorts,ul.hotels,ul.guides{list-style:none;display:grid;gap:.35rem;margin:1rem 0 2rem}
+ul.resorts li,ul.hotels li,ul.guides li{font-size:.9rem;color:var(--dim)}
+ul.resorts strong,ul.hotels strong,ul.guides strong{color:var(--text)}
 footer{margin-top:3rem;padding-top:1.5rem;border-top:1px solid var(--border);font-size:.8rem;color:var(--dim)}
 .grid{display:grid;gap:.75rem}
-@media(min-width:600px){.grid{grid-template-columns:1fr 1fr}}
+.hub-cards{display:grid;gap:.75rem;margin:1.5rem 0}
+@media(min-width:600px){.grid{grid-template-columns:1fr 1fr}.hub-cards{grid-template-columns:1fr 1fr 1fr}}
 </style>
 </head>
 <body>
 <div class="wrap">
 <header>
   <a class="logo" href="https://japowsearch.com/">Japowsearch</a>
-  <nav class="meta"><a href="https://japowsearch.com/">ランキング</a> · <a href="https://japowsearch.com/faq.html">FAQ</a></nav>
+  <nav class="meta"><a href="https://japowsearch.com/">Ranking</a> · <a href="https://japowsearch.com/tools/hotel-compare">Hotels</a> · <a href="https://japowsearch.com/hubs/asahikawa.html">Hubs</a> · <a href="https://japowsearch.com/guides/">Guides</a> · <a href="https://japowsearch.com/regions/">Regions</a> · <a href="https://japowsearch.com/faq.html">FAQ</a> · <a href="https://japowsearch.com/about.html">About</a></nav>
 </header>
 <main>
 <h1>スキー場エリア一覧</h1>
@@ -59,7 +64,9 @@ footer{margin-top:3rem;padding-top:1.5rem;border-top:1px solid var(--border);fon
 <a href="https://japowsearch.com/regions/kansai.html" style="display:block;padding:1rem;border:1px solid var(--border);border-radius:12px;text-decoration:none;color:inherit"><strong style="color:#fff">関西</strong><br><span style="font-size:.85rem;color:var(--dim)">28スキー場 · 関西エリアのスキー場をパウダースコア・降雪量で比較。三重・滋賀などのゲレンデ情報と気象データ。…</span></a>
 <a href="https://japowsearch.com/regions/chugoku.html" style="display:block;padding:1rem;border:1px solid var(--border);border-radius:12px;text-decoration:none;color:inherit"><strong style="color:#fff">中国・四国</strong><br><span style="font-size:.85rem;color:var(--dim)">23スキー場 · 中国・四国エリアのスキー場をパウダースコア順に表示。鳥取・広島・愛媛などの積雪・気象データ。…</span></a></div>
 </main>
-<footer><p><a href="https://japowsearch.com/privacy.html">プライバシー</a></p></footer>
+<footer>
+<p><a href="https://japowsearch.com/about.html">About</a> · <a href="https://japowsearch.com/affiliate-disclosure.html">Affiliate disclosure</a> · <a href="https://japowsearch.com/privacy.html">Privacy</a> · <a href="https://github.com/momentum-create/POWDER">GitHub</a></p>
+</footer>
 </div>
 </body>
 </html>

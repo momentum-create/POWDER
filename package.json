@@ -6,6 +6,7 @@
   "scripts": {
     "generate-resort-names-en": "node scripts/generate-resort-names-en.js",
     "generate-seo-pages": "node scripts/generate-seo-pages.mjs",
+    "apply-ga-config": "node scripts/apply-ga-config.mjs",
     "fetch-jma-snow": "node scripts/fetch-jma-snow.js",
     "fetch-jma-snow-tile-times": "node scripts/fetch-jma-snow-tile-times.js"
   },
