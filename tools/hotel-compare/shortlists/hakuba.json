@@ -2,9 +2,8 @@
   "hub": "hakuba",
   "title": "Hakuba hub",
   "headline": "Quote the Happo BT shortlist",
-  "lede": "Enter dates once. Bulk quote opens Hotellook for Hakuba. Official and Trip.com links stay on each row — Maruishi and Shiroumaso are ryokan rates with dinner; confirm meals on Trip.com.",
+  "lede": "Enter dates once. City search opens Booking.com or Agoda for Hakuba. Official and Trip.com links stay on each row — Maruishi and Shiroumaso are ryokan rates with dinner; confirm meals on Trip.com.",
   "destinations": {
-    "hotellook": "Hakuba",
     "agodaCity": "hakuba-jp",
     "bookingSs": "Hakuba"
   },

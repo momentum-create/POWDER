@@ -2,9 +2,8 @@
   "hub": "yuzawa",
   "title": "Yuzawa hub",
   "headline": "Quote the Echigo-Yuzawa shortlist",
-  "lede": "Enter dates once. Bulk quote opens Hotellook for Yuzawa. West-exit walk hotels first; NASPA and Sierra use hotel shuttles — still the same station knot at night.",
+  "lede": "Enter dates once. City search opens Booking.com or Agoda for Yuzawa. West-exit walk hotels first; NASPA and Sierra use hotel shuttles — still the same station knot at night.",
   "destinations": {
-    "hotellook": "Yuzawa",
     "agodaCity": "yuzawa-jp",
     "bookingSs": "Echigo-Yuzawa"
   },

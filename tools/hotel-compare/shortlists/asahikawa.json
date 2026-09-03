@@ -2,9 +2,8 @@
   "hub": "asahikawa",
   "title": "Asahikawa hub",
   "headline": "Quote the Asahikawa shortlist",
-  "lede": "Enter dates once. Bulk quote opens Hotellook (Travelpayouts) with Agoda, Booking, and other OTAs on one page. Official sites stay on each row — prefer those if the rate is close, especially OMO7 (ski shuttles).",
+  "lede": "Enter dates once. City search opens Booking.com or Agoda with your dates. Official sites stay on each row — prefer those if the rate is close, especially OMO7 (ski shuttles).",
   "destinations": {
-    "hotellook": "Asahikawa",
     "agodaCity": "asahikawa-jp",
     "bookingSs": "Asahikawa"
   },

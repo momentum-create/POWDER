@@ -3,41 +3,78 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="hotel-compare-shortlist-base" content="./shortlists/" />
-    <title>Hotel compare — JAPOW Chaser’s Guide</title>
-    <link rel="canonical" href="https://japowsearch.com/tools/hotel-compare" />
     <script src="/assets/ga-config.js"></script>
     <script src="/assets/analytics.js"></script>
+    <meta name="hotel-compare-shortlist-base" content="./shortlists/" />
+    <meta name="hotel-compare-discover-cars" content="./discover-cars.json" />
+    <title>Hotel compare — JAPOW Chaser’s Guide</title>
+    <link rel="canonical" href="https://japowsearch.com/tools/hotel-compare" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link
       href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700&family=DM+Serif+Display&display=swap"
       rel="stylesheet"
     />
     <style>
+      /* Hallmark · macrostructure: Long Document · genre: editorial · pre-emit critique: P5 H4 E5 S5 R5 V5 */
       :root {
         --navy: #0b1628;
         --navy-mid: #132238;
         --navy-light: #1d3454;
+        --card-bg: rgba(19, 34, 56, 0.92);
+        --text: #e8edf3;
+        --text-strong: #fff;
+        --text-dim: #8aa0b8;
         --accent: #4dd9c4;
         --accent2: #f5a623;
-        --text: #e8edf3;
-        --text-dim: #8aa0b8;
+        --accent2-border: rgba(245, 166, 35, 0.45);
         --border: rgba(125, 170, 210, 0.18);
-        --card-bg: rgba(19, 34, 56, 0.92);
+        --rule: rgba(125, 170, 210, 0.28);
+        --font-body: "Noto Sans", system-ui, sans-serif;
+        --font-display: "DM Serif Display", Georgia, serif;
+        --measure: 62ch;
+        --space-section: 2rem;
       }
-      * {
+
+      *,
+      *::before,
+      *::after {
         box-sizing: border-box;
       }
+
+      html,
+      body {
+        overflow-x: clip;
+      }
+
       body {
         margin: 0;
-        font-family: "Noto Sans", system-ui, sans-serif;
+        font-family: var(--font-body);
+        font-size: 1rem;
+        line-height: 1.55;
         background: var(--navy);
         color: var(--text);
-        line-height: 1.5;
       }
+
       a {
         color: var(--accent);
+        transition: color 0.15s ease, border-color 0.15s ease;
       }
+
+      a:hover {
+        color: var(--text-strong);
+      }
+
+      a:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+      }
+
+      a.is-disabled {
+        color: var(--text-dim);
+        pointer-events: none;
+        cursor: not-allowed;
+      }
+
       .top-bar {
         border-bottom: 1px solid var(--border);
         padding: 0.85rem 1.25rem;
@@ -47,28 +84,40 @@
         gap: 1rem;
         flex-wrap: wrap;
       }
+
       .brand {
-        font-family: "DM Serif Display", Georgia, serif;
+        font-family: var(--font-display);
         font-size: 1.15rem;
-        color: #fff;
+        color: var(--text-strong);
         text-decoration: none;
       }
+
       .brand span {
         color: var(--accent);
       }
-      .back-link {
+
+      .top-nav {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+      }
+
+      .top-nav a {
         font-size: 0.85rem;
         color: var(--text-dim);
         text-decoration: none;
       }
-      .back-link:hover {
+
+      .top-nav a:hover {
         color: var(--accent);
       }
+
       .shell {
         max-width: 920px;
         margin: 0 auto;
         padding: 1.5rem 1.25rem 2.5rem;
       }
+
       .meta {
         font-size: 0.75rem;
         letter-spacing: 0.06em;
@@ -76,53 +125,72 @@
         color: var(--text-dim);
         margin: 0 0 0.35rem;
       }
+
       h1 {
-        font-family: "DM Serif Display", Georgia, serif;
+        font-family: var(--font-display);
         font-size: clamp(1.5rem, 4vw, 2rem);
         font-weight: 400;
+        font-style: normal;
         margin: 0 0 0.5rem;
-        color: #fff;
+        color: var(--text-strong);
       }
+
       .lede {
         color: var(--text-dim);
         margin: 0 0 1.25rem;
-        max-width: 62ch;
+        max-width: var(--measure);
       }
-      .hub-tabs {
+
+      .hub-switch {
         display: flex;
         flex-wrap: wrap;
-        gap: 0.45rem;
-        margin-bottom: 1.25rem;
+        gap: 0.35rem 1rem;
+        margin: 0 0 var(--space-section);
+        font-size: 0.95rem;
       }
-      .hub-tabs button {
-        font: 600 0.82rem "Noto Sans", sans-serif;
-        padding: 0.5rem 0.85rem;
-        border-radius: 999px;
-        border: 1px solid var(--border);
-        background: var(--navy-mid);
+
+      .hub-switch a {
         color: var(--text-dim);
-        cursor: pointer;
+        text-decoration: none;
+        white-space: nowrap;
       }
-      .hub-tabs button:hover {
-        border-color: var(--accent);
-        color: var(--text);
-      }
-      .hub-tabs button.active {
-        background: rgba(77, 217, 196, 0.12);
-        border-color: var(--accent);
+
+      .hub-switch a:hover {
         color: var(--accent);
       }
-      .date-bar {
+
+      .hub-switch a.is-current {
+        color: var(--accent);
+        font-weight: 700;
+      }
+
+      .section {
+        margin-bottom: var(--space-section);
+        padding-bottom: var(--space-section);
+        border-bottom: 1px solid var(--rule);
+      }
+
+      .section:last-of-type {
+        border-bottom: none;
+      }
+
+      h2 {
+        font-family: var(--font-body);
+        font-size: 1.05rem;
+        font-weight: 600;
+        font-style: normal;
+        margin: 0 0 0.75rem;
+        color: var(--text-strong);
+      }
+
+      .date-grid {
         display: grid;
         grid-template-columns: repeat(4, minmax(0, 1fr));
         gap: 0.7rem;
-        padding: 1rem;
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        background: var(--card-bg);
-        margin-bottom: 1rem;
+        max-width: var(--measure);
       }
-      .date-bar label {
+
+      .date-grid label {
         display: block;
         font-size: 0.68rem;
         letter-spacing: 0.05em;
@@ -130,135 +198,189 @@
         color: var(--text-dim);
         margin-bottom: 0.3rem;
       }
-      .date-bar input,
-      .date-bar select {
+
+      .date-grid input,
+      .date-grid select {
         width: 100%;
-        font: 500 0.95rem "Noto Sans", sans-serif;
+        font: 500 0.95rem var(--font-body);
         padding: 0.45rem 0.5rem;
         border: 1px solid var(--border);
         border-radius: 8px;
         background: var(--navy);
         color: var(--text);
       }
-      .bulk {
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
-        gap: 0.6rem;
-        margin-bottom: 0.75rem;
+
+      .date-grid input:focus-visible,
+      .date-grid select:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+        border-color: var(--accent);
       }
-      .bulk a,
-      .hotel-links a {
+
+      .field-error {
+        margin: 0.65rem 0 0;
+        font-size: 0.9rem;
+        color: var(--accent2);
+      }
+
+      .field-error[hidden],
+      .load-error[hidden],
+      .mobility-error[hidden],
+      #mobility[hidden] {
+        display: none;
+      }
+
+      .mobility-error {
+        margin: 0 0 0.75rem;
+        font-size: 0.9rem;
+        color: var(--accent2);
+      }
+
+      .load-error {
+        margin: 0 0 1rem;
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--rule);
+        border-radius: 8px;
+        background: var(--card-bg);
+        color: var(--accent2);
+        font-size: 0.9rem;
+      }
+
+      .city-copy {
+        max-width: var(--measure);
+        margin: 0 0 0.75rem;
+        color: var(--text-dim);
+      }
+
+      .city-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem 1.25rem;
+        max-width: var(--measure);
+      }
+
+      .city-links a {
+        font-weight: 600;
+        text-decoration: underline;
+        text-underline-offset: 0.15em;
+      }
+
+      .hotel-entries {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        max-width: var(--measure);
+      }
+
+      .hotel-entry {
+        margin: 0 0 1.75rem;
+        padding-bottom: 1.75rem;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .hotel-entry:last-child {
+        margin-bottom: 0;
+        padding-bottom: 0;
+        border-bottom: none;
+      }
+
+      .hotel-entry__title {
+        font-size: 1.05rem;
+        font-weight: 700;
+        font-style: normal;
+        margin: 0 0 0.35rem;
+        color: var(--text-strong);
+      }
+
+      .hotel-entry__official-first {
+        margin: 0 0 0.35rem;
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: var(--accent2);
+      }
+
+      .hotel-entry__meta {
+        margin: 0 0 0.65rem;
+        font-size: 0.9rem;
+        color: var(--text-dim);
+      }
+
+      .hotel-entry__links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem 0.5rem;
+        margin: 0;
+      }
+
+      .link-chip {
         display: inline-block;
         font-size: 0.82rem;
         font-weight: 600;
         text-decoration: none;
-        color: var(--navy);
-        background: var(--accent);
-        padding: 0.65rem 0.7rem;
-        text-align: center;
-        border-radius: 8px;
-      }
-      .bulk a.secondary,
-      .hotel-links a.secondary {
-        background: transparent;
-        color: var(--accent);
-        border: 1px solid var(--accent);
-      }
-      .bulk a.official,
-      .hotel-links a.official {
-        background: transparent;
-        color: var(--text);
+        padding: 0.3rem 0.55rem;
         border: 1px solid var(--border);
+        border-radius: 6px;
+        color: var(--text);
       }
-      .bulk a.tripcom,
-      .hotel-links a.tripcom {
-        background: rgba(245, 166, 35, 0.15);
+
+      .link-chip:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+
+      .link-chip--ota {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+
+      .link-chip--trip {
+        border-color: var(--accent2-border);
         color: var(--accent2);
-        border: 1px solid rgba(245, 166, 35, 0.45);
       }
-      .bulk a:hover,
-      .hotel-links a:hover {
-        filter: brightness(1.08);
+
+      .mobility-note {
+        max-width: var(--measure);
+        margin: 0 0 0.75rem;
+        color: var(--text-dim);
+        font-size: 0.9rem;
       }
-      .note {
+
+      .mobility-tracked {
+        max-width: var(--measure);
+        margin: 0 0 0.75rem;
         font-size: 0.85rem;
         color: var(--text-dim);
-        margin: 0 0 1rem;
       }
-      table.compare {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 0.92rem;
-        background: var(--card-bg);
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        overflow: hidden;
+
+      .mobility-links {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        max-width: var(--measure);
       }
-      table.compare th,
-      table.compare td {
-        border-bottom: 1px solid var(--border);
-        padding: 0.85rem 0.75rem;
-        vertical-align: top;
-        text-align: left;
+
+      .mobility-links li {
+        margin: 0 0 0.5rem;
       }
-      table.compare th {
-        font-size: 0.68rem;
-        letter-spacing: 0.05em;
-        text-transform: uppercase;
-        color: var(--text-dim);
-        background: var(--navy-mid);
+
+      .mobility-links a {
+        font-weight: 600;
+        text-decoration: underline;
+        text-underline-offset: 0.15em;
       }
-      table.compare tr:last-child td {
-        border-bottom: none;
-      }
-      .hotel-name {
-        font-weight: 700;
-        color: #fff;
-      }
-      .hotel-meta {
-        color: var(--text-dim);
-        font-size: 0.82rem;
-        margin-top: 0.2rem;
-      }
-      .hotel-links {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.35rem;
-      }
-      .hotel-links a {
-        padding: 0.35rem 0.5rem;
-        font-size: 0.75rem;
-      }
-      .hotel-cards {
-        display: none;
-        gap: 0.75rem;
-      }
-      .hotel-card {
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        background: var(--card-bg);
-        padding: 0.9rem;
-      }
-      .disclosure {
-        margin-top: 1.5rem;
+
+      .page-foot {
+        margin-top: var(--space-section);
         padding-top: 1rem;
-        border-top: 1px solid var(--border);
+        border-top: 1px solid var(--rule);
         font-size: 0.8rem;
         color: var(--text-dim);
+        max-width: var(--measure);
       }
+
       @media (max-width: 720px) {
-        .date-bar,
-        .bulk {
+        .date-grid {
           grid-template-columns: 1fr 1fr;
-        }
-        .bulk a:first-child {
-          grid-column: 1 / -1;
-        }
-        table.compare {
-          display: none;
-        }
-        .hotel-cards {
-          display: grid;
         }
       }
     </style>
@@ -266,9 +388,10 @@
   <body>
     <header class="top-bar">
       <a class="brand" href="https://japowsearch.com/">Japow<span>search</span></a>
-      <a class="back-link" href="https://japowsearch.com/hubs/">Hub guides</a>
-      <a class="back-link" href="https://japowsearch.com/affiliate-disclosure.html">Disclosure</a>
-      <a class="back-link" href="https://japowsearch.com/">← Powder ranking</a>
+      <nav class="top-nav" aria-label="Site">
+        <a href="https://japowsearch.com/">Powder ranking</a>
+        <a href="https://japowsearch.com/hubs/asahikawa.html">Hubs</a>
+      </nav>
     </header>
 
     <main class="shell">
@@ -276,90 +399,119 @@
       <h1 id="headline">Hotel compare</h1>
       <p class="lede" id="lede">Loading…</p>
 
-      <nav class="hub-tabs" aria-label="Hub">
-        <button type="button" data-hub="asahikawa">Asahikawa</button>
-        <button type="button" data-hub="hakuba">Hakuba</button>
-        <button type="button" data-hub="yuzawa">Yuzawa</button>
+      <p class="load-error" id="load-error" hidden role="alert"></p>
+
+      <nav class="hub-switch" aria-label="Hub">
+        <a href="?hub=asahikawa" data-hub="asahikawa">Asahikawa</a>
+        <a href="?hub=hakuba" data-hub="hakuba">Hakuba</a>
+        <a href="?hub=yuzawa" data-hub="yuzawa">Yuzawa</a>
       </nav>
 
-      <form class="date-bar" id="dates" onsubmit="return false">
-        <div>
-          <label for="checkin">Check-in</label>
-          <input id="checkin" type="date" required />
-        </div>
-        <div>
-          <label for="checkout">Check-out</label>
-          <input id="checkout" type="date" required />
-        </div>
-        <div>
-          <label for="adults">Adults</label>
-          <select id="adults">
-            <option>1</option>
-            <option selected>2</option>
-            <option>3</option>
-            <option>4</option>
-          </select>
-        </div>
-        <div>
-          <label for="rooms">Rooms</label>
-          <select id="rooms">
-            <option selected>1</option>
-            <option>2</option>
-            <option>3</option>
-          </select>
-        </div>
-      </form>
+      <section class="section dates" aria-labelledby="dates-heading">
+        <h2 id="dates-heading">Your week</h2>
+        <form id="dates" class="date-grid" onsubmit="return false">
+          <div>
+            <label for="checkin">Check-in</label>
+            <input id="checkin" name="checkin" type="date" required />
+          </div>
+          <div>
+            <label for="checkout">Check-out</label>
+            <input id="checkout" name="checkout" type="date" required />
+          </div>
+          <div>
+            <label for="adults">Adults</label>
+            <select id="adults" name="adults">
+              <option>1</option>
+              <option selected>2</option>
+              <option>3</option>
+              <option>4</option>
+            </select>
+          </div>
+          <div>
+            <label for="rooms">Rooms</label>
+            <select id="rooms" name="rooms">
+              <option selected>1</option>
+              <option>2</option>
+              <option>3</option>
+            </select>
+          </div>
+        </form>
+        <p class="field-error" id="dates-error" hidden role="alert">
+          Check-out must be after check-in.
+        </p>
+      </section>
 
-      <div class="bulk">
-        <a id="bulk-hotellook" href="#" target="_blank" rel="noopener noreferrer"
-          >Quote all hotels · one page</a
-        >
-        <a id="bulk-agoda" class="secondary" href="#" target="_blank" rel="noopener noreferrer"
-          >Agoda only</a
-        >
-        <a id="bulk-booking" class="secondary" href="#" target="_blank" rel="noopener noreferrer"
-          >Booking.com only</a
-        >
-      </div>
-      <p class="note">
-        <strong>Quote all</strong> opens Hotellook (Travelpayouts) — Agoda, Booking,
-        and other OTAs on one dated search. Official hotel links never get affiliate
-        params.
-      </p>
+      <section class="section city-search" aria-labelledby="city-heading">
+        <h2 id="city-heading">Search the city</h2>
+        <p class="city-copy" id="city-copy"></p>
+        <p class="city-links">
+          <a id="bulk-booking" href="#" target="_blank" rel="noopener noreferrer"
+            >Booking.com · city search</a
+          >
+          <a id="bulk-agoda" href="#" target="_blank" rel="noopener noreferrer"
+            >Agoda · city search</a
+          >
+        </p>
+      </section>
 
-      <table class="compare" aria-label="Hotel shortlist">
-        <thead>
-          <tr>
-            <th>Guide shortlist</th>
-            <th>Links</th>
-          </tr>
-        </thead>
-        <tbody id="rows"></tbody>
-      </table>
-      <div class="hotel-cards" id="cards" aria-label="Hotel shortlist cards"></div>
+      <section class="section shortlist" aria-labelledby="shortlist-heading">
+        <h2 id="shortlist-heading">Guide shortlist</h2>
+        <ol class="hotel-entries" id="entries" aria-live="polite"></ol>
+      </section>
 
-      <p class="disclosure">
-        Affiliate disclosure: some links on this page are affiliate-tracked (Hotellook,
-        Agoda, Booking.com). If you book through them, Japowsearch may earn a commission
-        at no extra cost to you. Official hotel sites are never affiliate-wrapped — use
-        those when the rate is close, especially for properties with guest shuttles or
-        ryokan dinner plans. <a href="/affiliate-disclosure.html">Full disclosure</a>.
-      </p>
+      <section class="section mobility" id="mobility" hidden aria-labelledby="mobility-heading">
+        <h2 id="mobility-heading">Getting around</h2>
+        <p class="mobility-note" id="mobility-intro"></p>
+        <p class="mobility-error" id="mobility-error" hidden role="alert"></p>
+        <p class="mobility-tracked">
+          Rental links below are affiliate-tracked (Discover Cars · Jaapowsearch).
+        </p>
+        <ul class="mobility-links" id="mobility-links"></ul>
+      </section>
+
+      <footer class="page-foot">
+        <p>
+          Affiliate disclosure: Discover Cars links on this page are affiliate-tracked (Post
+          Affiliate Pro, Jaapowsearch). Booking.com and Agoda links earn commission only when
+          affiliate IDs are configured; until then they open the OTA with your dates but without
+          tracking. Official hotel sites and Trip.com links are never affiliate-wrapped — book
+          direct when the rate is close, especially for ski shuttles or ryokan dinner plans.
+          Full policy:
+          <a href="https://japowsearch.com/affiliate-disclosure.html">Affiliate disclosure</a>
+        </p>
+      </footer>
     </main>
 
     <script>
-            const AFF = {
+      const AFF = {
         travelpayoutsMarker: "763558",
         agodaCid: "",
         bookingAid: "",
       };
 
       const HUBS = ["asahikawa", "hakuba", "yuzawa"];
+
+      const MOBILITY = {
+        asahikawa: {
+          intro:
+            "Kamui and Santa Present Park need a car or bus from town. Same dates as your stay.",
+          destinations: ["asahikawa_airport", "asahikawa_station"],
+        },
+        yuzawa: {
+          intro: "4WD helps on Myoko drive days. Pick up at the station knot.",
+          destinations: ["yuzawa_station"],
+        },
+      };
+
       const shortlistBase =
         document.querySelector('meta[name="hotel-compare-shortlist-base"]')?.content ||
         "./shortlists/";
+      const discoverCarsPath =
+        document.querySelector('meta[name="hotel-compare-discover-cars"]')?.content ||
+        "./discover-cars.json";
 
       let hubData = null;
+      let discoverCarsConfig = null;
       let currentHub = "asahikawa";
 
       function getHubFromUrl() {
@@ -381,12 +533,15 @@
       function pad(n) {
         return String(n).padStart(2, "0");
       }
+
       function iso(d) {
         return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
       }
+
       function nights(a, b) {
         return Math.max(1, Math.round((Date.parse(b) - Date.parse(a)) / 86400000));
       }
+
       function qs(obj) {
         return Object.entries(obj)
           .filter(([, v]) => v !== "" && v != null)
@@ -401,16 +556,59 @@
         document.getElementById("checkout").value = iso(outD);
       }
 
-      function hotellookSearch(dest, checkin, checkout, adults) {
-        return `https://search.hotellook.com/?${qs({
-          locale: "en_us",
-          currency: "usd",
-          destination: dest,
-          checkIn: checkin,
-          checkOut: checkout,
-          adults,
-          ...(AFF.travelpayoutsMarker ? { marker: AFF.travelpayoutsMarker } : {}),
-        })}`;
+      function getDates() {
+        return {
+          checkin: document.getElementById("checkin").value,
+          checkout: document.getElementById("checkout").value,
+          adults: document.getElementById("adults").value,
+          rooms: document.getElementById("rooms").value,
+        };
+      }
+
+      function datesValid() {
+        const { checkin, checkout } = getDates();
+        return Boolean(checkin && checkout && checkout > checkin);
+      }
+
+      function otaConfigured() {
+        return Boolean(AFF.agodaCid || AFF.bookingAid);
+      }
+
+      function setLinkDisabled(a, disabled) {
+        if (!a) return;
+        a.classList.toggle("is-disabled", disabled);
+        a.setAttribute("aria-disabled", disabled ? "true" : "false");
+        if (disabled) {
+          a.setAttribute("tabindex", "-1");
+        } else {
+          a.removeAttribute("tabindex");
+        }
+      }
+
+      function clearCitySearch() {
+        document.getElementById("city-copy").textContent = "";
+        const bulkBooking = document.getElementById("bulk-booking");
+        const bulkAgoda = document.getElementById("bulk-agoda");
+        bulkBooking.href = "#";
+        bulkAgoda.href = "#";
+        setLinkDisabled(bulkBooking, true);
+        setLinkDisabled(bulkAgoda, true);
+      }
+
+      function updateDateFieldState(valid) {
+        const checkin = document.getElementById("checkin");
+        const checkout = document.getElementById("checkout");
+        if (valid) {
+          checkin.removeAttribute("aria-invalid");
+          checkout.removeAttribute("aria-invalid");
+          checkin.removeAttribute("aria-describedby");
+          checkout.removeAttribute("aria-describedby");
+        } else {
+          checkin.setAttribute("aria-invalid", "true");
+          checkout.setAttribute("aria-invalid", "true");
+          checkin.setAttribute("aria-describedby", "dates-error");
+          checkout.setAttribute("aria-describedby", "dates-error");
+        }
       }
 
       function agodaHotel(slug, city, checkin, checkout, adults, rooms) {
@@ -439,94 +637,204 @@
         return `https://www.booking.com/hotel/jp/${slug}.html?${qs(q)}`;
       }
 
-      function linkButtons(h, checkin, checkout, adults, rooms, city) {
-        const parts = [];
+      function discoverCarsHref(destinationUrl) {
+        const aAid = discoverCarsConfig?.aAid || "Jaapowsearch";
+        const url = new URL(destinationUrl);
+        url.searchParams.set("a_aid", aAid);
+        return url.toString();
+      }
+
+      function makeExternalLink(href, text, className, ariaLabel) {
+        const a = document.createElement("a");
+        a.href = href;
+        a.textContent = text;
+        a.target = "_blank";
+        a.rel = "noopener noreferrer";
+        if (className) a.className = className;
+        if (ariaLabel) a.setAttribute("aria-label", ariaLabel);
+        return a;
+      }
+
+      function appendHotelLinks(container, h, checkin, checkout, adults, rooms, city, disabled) {
+        container.replaceChildren();
+
         if (h.official) {
-          parts.push(
-            `<a class="official" href="${h.official}" target="_blank" rel="noopener noreferrer">Official</a>`,
+          const a = makeExternalLink(
+            h.official,
+            "Official site",
+            "link-chip",
+            `Book ${h.name} on the official site`,
           );
+          setLinkDisabled(a, disabled);
+          container.appendChild(a);
         }
         if (h.agoda) {
-          parts.push(
-            `<a class="secondary" href="${agodaHotel(h.agoda, city, checkin, checkout, adults, rooms)}" target="_blank" rel="noopener noreferrer">Agoda</a>`,
+          const a = makeExternalLink(
+            agodaHotel(h.agoda, city, checkin, checkout, adults, rooms),
+            "Agoda",
+            "link-chip link-chip--ota",
+            `Book ${h.name} on Agoda`,
           );
+          setLinkDisabled(a, disabled);
+          container.appendChild(a);
         }
         if (h.booking) {
-          parts.push(
-            `<a class="secondary" href="${bookingHotel(h.booking, checkin, checkout, adults, rooms)}" target="_blank" rel="noopener noreferrer">Booking</a>`,
+          const a = makeExternalLink(
+            bookingHotel(h.booking, checkin, checkout, adults, rooms),
+            "Booking",
+            "link-chip link-chip--ota",
+            `Book ${h.name} on Booking.com`,
           );
+          setLinkDisabled(a, disabled);
+          container.appendChild(a);
         }
         if (h.tripcom) {
-          parts.push(
-            `<a class="tripcom" href="${h.tripcom}" target="_blank" rel="noopener noreferrer">Trip.com</a>`,
+          const a = makeExternalLink(
+            h.tripcom,
+            "Trip.com",
+            "link-chip link-chip--trip",
+            `Book ${h.name} on Trip.com`,
           );
+          setLinkDisabled(a, disabled);
+          container.appendChild(a);
         }
-        return parts.join("");
+      }
+
+      function renderCitySearch(dest, checkin, checkout, adults, rooms, disabled) {
+        const los = nights(checkin, checkout);
+        const bookingHref = `https://www.booking.com/searchresults.html?${qs({
+          ss: dest.bookingSs,
+          dest_type: "city",
+          checkin,
+          checkout,
+          group_adults: adults,
+          no_rooms: rooms,
+          group_children: 0,
+          ...(AFF.bookingAid ? { aid: AFF.bookingAid } : {}),
+        })}`;
+        const agodaHref = `https://www.agoda.com/city/${dest.agodaCity}.html?${qs({
+          checkIn: checkin,
+          los,
+          adults,
+          rooms,
+          locale: "en-us",
+          currency: "USD",
+          ...(AFF.agodaCid ? { cid: AFF.agodaCid } : {}),
+        })}`;
+
+        const bulkBooking = document.getElementById("bulk-booking");
+        const bulkAgoda = document.getElementById("bulk-agoda");
+        bulkBooking.href = bookingHref;
+        bulkAgoda.href = agodaHref;
+        setLinkDisabled(bulkBooking, disabled);
+        setLinkDisabled(bulkAgoda, disabled);
+
+        const cityCopy = document.getElementById("city-copy");
+        if (otaConfigured()) {
+          cityCopy.textContent = `Search all of ${dest.bookingSs} on Booking.com or Agoda — affiliate links with your dates pre-filled.`;
+        } else {
+          cityCopy.textContent = `Search all of ${dest.bookingSs} on Booking.com or Agoda with your dates filled in. (Affiliate IDs not configured yet — these links do not earn commission.)`;
+        }
+      }
+
+      function renderEntries(checkin, checkout, adults, rooms, disabled) {
+        const ol = document.getElementById("entries");
+        ol.replaceChildren();
+        const dest = hubData.destinations;
+
+        hubData.hotels.forEach((h, index) => {
+          const li = document.createElement("li");
+          li.className = "hotel-entry";
+
+          const title = document.createElement("p");
+          title.className = "hotel-entry__title";
+          title.textContent = `${pad(index + 1)}. ${h.name}`;
+          li.appendChild(title);
+
+          const meta = document.createElement("p");
+          meta.className = "hotel-entry__meta";
+          meta.textContent = h.meta;
+          li.appendChild(meta);
+
+          if (h.bookOfficialFirst) {
+            const flag = document.createElement("p");
+            flag.className = "hotel-entry__official-first";
+            flag.textContent = "Book official first";
+            li.appendChild(flag);
+          }
+
+          const links = document.createElement("p");
+          links.className = "hotel-entry__links";
+          appendHotelLinks(links, h, checkin, checkout, adults, rooms, dest.agodaCity, disabled);
+          li.appendChild(links);
+
+          ol.appendChild(li);
+        });
+      }
+
+      function renderMobility(disabled) {
+        const section = document.getElementById("mobility");
+        const spec = MOBILITY[currentHub];
+        const mobilityError = document.getElementById("mobility-error");
+        const mobilityTracked = section.querySelector(".mobility-tracked");
+        const list = document.getElementById("mobility-links");
+
+        if (!spec) {
+          section.hidden = true;
+          mobilityError.hidden = true;
+          return;
+        }
+
+        section.hidden = false;
+        document.getElementById("mobility-intro").textContent = spec.intro;
+        list.replaceChildren();
+
+        if (!discoverCarsConfig) {
+          mobilityError.hidden = false;
+          mobilityError.textContent = "Rental links could not load. Refresh the page.";
+          mobilityTracked.hidden = true;
+          return;
+        }
+
+        mobilityError.hidden = true;
+        mobilityTracked.hidden = false;
+
+        for (const destId of spec.destinations) {
+          const dest = discoverCarsConfig.destinations?.[destId];
+          if (!dest?.url) continue;
+
+          const li = document.createElement("li");
+          const a = makeExternalLink(
+            discoverCarsHref(dest.url),
+            dest.label?.en || destId,
+            null,
+            `Rent a car at ${dest.label?.en || destId} via Discover Cars`,
+          );
+          setLinkDisabled(a, disabled);
+          li.appendChild(a);
+          list.appendChild(li);
+        }
       }
 
       function render() {
         if (!hubData) return;
-        const checkin = document.getElementById("checkin").value;
-        const checkout = document.getElementById("checkout").value;
-        const adults = document.getElementById("adults").value;
-        const rooms = document.getElementById("rooms").value;
-        if (!checkin || !checkout || checkout <= checkin) return;
 
-        const dest = hubData.destinations;
-        const los = nights(checkin, checkout);
+        const { checkin, checkout, adults, rooms } = getDates();
+        const valid = datesValid();
+        const datesError = document.getElementById("dates-error");
+        datesError.hidden = valid;
+        updateDateFieldState(valid);
 
-        document.getElementById("bulk-hotellook").href = hotellookSearch(
-          dest.hotellook,
-          checkin,
-          checkout,
-          adults,
-        );
-        document.getElementById("bulk-agoda").href =
-          `https://www.agoda.com/city/${dest.agodaCity}.html?${qs({
-            checkIn: checkin,
-            los,
-            adults,
-            rooms,
-            locale: "en-us",
-            currency: "USD",
-            ...(AFF.agodaCid ? { cid: AFF.agodaCid } : {}),
-          })}`;
-        document.getElementById("bulk-booking").href =
-          `https://www.booking.com/searchresults.html?${qs({
-            ss: dest.bookingSs,
-            dest_type: "city",
-            checkin,
-            checkout,
-            group_adults: adults,
-            no_rooms: rooms,
-            group_children: 0,
-            ...(AFF.bookingAid ? { aid: AFF.bookingAid } : {}),
-          })}`;
+        if (!valid) {
+          renderCitySearch(hubData.destinations, checkin, checkout, adults, rooms, true);
+          renderEntries(checkin, checkout, adults, rooms, true);
+          renderMobility(true);
+          return;
+        }
 
-        const rows = hubData.hotels
-          .map((h) => {
-            const links = linkButtons(h, checkin, checkout, adults, rooms, dest.agodaCity);
-            return `<tr>
-            <td>
-              <div class="hotel-name">${h.name}</div>
-              <div class="hotel-meta">${h.meta}</div>
-            </td>
-            <td><div class="hotel-links">${links}</div></td>
-          </tr>`;
-          })
-          .join("");
-
-        document.getElementById("rows").innerHTML = rows;
-        document.getElementById("cards").innerHTML = hubData.hotels
-          .map((h) => {
-            const links = linkButtons(h, checkin, checkout, adults, rooms, dest.agodaCity);
-            return `<article class="hotel-card">
-              <div class="hotel-name">${h.name}</div>
-              <div class="hotel-meta">${h.meta}</div>
-              <div class="hotel-links" style="margin-top:0.6rem">${links}</div>
-            </article>`;
-          })
-          .join("");
+        renderCitySearch(hubData.destinations, checkin, checkout, adults, rooms, false);
+        renderEntries(checkin, checkout, adults, rooms, false);
+        renderMobility(false);
       }
 
       function updateHubUi() {
@@ -535,19 +843,40 @@
         document.getElementById("headline").textContent = hubData.headline;
         document.getElementById("lede").textContent = hubData.lede;
         document.title = `${hubData.headline} — Japowsearch`;
-        document.querySelectorAll(".hub-tabs button").forEach((btn) => {
-          btn.classList.toggle("active", btn.dataset.hub === currentHub);
+
+        document.querySelectorAll(".hub-switch a").forEach((link) => {
+          const isCurrent = link.dataset.hub === currentHub;
+          link.classList.toggle("is-current", isCurrent);
+          if (isCurrent) {
+            link.setAttribute("aria-current", "page");
+          } else {
+            link.removeAttribute("aria-current");
+          }
         });
       }
 
       async function loadHub(hub) {
         currentHub = hub;
         setHubInUrl(hub);
-        const res = await fetch(`${shortlistBase}${hub}.json`);
-        if (!res.ok) throw new Error(`shortlist ${hub}: ${res.status}`);
-        hubData = await res.json();
-        updateHubUi();
-        render();
+        document.getElementById("load-error").hidden = true;
+
+        try {
+          const res = await fetch(`${shortlistBase}${hub}.json`);
+          if (!res.ok) throw new Error(`shortlist ${hub}: ${res.status}`);
+          hubData = await res.json();
+          updateHubUi();
+          render();
+        } catch (err) {
+          hubData = null;
+          document.getElementById("load-error").hidden = false;
+          document.getElementById("load-error").textContent =
+            "Could not load the hotel list for this hub. Try refreshing.";
+          document.getElementById("entries").replaceChildren();
+          clearCitySearch();
+          document.getElementById("mobility").hidden = true;
+          document.getElementById("mobility-error").hidden = true;
+          console.error(err);
+        }
       }
 
       async function initAff() {
@@ -561,12 +890,26 @@
         }
       }
 
-      document.querySelectorAll(".hub-tabs button").forEach((btn) => {
-        btn.addEventListener("click", () => loadHub(btn.dataset.hub));
+      async function initDiscoverCars() {
+        try {
+          const res = await fetch(discoverCarsPath);
+          if (!res.ok) throw new Error(`discover-cars: ${res.status}`);
+          discoverCarsConfig = await res.json();
+        } catch (err) {
+          discoverCarsConfig = null;
+          console.error(err);
+        }
+      }
+
+      document.querySelectorAll(".hub-switch a").forEach((link) => {
+        link.addEventListener("click", (event) => {
+          event.preventDefault();
+          loadHub(link.dataset.hub);
+        });
       });
 
       defaults();
-      initAff().then(() => loadHub(getHubFromUrl()));
+      Promise.all([initAff(), initDiscoverCars()]).then(() => loadHub(getHubFromUrl()));
       ["checkin", "checkout", "adults", "rooms"].forEach((id) => {
         document.getElementById(id).addEventListener("change", render);
       });

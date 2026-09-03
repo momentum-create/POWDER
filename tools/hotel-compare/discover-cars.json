@@ -1,0 +1,51 @@
+{
+  "provider": "discover-cars",
+  "tracking": "post-affiliate-pro",
+  "linkStyle": "new",
+  "aAid": "Jaapowsearch",
+  "clickBase": "https://discover-car-hire.postaffiliatepro.com/scripts/click.php",
+  "destinations": {
+    "asahikawa_airport": {
+      "url": "https://www.discovercars.com/japan/asahikawa/akj",
+      "label": {
+        "ja": "旭川空港（AKJ）",
+        "en": "Asahikawa Airport (AKJ)"
+      }
+    },
+    "asahikawa_station": {
+      "url": "https://www.discovercars.com/japan/asahikawa/asahikawa-railway-station",
+      "label": {
+        "ja": "旭川駅（OMO7旭川周辺）",
+        "en": "Asahikawa Station (OMO7 Asahikawa)"
+      }
+    },
+    "haneda_airport": {
+      "url": "https://www.discovercars.com/japan/tokyo/hnd",
+      "label": {
+        "ja": "羽田空港（HND）",
+        "en": "Tokyo Haneda Airport (HND)"
+      }
+    },
+    "narita_airport": {
+      "url": "https://www.discovercars.com/japan/tokyo/nrt",
+      "label": {
+        "ja": "成田空港（NRT）",
+        "en": "Tokyo Narita Airport (NRT)"
+      }
+    },
+    "nagano_downtown": {
+      "url": "https://www.discovercars.com/japan/nagano/nagano-downtown",
+      "label": {
+        "ja": "長野駅周辺",
+        "en": "Nagano (downtown / station)"
+      }
+    },
+    "yuzawa_station": {
+      "url": "https://www.discovercars.com/japan/yuzawa/yuzawa-railway-station",
+      "label": {
+        "ja": "湯沢駅（越後湯沢・ニッポンレンタカー）",
+        "en": "Yuzawa Railway Station (Echigo-Yuzawa)"
+      }
+    }
+  }
+}
