@@ -73,26 +73,21 @@
       }
     </style>
   </head>
-  <body class="field-guide show-page-breaks">
+  <body class="field-guide">
     <!--
       Hallmark redesign note:
       Was: atmospheric AI-tool (navy + cyan + neon orange + topo blooms).
       Now: editorial Long Document / Almanac-field for print A4 guide preview.
     -->
     <div class="toolbar screen-only">
-      <span class="badge">Preview · A4</span>
       <strong>JAPOW Chaser’s Guide</strong>
-      <button type="button" onclick="window.print()">Print / PDF</button>
-      <button type="button" id="toggle-pagebreaks" class="secondary">
-        Page breaks
-      </button>
-      <a href="#toc">Contents</a>
+      <button type="button" onclick="window.print()">Print</button>
+<a href="#toc">Contents</a>
       <a href="#hub-asahikawa">Asahikawa</a>
       <a href="https://japowsearch.com/tools/hotel-compare?hub=asahikawa">Hotel compare</a>
       <a href="#hub-nagano">Hakuba</a>
       <a href="#hub-yuzawa">Yuzawa</a>
-<span class="page-break-hint">A4 · field guide</span>
-    </div>
+</div>
 
     <main class="page-shell">
       <div class="brand-bar" aria-hidden="false">
@@ -114,9 +109,7 @@
           <figcaption>IMG-00 Cover · Asahikawa · Hakuba Happo-One · Echigo-Yuzawa</figcaption>
         </figure>
         <header>
-          <p class="meta">
-            <span class="badge print-hidden">preview</span>
-            Unified PDF target · ~55–65 pages · Free updates through May 31, 2027
+          <p class="meta">HTML field guide · Free updates through May 31, 2027
           </p>
           <h1>The Ultimate JAPOW Chaser's Guide</h1>
           <p class="meta">
@@ -155,10 +148,7 @@
           <li><a href="#decision">Decision tree · Nightly workflow</a></li>
           <li><a href="#waki">Waki-Pow · Local secrets</a></li>
           <li><a href="#closing">Closing · Update policy</a></li>
-          <li class="print-hidden">
-            <a href="#asset-gallery">Asset gallery (all approved art)</a>
-          </li>
-        </ol>
+</ol>
       </nav>
 
       <div class="hub-nav">
@@ -5370,13 +5360,13 @@
         <h2>Closing</h2>
         <p>
           The Hub Strategy is simple: <strong>base smart, move daily, decide
-          nightly.</strong> This PDF is the plan. Japowsearch is the radar.
+          nightly.</strong> This guide is the plan. Japowsearch is the radar.
         </p>
         <p>— JAPOW Chaser / japowsearch.com</p>
         <div class="chapter-card">
           <p class="meta" style="margin: 0 0 0.3rem">Update policy</p>
           <p style="margin: 0">
-            Gumroad <strong>$15</strong>. Purchasers receive free PDF updates
+            Gumroad <strong>$15</strong>. Purchasers receive free updates
             through <strong>May 31, 2027</strong>. Broken links, logistics, and
             japowsearch workflow revisions are covered.
           </p>
@@ -5384,96 +5374,13 @@
       </section>
 
       <!-- ASSET GALLERY -->
-      <section class="section print-hidden" id="asset-gallery">
-        <h2>Asset gallery — approved v1 art</h2>
-        <p class="meta">
-          Approved v1 art set for this preview.
-        </p>
-        <ul>
-          <li>00 cover · 01 calendar · 02–04 JMA trio</li>
-          <li>05+10 hub spread · 06 Hakuba Happo map · 07 Yuzawa map</li>
-          <li>08 workflow · 09 decision · 11 waki-pow</li>
-          <li>IMG-12 budget tiers — optional / skipped for v1</li>
-        </ul>
-        <div class="chapter-card">
-          <p style="margin: 0 0 0.4rem"><strong>Completion snapshot</strong></p>
-          <ul style="margin: 0">
-            <li>Art set: ✅ complete for v1</li>
-            <li>Asahikawa copy: ✅</li>
-            <li>Yuzawa copy: ✅ in this file (#hub-yuzawa) · wording in DRAFT_v1_copyedited.md</li>
-            <li>Hakuba Happo copy: ✅ in this file (#hub-nagano) · wording in DRAFT_v1_copyedited.md</li>
-            <li>Sales PDF: Chrome / Edge print of this file (A4 · background graphics ON)</li>
-          </ul>
-        </div>
-      </section>
 
-      <footer
+<footer
         class="meta print-hidden"
         style="margin-top: 2rem; border-top: 1px solid var(--line); padding-top: 0.8rem"
       >
-        Full guide preview · print this file to A4 PDF
-        · source:
-        <code>DRAFT_v1_copyedited.md</code> (HUB 1–3)
+        JAPOW Chaser’s Guide · 2026–27 · japowsearch.com
       </footer>
     </main>
-
-    <script>
-      (function () {
-        var shell = document.querySelector(".page-shell");
-        if (!shell) return;
-
-        var overlay = document.createElement("div");
-        overlay.className = "page-break-overlay";
-        overlay.setAttribute("aria-hidden", "true");
-        shell.appendChild(overlay);
-
-        function pageContentPx() {
-          var widthPx = shell.clientWidth;
-          return (widthPx / 210) * 269;
-        }
-
-        function renderBreaks() {
-          overlay.innerHTML = "";
-          var h = shell.scrollHeight;
-          var pageH = pageContentPx();
-          if (pageH < 80) return;
-          var page = 1;
-          for (var y = pageH; y < h - 8; y += pageH) {
-            page += 1;
-            var line = document.createElement("div");
-            line.className = "page-break-line";
-            line.style.top = y + "px";
-            var label = document.createElement("span");
-            label.className = "page-break-label";
-            label.textContent = "PDF p." + page + " 始まり目安";
-            line.appendChild(label);
-            overlay.appendChild(line);
-          }
-          var first = document.createElement("div");
-          first.className = "page-break-line";
-          first.style.top = "0px";
-          first.style.borderTopColor = "transparent";
-          var firstLabel = document.createElement("span");
-          firstLabel.className = "page-break-label";
-          firstLabel.textContent = "PDF p.1";
-          first.appendChild(firstLabel);
-          overlay.appendChild(first);
-        }
-
-        var btnBreaks = document.getElementById("toggle-pagebreaks");
-        if (btnBreaks) {
-          btnBreaks.addEventListener("click", function () {
-            document.body.classList.toggle("show-page-breaks");
-          });
-        }
-
-        renderBreaks();
-        window.addEventListener("resize", renderBreaks);
-        window.addEventListener("load", renderBreaks);
-        if (document.fonts && document.fonts.ready) {
-          document.fonts.ready.then(renderBreaks);
-        }
-      })();
-    </script>
-  </body>
+</body>
 </html>
