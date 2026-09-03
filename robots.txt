@@ -2,5 +2,6 @@
 User-agent: *
 Allow: /
 Disallow: /ski-powder-hunter.html
+Disallow: /guide/
 
 Sitemap: https://japowsearch.com/sitemap.xml

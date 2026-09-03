@@ -1,0 +1,672 @@
+/* Hallmark · genre: editorial · macrostructure: Long Document · theme: Almanac-field
+ * enrichment: photographic · nav: N6 masthead · footer: Ft4 colophon
+ * pre-emit critique: P4 H4 E4 S4 R5 V4
+ *
+ * Anti-slop intent (Nutlope/hallmark):
+ * - Kill cyan/orange neon AI-tool atmospheric look
+ * - Warm paper + charcoal ink (never pure #000 / #fff)
+ * - One muted accent (<5% of page)
+ * - Serif body + display pairing (no Inter/Geist mono-culture)
+ * - Hairlines over cards; no pill status chips; no fake topo blooms
+ * - A4 field-guide: images contain, never crop
+ */
+
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Sans:wght@400;500;600&display=swap");
+
+:root {
+  /* Paper — warm, print-like */
+  --fg-paper: #f3efe6;
+  --fg-paper-2: #ebe4d6;
+  --fg-paper-3: #e0d7c6;
+  --fg-ink: #1c1914;
+  --fg-ink-2: #3a342c;
+  --fg-mute: #6a6156;
+  --fg-rule: #c9bfae;
+  --fg-hairline: #d8d0c2;
+
+  /* Single accent — cold iron blue (snow country), sparingly */
+  --fg-accent: #2a4a62;
+  --fg-accent-soft: #d5e0e8;
+  --fg-mark: #8b3a2a;
+
+  --fg-font-display: "Fraunces", "Source Serif 4", Georgia, serif;
+  --fg-font-body: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --fg-font-ui: "IBM Plex Sans", "Segoe UI", sans-serif;
+
+  --fg-measure: 62ch;
+  --a4-width: 210mm;
+  --a4-pad: 14mm;
+  --media-max-h: 155mm;
+  --media-hero-max-h: 130mm;
+  --media-chart-max-h: 110mm;
+}
+
+/* Override legacy preview-print tokens when field-guide is active */
+body.field-guide {
+  --ink: var(--fg-ink);
+  --muted: var(--fg-mute);
+  --line: var(--fg-rule);
+  --accent: var(--fg-accent);
+  --warn: #7a4a12;
+  --warn-bg: #f3e6d0;
+  --placeholder-bg: var(--fg-paper-2);
+  --placeholder-border: var(--fg-rule);
+  --font-body: var(--fg-font-body);
+  --font-display: var(--fg-font-display);
+  --page-width: var(--a4-width);
+  --page-pad: var(--a4-pad);
+
+  margin: 0;
+  color: var(--fg-ink);
+  background: #cfc7b8;
+  font-family: var(--fg-font-body);
+  font-size: 11pt;
+  line-height: 1.65;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  overflow-x: clip;
+}
+
+html {
+  overflow-x: clip;
+}
+
+body.field-guide .page-shell {
+  max-width: var(--a4-width);
+  margin: 1.25rem auto;
+  padding: var(--a4-pad);
+  background: var(--fg-paper);
+  box-shadow: 0 10px 40px rgba(40, 30, 16, 0.18);
+  /* No fake topo / radial blooms */
+  background-image: none;
+}
+
+/* —— Masthead (N6 newspaper), not SaaS sticky toolbar —— */
+body.field-guide .toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem 1rem;
+  align-items: center;
+  justify-content: center;
+  padding: 0.55rem 1rem;
+  background: var(--fg-paper);
+  color: var(--fg-ink);
+  border-bottom: 3px double var(--fg-ink);
+  font-family: var(--fg-font-ui);
+  font-size: 0.78rem;
+  letter-spacing: 0.02em;
+}
+
+body.field-guide .toolbar .badge {
+  background: transparent;
+  color: var(--fg-mark);
+  border: 1px solid var(--fg-mark);
+  border-radius: 2px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.65rem;
+}
+
+body.field-guide .toolbar strong {
+  font-family: var(--fg-font-display);
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0;
+}
+
+body.field-guide .toolbar a {
+  color: var(--fg-accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+body.field-guide .toolbar button {
+  background: var(--fg-ink);
+  color: var(--fg-paper);
+  border: 0;
+  border-radius: 2px;
+  padding: 0.3rem 0.65rem;
+  font-family: var(--fg-font-ui);
+  font-weight: 600;
+  font-size: 0.72rem;
+  cursor: pointer;
+}
+
+body.field-guide .toolbar button.secondary {
+  background: transparent;
+  color: var(--fg-ink);
+  border: 1px solid var(--fg-ink);
+}
+
+body.field-guide #mode-label {
+  display: none; /* no dual “AI visual mode” */
+}
+
+/* —— Masthead inside page —— */
+body.field-guide .brand-bar {
+  display: block;
+  text-align: center;
+  margin: 0 0 1.25rem;
+  padding: 0 0 0.75rem;
+  border-bottom: 3px double var(--fg-ink);
+}
+
+body.field-guide .brand-bar .brand-left {
+  display: block;
+  font-family: var(--fg-font-display);
+  font-size: 1.65rem;
+  font-weight: 700;
+  font-style: normal;
+  letter-spacing: 0.02em;
+  color: var(--fg-ink);
+  text-transform: none;
+}
+
+body.field-guide .brand-bar .brand-right {
+  display: block;
+  margin-top: 0.25rem;
+  font-family: var(--fg-font-ui);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--fg-mute);
+}
+
+body.field-guide .brand-bar .brand-right span {
+  color: var(--fg-mute);
+  margin-left: 0;
+}
+
+/* —— Type —— */
+body.field-guide h1,
+body.field-guide h2,
+body.field-guide h3 {
+  font-family: var(--fg-font-display);
+  font-style: normal; /* gate 38a — no italic headers */
+  color: var(--fg-ink);
+  letter-spacing: -0.01em;
+  text-transform: none;
+  border: 0;
+  padding: 0;
+}
+
+body.field-guide h1 {
+  font-size: 1.85rem;
+  line-height: 1.15;
+  margin: 0.2rem 0 0.5rem;
+  border-left: 0;
+  max-width: 18ch;
+}
+
+body.field-guide h2 {
+  font-size: 1.2rem;
+  margin: 2.1rem 0 0.9rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--fg-ink);
+  color: var(--fg-ink);
+}
+
+body.field-guide h3 {
+  font-size: 1.02rem;
+  margin: 1.55rem 0 0.6rem;
+  color: var(--fg-ink-2);
+  border-left: 0;
+  font-weight: 700;
+}
+
+body.field-guide h4 {
+  font-family: var(--fg-font-ui);
+  font-size: 0.88rem;
+  font-weight: 600;
+  margin: 1.2rem 0 0.45rem;
+  color: var(--fg-ink-2);
+}
+
+body.field-guide p {
+  max-width: var(--fg-measure);
+  margin: 0 0 0.9rem;
+  hyphens: none;
+}
+
+body.field-guide ul,
+body.field-guide ol {
+  max-width: var(--fg-measure);
+  margin: 0.15rem 0 1.05rem;
+  padding-left: 1.35rem;
+}
+
+body.field-guide li {
+  margin: 0.4rem 0;
+  line-height: 1.55;
+}
+
+body.field-guide li + li {
+  margin-top: 0.5rem;
+}
+
+/* Book-this clocks: one beat per line, not one paragraph with <br> */
+body.field-guide ul.timeline {
+  list-style: none;
+  padding-left: 0;
+  margin: 0.35rem 0 1.2rem;
+}
+
+body.field-guide ul.timeline li {
+  margin: 0;
+  padding: 0.5rem 0 0.65rem;
+  border-bottom: 1px solid var(--fg-hairline);
+}
+
+body.field-guide ul.timeline li:first-child {
+  padding-top: 0;
+}
+
+body.field-guide ul.timeline li:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+body.field-guide a {
+  color: var(--fg-accent);
+}
+
+body.field-guide .meta {
+  font-family: var(--fg-font-ui);
+  font-size: 0.78rem;
+  color: var(--fg-mute);
+  letter-spacing: 0.01em;
+}
+
+body.field-guide .badge {
+  font-family: var(--fg-font-ui);
+  background: var(--fg-paper-2);
+  color: var(--fg-ink-2);
+  border: 1px solid var(--fg-rule);
+  border-radius: 2px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.65rem;
+}
+
+/* Status: plain editorial labels — not SaaS pills */
+body.field-guide .status-pill {
+  display: inline;
+  padding: 0;
+  margin: 0;
+  border-radius: 0;
+  background: transparent !important;
+  color: var(--fg-mute) !important;
+  font-family: var(--fg-font-ui);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+body.field-guide .status-pill::before {
+  content: "· ";
+  color: var(--fg-rule);
+}
+
+body.field-guide .status-ready {
+  color: var(--fg-accent) !important;
+}
+body.field-guide .status-draft {
+  color: var(--fg-mark) !important;
+}
+body.field-guide .status-pending {
+  color: var(--fg-mute) !important;
+}
+
+/* TOC — index, not card deck */
+body.field-guide .toc {
+  background: transparent;
+  border: 0;
+  border-top: 1px solid var(--fg-ink);
+  border-bottom: 1px solid var(--fg-ink);
+  padding: 0.85rem 0;
+  margin: 1.1rem 0 1.4rem;
+  font-family: var(--fg-font-ui);
+  font-size: 0.85rem;
+}
+
+body.field-guide .toc strong {
+  font-family: var(--fg-font-display);
+  font-size: 1rem;
+  display: block;
+  margin-bottom: 0.35rem;
+}
+
+body.field-guide .toc a {
+  color: var(--fg-ink-2);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--fg-rule);
+}
+
+body.field-guide .toc a:hover {
+  color: var(--fg-accent);
+  border-bottom-color: var(--fg-accent);
+}
+
+/* Hub jump list — hairline rows, not neon cards */
+body.field-guide .hub-nav {
+  display: block;
+  margin: 1rem 0 1.4rem;
+  border-top: 1px solid var(--fg-ink);
+}
+
+body.field-guide .hub-nav a {
+  display: grid;
+  grid-template-columns: 2.2rem 1fr;
+  gap: 0.35rem 0.75rem;
+  padding: 0.7rem 0;
+  border: 0;
+  border-bottom: 1px solid var(--fg-rule);
+  border-radius: 0;
+  background: transparent;
+  color: var(--fg-ink);
+  text-decoration: none;
+  /* Avoid splitting one row across pages (prevents "double border" artifacts). */
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+body.field-guide .hub-nav a:hover {
+  background: var(--fg-paper-2);
+}
+
+/* Force the first hub label to start on PDF page 2 (when printed A4). */
+@media print {
+  body.field-guide .hub-nav a.hub-nav-page2 {
+    break-before: page;
+    page-break-before: always;
+  }
+}
+
+body.field-guide .hub-nav a::before {
+  font-family: var(--fg-font-display);
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--fg-accent);
+  content: attr(data-num);
+}
+
+body.field-guide .hub-nav strong {
+  grid-column: 2;
+  font-family: var(--fg-font-display);
+  font-size: 1rem;
+  margin: 0;
+}
+
+body.field-guide .hub-nav span {
+  grid-column: 2;
+  font-family: var(--fg-font-ui);
+  font-size: 0.78rem;
+  color: var(--fg-mute);
+}
+
+/* Callout / chapter note — hairline box, not glass card */
+body.field-guide .chapter-card {
+  border: 1px solid var(--fg-ink);
+  border-radius: 0;
+  background: var(--fg-paper-2);
+  padding: 0.85rem 1rem;
+  margin: 0.9rem 0;
+  max-width: var(--fg-measure);
+}
+
+body.field-guide .stub-box {
+  border: 1px dashed var(--fg-mute);
+  background: var(--fg-paper-2);
+  border-radius: 0;
+  padding: 1rem;
+  text-align: left;
+  font-family: var(--fg-font-ui);
+  font-size: 0.88rem;
+}
+
+body.field-guide blockquote {
+  margin: 0.9rem 0;
+  padding: 0.15rem 0 0.15rem 0.9rem;
+  border-left: 2px solid var(--fg-mark);
+  font-style: italic;
+  color: var(--fg-ink-2);
+  max-width: var(--fg-measure);
+}
+
+/* Tables — almanac */
+body.field-guide table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--fg-font-ui);
+  font-size: 0.84rem;
+  margin: 0.75rem 0 1.35rem;
+}
+
+body.field-guide th,
+body.field-guide td {
+  border: 1px solid var(--fg-rule);
+  padding: 0.5rem 0.58rem;
+  background: transparent;
+  vertical-align: top;
+  line-height: 1.45;
+}
+
+body.field-guide th {
+  background: var(--fg-paper-2);
+  color: var(--fg-ink);
+  font-weight: 600;
+  text-align: left;
+}
+
+body.field-guide .verify {
+  background: var(--warn-bg);
+  color: var(--warn);
+  border: 1px solid #e0c9a0;
+  border-radius: 2px;
+  font-family: var(--fg-font-ui);
+  font-size: 0.75em;
+  font-weight: 600;
+}
+
+/* —— Images: A4, never crop —— */
+body.field-guide .media {
+  margin: 0.9rem 0 1.15rem;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+body.field-guide .media-frame {
+  border: 1px solid var(--fg-ink);
+  background: var(--fg-paper-2);
+  border-radius: 0;
+  min-height: 0;
+  padding: 0;
+}
+
+body.field-guide .media-frame.has-image {
+  background: var(--fg-paper-3);
+  overflow: hidden;
+}
+
+body.field-guide .media-frame.has-image img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+  max-height: var(--media-max-h);
+  object-fit: contain;
+  object-position: center;
+  margin: 0 auto;
+}
+
+body.field-guide .media-hero .media-frame.has-image img {
+  max-height: var(--media-hero-max-h);
+}
+
+/* Portrait locator — fill column; avoid side letterbox gutters */
+body.field-guide .media-portrait .media-frame.has-image {
+  display: block;
+  padding: 0;
+  background: var(--fg-paper);
+  border: 1px solid var(--fg-ink);
+}
+
+body.field-guide .media-portrait .media-frame.has-image img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 230mm;
+  object-fit: contain;
+  object-position: center top;
+}
+
+/* Orientation map — locked placement frame (A4 column × ~155mm) */
+body.field-guide .media-orient .media-frame.has-image {
+  display: block;
+  padding: 0;
+  width: 100%;
+  aspect-ratio: 182 / 155;
+  background: var(--fg-paper);
+  border: 1px solid var(--fg-ink);
+  overflow: hidden;
+}
+
+body.field-guide .media-orient .media-frame.has-image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-height: none;
+  object-fit: contain;
+  object-position: center;
+}
+
+body.field-guide .media-infographic .media-frame.has-image img,
+body.field-guide .media-chart .media-frame.has-image img {
+  max-height: var(--media-chart-max-h);
+}
+
+/* Eat-map screenshots: fill the A4 column so the ink frame matches the PNG
+ * (chart max-height letterboxes ~3:2 crops inside a full-width border). */
+body.field-guide .media-map .media-frame.has-image {
+  background: var(--fg-paper);
+}
+body.field-guide .media-map .media-frame.has-image img {
+  max-height: var(--media-max-h);
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+body.field-guide .media-map .media-frame.has-image a {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+body.field-guide .media-map .media-frame.has-image a:focus-visible {
+  outline: 2px solid var(--fg-accent);
+  outline-offset: 2px;
+}
+
+body.field-guide .figure-stack.jma .media-frame.has-image img {
+  max-height: 100mm;
+}
+
+body.field-guide .media figcaption {
+  font-family: var(--fg-font-ui);
+  font-size: 0.72rem;
+  color: var(--fg-mute);
+  margin-top: 0.35rem;
+  max-width: none;
+}
+
+/* Page-break overlay — quieter */
+body.field-guide .page-break-line {
+  border-top-color: var(--fg-mark);
+  box-shadow: none;
+}
+
+body.field-guide .page-break-label {
+  background: var(--fg-mark);
+  border-radius: 0;
+  font-family: var(--fg-font-ui);
+}
+
+body.field-guide .page-break-hint {
+  color: var(--fg-mark);
+}
+
+body.field-guide footer.meta {
+  border-top: 1px solid var(--fg-ink) !important;
+  font-family: var(--fg-font-ui);
+}
+
+@media print {
+  body.field-guide {
+    background: #fff !important;
+  }
+  body.field-guide .page-shell {
+    margin: 0;
+    /* Use the same padding as preview-print.css to keep A4 margins stable. */
+    padding: var(--a4-pad, 14mm);
+    box-shadow: none;
+    max-width: none;
+    background: var(--fg-paper);
+  }
+  /* Force "Orientation — three hubs" to start at the top of a PDF page. */
+  body.field-guide #orient {
+    break-before: page;
+    page-break-before: always;
+  }
+  /* Force "Section 1: The JAPOW Calendar" to start at the top of a PDF page. */
+  body.field-guide #calendar {
+    break-before: page;
+    page-break-before: always;
+  }
+  /* Force "JMA snowfall charts" to start at the top of a PDF page. */
+  body.field-guide #jma {
+    break-before: page;
+    page-break-before: always;
+  }
+  /* Force "Where to stay: OMO7" to start at the top of a PDF page. */
+  body.field-guide #omo7-stay {
+    break-before: page;
+    page-break-before: always;
+  }
+  /* Hakuba stub in the unified stitch: start on a new page. Stay/food breaks live in hakuba-hub-preview/index-en.html. */
+  body.field-guide #hub-nagano {
+    break-before: page;
+    page-break-before: always;
+  }
+  body.field-guide .media-frame.has-image img {
+    object-fit: contain !important;
+    max-width: 100% !important;
+    height: auto !important;
+  }
+}
+
+@media (max-width: 640px) {
+  body.field-guide .page-shell {
+    margin: 0;
+    padding: 1rem;
+    box-shadow: none;
+  }
+  body.field-guide h1 {
+    max-width: none;
+    font-size: 1.45rem;
+  }
+  body.field-guide .hub-nav a {
+    grid-template-columns: 1fr;
+  }
+  body.field-guide .hub-nav a::before {
+    content: none;
+  }
+}

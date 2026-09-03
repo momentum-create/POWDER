@@ -1,0 +1,425 @@
+/* JAPOW Hub Chapter — Screen + Print CSS
+   Target: A4 PDF via Chrome → Print → Save as PDF
+   Keep page width ≈ 210mm content column so print matches screen.
+*/
+
+:root {
+  --page-width: 210mm;
+  --page-pad: 14mm;
+  --ink: #1a1f24;
+  --muted: #5a6570;
+  --line: #d5dde5;
+  --accent: #0b4f6c;
+  --warn: #8a4b08;
+  --warn-bg: #fff4e5;
+  --placeholder-bg: #eef2f5;
+  --placeholder-border: #9aa8b5;
+  --font-body: "Segoe UI", "Hiragino Sans", "Hiragino Kaku Gothic ProN",
+    "Noto Sans JP", Meiryo, sans-serif;
+  --font-display: Georgia, "Hiragino Mincho ProN", "Noto Serif JP", serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 11pt;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+body {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--font-body);
+  line-height: 1.55;
+  background: #cfd6dc;
+}
+
+/* Screen: simulate A4 column */
+.page-shell {
+  max-width: var(--page-width);
+  margin: 1.5rem auto;
+  padding: var(--page-pad);
+  background: #fff;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.12);
+}
+
+.screen-only {
+  display: block;
+}
+
+/* Buyer PDF: hide internal review scaffolding (Wave 4 · B4) */
+.print-hidden {
+  display: block;
+}
+
+@media print {
+  body {
+    background: #fff;
+  }
+  .page-shell {
+    max-width: none;
+    margin: 0;
+    /* Rely on container padding for consistent print margins. */
+    padding: var(--page-pad, 14mm);
+    box-shadow: none;
+  }
+  .screen-only,
+  .print-hidden {
+    display: none !important;
+  }
+  .status-pill {
+    display: none !important;
+  }
+  a[href]::after {
+    content: " (" attr(href) ")";
+    font-size: 8pt;
+    color: var(--muted);
+    word-break: break-all;
+  }
+  a.no-print-url::after,
+  nav a::after {
+    content: none !important;
+  }
+}
+
+@page {
+  size: A4;
+  /* Avoid browser print UI differences clipping left/right. */
+  margin: 0;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  color: var(--accent);
+  page-break-after: avoid;
+  break-after: avoid;
+}
+
+h1 {
+  font-size: 1.7rem;
+  margin: 0 0 0.4rem;
+  line-height: 1.25;
+}
+
+h2 {
+  font-size: 1.25rem;
+  margin: 1.6rem 0 0.6rem;
+  padding-bottom: 0.25rem;
+  border-bottom: 2px solid var(--accent);
+}
+
+h3 {
+  font-size: 1.05rem;
+  margin: 1.1rem 0 0.4rem;
+}
+
+p {
+  margin: 0.45rem 0 0.7rem;
+}
+
+ul,
+ol {
+  margin: 0.3rem 0 0.8rem;
+  padding-left: 1.25rem;
+}
+
+li {
+  margin: 0.2rem 0;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+  margin: 0.5rem 0 1rem;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+th,
+td {
+  border: 1px solid var(--line);
+  padding: 0.35rem 0.45rem;
+  vertical-align: top;
+  text-align: left;
+}
+
+th {
+  background: #f2f6f9;
+  color: var(--accent);
+}
+
+.meta {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.badge {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding: 0.15rem 0.45rem;
+  border-radius: 3px;
+  background: #e7f1f6;
+  color: var(--accent);
+}
+
+.verify {
+  background: var(--warn-bg);
+  color: var(--warn);
+  border: 1px solid #efd0a8;
+  padding: 0.05rem 0.35rem;
+  border-radius: 3px;
+  font-weight: 700;
+  font-size: 0.85em;
+}
+
+.callout {
+  border-left: 4px solid var(--accent);
+  background: #f4f8fb;
+  padding: 0.7rem 0.9rem;
+  margin: 0.8rem 0 1rem;
+}
+
+.toc {
+  background: #f7fafc;
+  border: 1px solid var(--line);
+  padding: 0.8rem 1rem;
+  margin: 1rem 0 1.4rem;
+}
+
+.toc ol {
+  margin: 0.3rem 0 0;
+}
+
+.toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: #102a36;
+  color: #fff;
+  padding: 0.55rem 1rem;
+  font-size: 0.9rem;
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.toolbar a {
+  color: #9fd4ef;
+}
+
+.toolbar button {
+  cursor: pointer;
+  border: 0;
+  background: #1f6f8b;
+  color: #fff;
+  padding: 0.35rem 0.7rem;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.toolbar button.secondary {
+  background: transparent;
+  color: #9fd4ef;
+  border: 1px solid rgba(159, 212, 239, 0.45);
+}
+
+/* Media placeholders — A4-safe: never crop; fit within page */
+:root {
+  /* A4 printable body ≈ 269mm; leave room for caption + section chrome */
+  --media-max-h: 165mm;
+  --media-hero-max-h: 145mm;
+  --media-chart-max-h: 120mm;
+}
+
+.media {
+  margin: 0.8rem 0 1.1rem;
+  page-break-inside: avoid;
+  break-inside: avoid;
+  max-width: 100%;
+}
+
+.media figcaption {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-top: 0.35rem;
+}
+
+.media-frame {
+  border: 2px dashed var(--placeholder-border);
+  background: var(--placeholder-bg);
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 1rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+  overflow: hidden;
+}
+
+.media-frame.has-image {
+  border-style: solid;
+  padding: 0;
+  background: #0a0e14;
+  /* letterbox container — image never clipped */
+  min-height: 0;
+}
+
+.media-frame.has-image img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+  max-height: var(--media-max-h);
+  object-fit: contain;
+  object-position: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Cover / hero: full width, contain (no crop), slightly shorter for A4 */
+.media-hero .media-frame.has-image img {
+  max-height: var(--media-hero-max-h);
+  object-fit: contain;
+}
+
+/* Charts / landscape infographics: keep readable on one A4 page */
+.media-chart .media-frame.has-image img,
+.media-infographic .media-frame.has-image img {
+  max-height: var(--media-chart-max-h);
+  object-fit: contain;
+}
+
+/* Optional compact inset (half-page feel) */
+.media-compact .media-frame.has-image img {
+  max-height: 90mm;
+  object-fit: contain;
+}
+
+.media-video .media-frame {
+  min-height: 200px;
+  aspect-ratio: 16 / 9;
+}
+
+.media-video iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+
+/* PDF note under videos */
+.pdf-fallback {
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin-top: 0.25rem;
+}
+
+@media print {
+  .media-video iframe {
+    display: none;
+  }
+  .media-video .print-poster {
+    display: flex !important;
+  }
+}
+
+.print-poster {
+  display: none;
+  min-height: 140px;
+  border: 2px solid var(--placeholder-border);
+  background: var(--placeholder-bg);
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 1rem;
+  color: var(--muted);
+}
+
+.checklist li {
+  list-style: none;
+  margin-left: -1.25rem;
+}
+
+.checklist input {
+  margin-right: 0.4rem;
+}
+
+.section {
+  page-break-inside: auto;
+}
+
+.keep-together {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+/* --------------------------------------------------------------------------
+   A4 page-break simulation (screen only)
+   Content height ≈ 297mm − 14mm − 14mm = 269mm
+   Toggle body.show-page-breaks via toolbar button.
+   -------------------------------------------------------------------------- */
+:root {
+  --a4-height: 297mm;
+  --a4-content-height: 269mm;
+}
+
+.page-shell {
+  position: relative;
+}
+
+.page-break-overlay {
+  display: none;
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 4;
+}
+
+body.show-page-breaks .page-break-overlay {
+  display: block;
+}
+
+.page-break-line {
+  position: absolute;
+  left: -6px;
+  right: -6px;
+  border-top: 2px dashed #c45c26;
+  box-shadow: 0 0 0 1px rgba(196, 92, 38, 0.15);
+}
+
+.page-break-label {
+  position: absolute;
+  right: 0;
+  transform: translateY(-100%);
+  background: #c45c26;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  padding: 2px 7px;
+  border-radius: 3px 3px 0 0;
+}
+
+.page-break-hint {
+  font-size: 0.8rem;
+  color: #c45c26;
+  margin: 0;
+}
+
+@media print {
+  .page-break-overlay,
+  .page-break-hint {
+    display: none !important;
+  }
+}
