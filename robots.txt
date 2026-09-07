@@ -1,7 +1,7 @@
-# Japowsearch — Search Console 用（クロール許可 + サイトマップ）
+# Japowsearch — allow crawling of all public URLs so Google can
+# see noindex / canonical on redirect stubs. Disallowing those
+# paths causes Search Console "Blocked by robots.txt".
 User-agent: *
 Allow: /
-Disallow: /ski-powder-hunter.html
-Disallow: /guide/
 
 Sitemap: https://japowsearch.com/sitemap.xml

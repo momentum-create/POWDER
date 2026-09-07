@@ -2,12 +2,12 @@
   "redirects": [
     {
       "source": "/tools/asahikawa-hotels-compare",
-      "destination": "/tools/hotel-compare?hub=asahikawa",
+      "destination": "/tools/hotel-compare/?hub=asahikawa",
       "permanent": true
     },
     {
       "source": "/tools/hotel-compare/:hub",
-      "destination": "/tools/hotel-compare?hub=:hub",
+      "destination": "/tools/hotel-compare/?hub=:hub",
       "permanent": false
     }
   ],

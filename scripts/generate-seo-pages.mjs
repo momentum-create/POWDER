@@ -14,6 +14,7 @@ import { fileURLToPath } from "node:url";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, "..");
 const site = "https://japowsearch.com";
+const hotelCompare = `${site}/tools/hotel-compare/`;
 const guidesHost = "https://guides.japowserch.com";
 const ogImage = `${site}/assets/track-final-dumps-poster.png`;
 const today = new Date().toISOString().slice(0, 10);
@@ -89,7 +90,7 @@ footer{margin-top:3rem;padding-top:1.5rem;border-top:1px solid var(--border);fon
 `;
 
 function siteNav(extra = "") {
-  return `<nav class="meta"><a href="${site}/">Ranking</a> · <a href="${site}/tools/hotel-compare">Hotels</a> · <a href="${site}/hubs/asahikawa.html">Hubs</a> · <a href="${site}/guides/">Guides</a> · <a href="${site}/regions/">Regions</a> · <a href="${site}/faq.html">FAQ</a> · <a href="${site}/about.html">About</a>${extra}</nav>`;
+  return `<nav class="meta"><a href="${site}/">Ranking</a> · <a href="${hotelCompare}">Hotels</a> · <a href="${site}/hubs/asahikawa.html">Hubs</a> · <a href="${site}/guides/">Guides</a> · <a href="${site}/regions/">Regions</a> · <a href="${site}/faq.html">FAQ</a> · <a href="${site}/about.html">About</a>${extra}</nav>`;
 }
 
 function siteFooter() {
@@ -99,9 +100,6 @@ function siteFooter() {
 }
 
 function headPage({ lang, title, description, canonical, jsonLd }) {
-  const hreflangJa = lang === "ja" ? canonical : `${site}/`;
-  const hreflangEn =
-    lang === "en" ? canonical : `${site}/ski-powder-hunter-en.html`;
   return `<!DOCTYPE html>
 <html lang="${lang}">
 <head>
@@ -110,9 +108,6 @@ function headPage({ lang, title, description, canonical, jsonLd }) {
 <title>${title}</title>
 <meta name="description" content="${description}">
 <link rel="canonical" href="${canonical}">
-<link rel="alternate" hreflang="ja" href="${hreflangJa}">
-<link rel="alternate" hreflang="en" href="${hreflangEn}">
-<link rel="alternate" hreflang="x-default" href="${site}/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Japowsearch">
 <meta property="og:title" content="${title}">
@@ -243,7 +238,7 @@ function faqPage() {
     },
     {
       q: "宿を比較するツールは？",
-      a: `<a href="${site}/tools/hotel-compare">Hotel compare</a>で旭川・白馬・湯沢ハブのショートリストを一括見積もりできます。`,
+      a: `<a href="${hotelCompare}">Hotel compare</a>で旭川・白馬・湯沢ハブのショートリストを一括見積もりできます。`,
     },
   ];
   const jsonLd = {
@@ -324,7 +319,7 @@ function aboutPage() {
 <h2>Affiliate &amp; privacy</h2>
 <p>Some hotel and car links are affiliate-tracked. See our <a href="${site}/affiliate-disclosure.html">affiliate disclosure</a> and <a href="${site}/privacy.html">privacy policy</a>.</p>
 <a class="cta" href="${site}/ski-powder-hunter-en.html">Open powder ranking</a>
-<a class="cta cta-secondary" href="${site}/tools/hotel-compare">Hotel compare tool</a>
+<a class="cta cta-secondary" href="${hotelCompare}">Hotel compare tool</a>
 </main>
 ${siteFooter()}
 </div>
@@ -357,7 +352,7 @@ function affiliateDisclosurePage() {
 <h1>Affiliate disclosure</h1>
 <p class="lead">Transparency for travelers and affiliate program reviewers.</p>
 <h2>Hotel compare tool</h2>
-<p>The <a href="${site}/tools/hotel-compare">hotel compare</a> tool uses <strong>Travelpayouts</strong> (Partner ID / marker <code>763558</code>) for bulk “Quote all hotels” searches via <strong>Hotellook</strong>. Agoda and Booking.com-only buttons use direct affiliate IDs when configured.</p>
+<p>The <a href="${hotelCompare}">hotel compare</a> tool uses <strong>Travelpayouts</strong> (Partner ID / marker <code>763558</code>) for bulk “Quote all hotels” searches via <strong>Hotellook</strong>. Agoda and Booking.com-only buttons use direct affiliate IDs when configured.</p>
 <p><strong>Official hotel website links are never affiliate-wrapped.</strong> When the official rate is close — especially for properties with ski shuttles or ryokan dinner plans — book direct.</p>
 <h2>Rental cars</h2>
 <p>Some resort guides link to <strong>Discover Cars</strong> via Post Affiliate Pro (<code>Jaapowsearch</code>). This is separate from Travelpayouts hotel programs.</p>
@@ -376,7 +371,7 @@ function hubPage(hub) {
   const meta = HUB_META[hub];
   const shortlist = loadHubShortlist(hub);
   const canonical = `${site}/hubs/${hub}.html`;
-  const compareUrl = `${site}/tools/hotel-compare?hub=${hub}`;
+  const compareUrl = `${hotelCompare}?hub=${hub}`;
   const hotelItems = shortlist.hotels.map((h, i) => ({
     "@type": "ListItem",
     position: i + 1,
@@ -468,7 +463,7 @@ function hubsIndexPage() {
 <h1>Powder hub hotels</h1>
 <p class="lead">Three hubs for inbound powder weeks — compare the guide shortlist on one dated search page.</p>
 <div class="grid">${cards}</div>
-<a class="cta" href="${site}/tools/hotel-compare">Open hotel compare tool</a>
+<a class="cta" href="${hotelCompare}">Open hotel compare tool</a>
 </main>
 ${siteFooter()}
 </div>
@@ -547,7 +542,7 @@ function buildSitemap() {
     { loc: `${site}/ski-powder-hunter-en.html`, priority: "0.9", changefreq: "daily" },
     { loc: `${site}/about.html`, priority: "0.75", changefreq: "monthly" },
     { loc: `${site}/affiliate-disclosure.html`, priority: "0.5", changefreq: "yearly" },
-    { loc: `${site}/tools/hotel-compare`, priority: "0.85", changefreq: "weekly" },
+    { loc: hotelCompare, priority: "0.85", changefreq: "weekly" },
     { loc: `${site}/hubs/`, priority: "0.85", changefreq: "weekly" },
     { loc: `${site}/guides/`, priority: "0.8", changefreq: "weekly" },
     { loc: `${site}/regions/`, priority: "0.85", changefreq: "weekly" },
@@ -558,11 +553,6 @@ function buildSitemap() {
     urls.push({
       loc: `${site}/hubs/${hub}.html`,
       priority: "0.82",
-      changefreq: "weekly",
-    });
-    urls.push({
-      loc: `${site}/tools/hotel-compare?hub=${hub}`,
-      priority: "0.8",
       changefreq: "weekly",
     });
   }
@@ -588,6 +578,72 @@ function buildSitemap() {
 ${body}
 </urlset>
 `;
+}
+
+function redirectStub({ dest, destHref }) {
+  const href = destHref || dest;
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Moved — Japowsearch</title>
+<meta name="robots" content="noindex, follow">
+<link rel="canonical" href="${dest}">
+<meta http-equiv="refresh" content="0; url=${href}">
+<script>location.replace(${JSON.stringify(href)});</script>
+</head>
+<body>
+<p>This URL has moved. Continue at <a href="${href}">${href}</a>.</p>
+</body>
+</html>
+`;
+}
+
+function writeRedirectStubs() {
+  const stubs = [
+    {
+      file: path.join(root, "tools", "asahikawa-hotels-compare", "index.html"),
+      dest: hotelCompare,
+      destHref: `${hotelCompare}?hub=asahikawa`,
+    },
+    {
+      file: path.join(root, "guide", "index.html"),
+      dest: `${site}/guides/`,
+    },
+  ];
+  for (const hub of Object.keys(HUB_META)) {
+    stubs.push({
+      file: path.join(root, "tools", "hotel-compare", hub, "index.html"),
+      dest: hotelCompare,
+      destHref: `${hotelCompare}?hub=${hub}`,
+    });
+  }
+  for (const stub of stubs) {
+    fs.mkdirSync(path.dirname(stub.file), { recursive: true });
+    fs.writeFileSync(stub.file, redirectStub(stub), "utf8");
+  }
+}
+
+function assertIndexSignals() {
+  const sitemap = fs.readFileSync(path.join(root, "sitemap.xml"), "utf8");
+  if (/<loc>[^<]*\?/.test(sitemap)) {
+    throw new Error("sitemap.xml must not include query-string URLs");
+  }
+  if (!sitemap.includes(`<loc>${hotelCompare}</loc>`)) {
+    throw new Error(`sitemap.xml must list ${hotelCompare}`);
+  }
+  if (sitemap.includes(`${site}/tools/hotel-compare</loc>`)) {
+    throw new Error("sitemap.xml hotel-compare loc must use a trailing slash");
+  }
+  const faq = fs.readFileSync(path.join(root, "faq.html"), "utf8");
+  if (faq.includes('hreflang="en" href="https://japowsearch.com/ski-powder-hunter-en.html"')) {
+    throw new Error("FAQ must not advertise the EN app as a translation");
+  }
+  const hub = fs.readFileSync(path.join(root, "hubs", "asahikawa.html"), "utf8");
+  if (hub.includes('hreflang="ja" href="https://japowsearch.com/"')) {
+    throw new Error("hub pages must not advertise the homepage as a JA translation");
+  }
 }
 
 function writePrivacyPage() {
@@ -670,10 +726,12 @@ async function main() {
   fs.writeFileSync(path.join(root, "about.html"), aboutPage(), "utf8");
   fs.writeFileSync(path.join(root, "affiliate-disclosure.html"), affiliateDisclosurePage(), "utf8");
   writePrivacyPage();
+  writeRedirectStubs();
   fs.writeFileSync(path.join(root, "sitemap.xml"), buildSitemap(), "utf8");
+  assertIndexSignals();
 
   console.log(
-    `Generated ${regions.length} region pages, 3 hub pages, guides index (${registryResorts.length} resorts), about, disclosure, privacy, sitemap.xml`,
+    `Generated ${regions.length} region pages, 3 hub pages, guides index (${registryResorts.length} resorts), about, disclosure, privacy, sitemap.xml, redirect stubs`,
   );
 }
 
