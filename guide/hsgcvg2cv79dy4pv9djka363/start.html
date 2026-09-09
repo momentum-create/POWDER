@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex,nofollow" />
+  <title>Start here — JAPOW Hub Week</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --paper: #f3efe6;
+      --paper-2: #ebe4d6;
+      --ink: #1c1914;
+      --ink-2: #3a342c;
+      --mute: #6a6156;
+      --rule: #c9bfae;
+      --accent: #2a4a62;
+      --mark: #8b3a2a;
+      --font-display: "Fraunces", Georgia, serif;
+      --font-body: "Source Serif 4", Georgia, serif;
+      --font-ui: "IBM Plex Sans", "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100dvh;
+      color: var(--ink);
+      background: #cfc7b8;
+      font-family: var(--font-body);
+      font-size: 1.05rem;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .shell {
+      max-width: 28rem;
+      margin: 0 auto;
+      min-height: 100dvh;
+      padding: 1.25rem 1.35rem 2.5rem;
+      background: var(--paper);
+      box-shadow: 0 12px 40px rgba(40, 30, 16, 0.16);
+    }
+
+    .brand {
+      font-family: var(--font-ui);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--mute);
+      margin: 0 0 0.85rem;
+    }
+
+    .brand em {
+      font-style: normal;
+      color: var(--mark);
+    }
+
+    h1 {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: clamp(1.85rem, 7vw, 2.35rem);
+      line-height: 1.12;
+      letter-spacing: -0.02em;
+      margin: 0 0 0.55rem;
+    }
+
+    .lede {
+      margin: 0 0 1.5rem;
+      color: var(--ink-2);
+      font-size: 1.02rem;
+      max-width: 28ch;
+    }
+
+    .cta {
+      display: block;
+      width: 100%;
+      padding: 1rem 1.1rem;
+      border: 2px solid var(--ink);
+      background: var(--accent);
+      color: #f6f2ea;
+      text-align: center;
+      text-decoration: none;
+      font-family: var(--font-ui);
+      font-weight: 600;
+      font-size: 1.02rem;
+      letter-spacing: 0.01em;
+      transition: background 0.15s ease, transform 0.15s ease;
+    }
+
+    .cta:hover { background: #1f3a4e; }
+    .cta:active { transform: translateY(1px); }
+
+    .cta-hint {
+      margin: 0.55rem 0 0;
+      font-family: var(--font-ui);
+      font-size: 0.78rem;
+      color: var(--mute);
+      text-align: center;
+    }
+
+    .secondary {
+      margin: 1.65rem 0 0;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--rule);
+      font-family: var(--font-ui);
+      font-size: 0.9rem;
+    }
+
+    .secondary a {
+      color: var(--accent);
+      font-weight: 500;
+      text-underline-offset: 0.15em;
+    }
+
+    .secondary p { margin: 0 0 0.65rem; color: var(--ink-2); }
+    .secondary .label {
+      display: block;
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--mute);
+      margin-bottom: 0.2rem;
+    }
+
+    details.tools {
+      margin-top: 1.5rem;
+      border-top: 1px solid var(--rule);
+      padding-top: 0.15rem;
+    }
+
+    details.tools + details.tools {
+      margin-top: 0;
+      border-top: 0;
+    }
+
+    details.tools summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 0.95rem 0;
+      font-family: var(--font-ui);
+      font-weight: 600;
+      font-size: 0.92rem;
+      border-bottom: 1px solid var(--rule);
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 0.75rem;
+    }
+
+    details.tools summary::-webkit-details-marker { display: none; }
+
+    details.tools summary::after {
+      content: "+";
+      font-weight: 500;
+      color: var(--mute);
+      font-size: 1.1rem;
+      line-height: 1;
+    }
+
+    details.tools[open] summary::after { content: "–"; }
+
+    details.tools .panel {
+      padding: 0.85rem 0 1.1rem;
+      font-family: var(--font-ui);
+      font-size: 0.88rem;
+    }
+
+    details.tools ul {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    details.tools li {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.45rem 0;
+      border-bottom: 1px solid #e4dccf;
+    }
+
+    details.tools li:last-child { border-bottom: 0; }
+
+    details.tools .hub {
+      color: var(--ink);
+      font-weight: 500;
+    }
+
+    details.tools a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    details.tools a:hover { text-decoration: underline; }
+
+    .note {
+      margin: 0.35rem 0 0;
+      color: var(--mute);
+      font-size: 0.8rem;
+      line-height: 1.45;
+    }
+
+    footer {
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 3px double var(--ink);
+      font-family: var(--font-ui);
+      font-size: 0.75rem;
+      color: var(--mute);
+      line-height: 1.5;
+    }
+
+    footer strong { color: var(--ink-2); font-weight: 600; }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <p class="brand">JAPOW Hub Week <em>·</em> Field Guide</p>
+
+    <h1>Start here</h1>
+    <p class="lede">Bookmark the full guide on your phone. Everything else hangs off that page.</p>
+
+    <a class="cta" href="https://japowsearch.com/guide/hsgcvg2cv79dy4pv9djka363/">
+      Open the full guide
+    </a>
+    <p class="cta-hint">This is the product. Read it first.</p>
+
+    <div class="secondary">
+      <span class="label">Tonight · optional</span>
+      <p>
+        Nightly radar:
+        <a href="https://japowsearch.com/">japowsearch.com</a>
+        — pick tomorrow’s hill at ~9pm.
+      </p>
+    </div>
+
+    <details class="tools">
+      <summary>Eat maps</summary>
+      <div class="panel">
+        <ul>
+          <li><span class="hub">Asahikawa</span><a href="https://www.google.com/maps/d/viewer?mid=1H9fAIBhcInblW99U2jBObN4dOxJ_2G4">Open map</a></li>
+          <li><span class="hub">Hakuba Happo</span><a href="https://www.google.com/maps/d/viewer?mid=1tVmXYHtX8whQCDnpJaKf4-wWDjDXi5A">Open map</a></li>
+          <li><span class="hub">Echigo-Yuzawa</span><a href="https://www.google.com/maps/d/viewer?mid=1bjlmgLYwn82CK3FxtxdDwZ6u4u-sc_w">Open map</a></li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="tools">
+      <summary>Hotel compare</summary>
+      <div class="panel">
+        <ul>
+          <li><span class="hub">Asahikawa</span><a href="https://japowsearch.com/tools/hotel-compare?hub=asahikawa">Compare</a></li>
+          <li><span class="hub">Hakuba</span><a href="https://japowsearch.com/tools/hotel-compare?hub=hakuba">Compare</a></li>
+          <li><span class="hub">Yuzawa</span><a href="https://japowsearch.com/tools/hotel-compare?hub=yuzawa">Compare</a></li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="tools">
+      <summary>Print / offline PDFs</summary>
+      <div class="panel">
+        <ul>
+          <li><span class="hub">Intro kit</span><a href="https://japowsearch.com/guide/hsgcvg2cv79dy4pv9djka363/field-pdfs/00-intro-field-kit.pdf">PDF</a></li>
+          <li><span class="hub">Asahikawa</span><a href="https://japowsearch.com/guide/hsgcvg2cv79dy4pv9djka363/field-pdfs/01-asahikawa-field.pdf">PDF</a></li>
+          <li><span class="hub">Hakuba</span><a href="https://japowsearch.com/guide/hsgcvg2cv79dy4pv9djka363/field-pdfs/02-hakuba-field.pdf">PDF</a></li>
+          <li><span class="hub">Yuzawa</span><a href="https://japowsearch.com/guide/hsgcvg2cv79dy4pv9djka363/field-pdfs/03-yuzawa-field.pdf">PDF</a></li>
+        </ul>
+        <p class="note">Download intro + your hub only. Don’t read all four instead of the full guide.</p>
+      </div>
+    </details>
+
+    <footer>
+      Free updates through <strong>May 31, 2027</strong>.<br />
+      Do not share the full-guide URL publicly.
+    </footer>
+  </main>
+</body>
+</html>
