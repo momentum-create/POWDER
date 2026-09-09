@@ -363,7 +363,7 @@ body.field-guide .hub-nav {
 
 body.field-guide .hub-nav a {
   display: grid;
-  grid-template-columns: 2.2rem 1fr;
+  grid-template-columns: 2.2rem minmax(0, 1fr);
   gap: 0.35rem 0.75rem;
   padding: 0.7rem 0;
   border: 0;
@@ -372,6 +372,8 @@ body.field-guide .hub-nav a {
   background: transparent;
   color: var(--fg-ink);
   text-decoration: none;
+  text-align: left;
+  justify-items: start;
   /* Avoid splitting one row across pages (prevents "double border" artifacts). */
   page-break-inside: avoid;
   break-inside: avoid;
@@ -390,25 +392,32 @@ body.field-guide .hub-nav a:hover {
 }
 
 body.field-guide .hub-nav a::before {
+  grid-column: 1;
+  grid-row: 1 / span 2;
   font-family: var(--fg-font-display);
   font-weight: 700;
   font-size: 1.1rem;
   color: var(--fg-accent);
   content: attr(data-num);
+  text-align: left;
 }
 
 body.field-guide .hub-nav strong {
   grid-column: 2;
+  justify-self: stretch;
   font-family: var(--fg-font-display);
   font-size: 1rem;
   margin: 0;
+  text-align: left;
 }
 
 body.field-guide .hub-nav span {
   grid-column: 2;
+  justify-self: stretch;
   font-family: var(--fg-font-ui);
   font-size: 0.78rem;
   color: var(--fg-mute);
+  text-align: left;
 }
 
 /* Callout / chapter note — hairline box, not glass card */
@@ -664,9 +673,17 @@ body.field-guide footer.meta {
     font-size: 1.45rem;
   }
   body.field-guide .hub-nav a {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
   body.field-guide .hub-nav a::before {
     content: none;
+    grid-column: 1;
+    grid-row: auto;
+  }
+  /* Without the roman numeral, text must occupy column 1 — else an empty
+     implicit column makes short titles (Asahikawa) look centered. */
+  body.field-guide .hub-nav strong,
+  body.field-guide .hub-nav span {
+    grid-column: 1;
   }
 }
