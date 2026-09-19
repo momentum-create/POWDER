@@ -5,6 +5,7 @@
  * - about.html, affiliate-disclosure.html
  * - hubs/{asahikawa,hakuba,yuzawa}.html
  * - guides/index.html
+ * - guide/hub-week/index.html (public Gumroad sales LP — purchaser full guide stays noindex)
  * - sitemap.xml
  */
 import fs from "node:fs";
@@ -15,6 +16,11 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, "..");
 const site = "https://japowsearch.com";
 const hotelCompare = `${site}/tools/hotel-compare/`;
+const hubWeekLp = `${site}/guide/hub-week/`;
+const gumroadHubWeekBuy =
+  "https://japowsearch.gumroad.com/l/cxpywl?utm_source=japowsearch&utm_medium=site&utm_campaign=hub_week_lp";
+const gumroadHubWeekCover =
+  "https://public-files.gumroad.com/whgev6a5bjvqsqn9w5489tjf6gzj";
 const guidesHost = "https://guides.japowserch.com";
 const ogImage = `${site}/assets/track-final-dumps-poster.png`;
 const today = new Date().toISOString().slice(0, 10);
@@ -90,7 +96,7 @@ footer{margin-top:3rem;padding-top:1.5rem;border-top:1px solid var(--border);fon
 `;
 
 function siteNav(extra = "") {
-  return `<nav class="meta"><a href="${site}/">Ranking</a> · <a href="${hotelCompare}">Hotels</a> · <a href="${site}/hubs/asahikawa.html">Hubs</a> · <a href="${site}/guides/">Guides</a> · <a href="${site}/regions/">Regions</a> · <a href="${site}/faq.html">FAQ</a> · <a href="${site}/about.html">About</a>${extra}</nav>`;
+  return `<nav class="meta"><a href="${site}/">Ranking</a> · <a href="${hotelCompare}">Hotels</a> · <a href="${site}/hubs/asahikawa.html">Hubs</a> · <a href="${hubWeekLp}">Hub Week</a> · <a href="${site}/guides/">Guides</a> · <a href="${site}/regions/">Regions</a> · <a href="${site}/faq.html">FAQ</a> · <a href="${site}/about.html">About</a>${extra}</nav>`;
 }
 
 function siteFooter() {
@@ -99,7 +105,8 @@ function siteFooter() {
 </footer>`;
 }
 
-function headPage({ lang, title, description, canonical, jsonLd }) {
+function headPage({ lang, title, description, canonical, jsonLd, image }) {
+  const shareImage = image || ogImage;
   return `<!DOCTYPE html>
 <html lang="${lang}">
 <head>
@@ -113,11 +120,11 @@ function headPage({ lang, title, description, canonical, jsonLd }) {
 <meta property="og:title" content="${title}">
 <meta property="og:description" content="${description}">
 <meta property="og:url" content="${canonical}">
-<meta property="og:image" content="${ogImage}">
+<meta property="og:image" content="${shareImage}">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="${title}">
 <meta name="twitter:description" content="${description}">
-<meta name="twitter:image" content="${ogImage}">
+<meta name="twitter:image" content="${shareImage}">
 <link rel="icon" href="${site}/assets/track-final-dumps-poster.png">
 <script type="application/ld+json">${JSON.stringify(jsonLd)}</script>
 ${analyticsScripts}
@@ -240,6 +247,10 @@ function faqPage() {
       q: "宿を比較するツールは？",
       a: `<a href="${hotelCompare}">Hotel compare</a>で旭川・白馬・湯沢ハブのショートリストを一括見積もりできます。`,
     },
+    {
+      q: "7泊の拠点選びガイド（英語）は？",
+      a: `渡前プランナー向けの <a href="${hubWeekLp}">Hub Week field guide</a>（旭川・白馬・湯沢）を公開しています。購入は <a href="${gumroadHubWeekBuy}">Gumroad</a> から。`,
+    },
   ];
   const jsonLd = {
     "@context": "https://schema.org",
@@ -311,6 +322,7 @@ function aboutPage() {
 <li><strong>Powder ranking</strong> — 460+ resorts scored from Open-Meteo forecasts and JMA snow observations.</li>
 <li><strong>Resort guides</strong> — ${guidesHost} hosts detailed mock LPs linked from the map “detail” button.</li>
 <li><strong>Hotel compare</strong> — Shortlists for Asahikawa, Hakuba, and Yuzawa powder hubs with one-page OTA quotes.</li>
+<li><strong>Hub Week field guide</strong> — Inbound 7-night planning for Asahikawa, Hakuba, and Echigo-Yuzawa (<a href="${hubWeekLp}">overview</a> · <a href="${gumroadHubWeekBuy}" data-japow-gumroad-cta="about_hub_week">buy on Gumroad</a>).</li>
 </ul>
 <h2>Update cadence</h2>
 <p>Forecast and ranking data refresh frequently during the season. Region landing pages and guides are updated as new resorts ship.</p>
@@ -320,6 +332,85 @@ function aboutPage() {
 <p>Some hotel and car links are affiliate-tracked. See our <a href="${site}/affiliate-disclosure.html">affiliate disclosure</a> and <a href="${site}/privacy.html">privacy policy</a>.</p>
 <a class="cta" href="${site}/ski-powder-hunter-en.html">Open powder ranking</a>
 <a class="cta cta-secondary" href="${hotelCompare}">Hotel compare tool</a>
+</main>
+${siteFooter()}
+</div>
+</body>
+</html>`;
+}
+
+function hubWeekSalesPage() {
+  const canonical = hubWeekLp;
+  const title =
+    "Japan ski without Niseko — 7-night Hub Week field guide (Asahikawa, Hakuba, Yuzawa)";
+  const description =
+    "Inbound powder week planning: three shuttle-first hubs in Hokkaido, Nagano, and Niigata. Phone-bookmarkable field guide with hotel compare and eat maps. $15 on Gumroad.";
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebPage",
+        name: title,
+        url: canonical,
+        description,
+      },
+      {
+        "@type": "Product",
+        name: "JAPOW Hub Week Field Guide · 2026–27",
+        description,
+        image: gumroadHubWeekCover,
+        brand: { "@type": "Brand", name: "Japowsearch" },
+        offers: {
+          "@type": "Offer",
+          url: gumroadHubWeekBuy,
+          priceCurrency: "USD",
+          price: "15.00",
+          availability: "https://schema.org/InStock",
+        },
+      },
+    ],
+  };
+
+  return `${headPage({
+    lang: "en",
+    title,
+    description,
+    canonical,
+    jsonLd,
+    image: gumroadHubWeekCover,
+  })}
+<body>
+<div class="wrap">
+<header>
+  <a class="logo" href="${site}/">Japowsearch</a>
+  ${siteNav()}
+</header>
+<main>
+<h1>Japan ski Hub Week — 7 nights, 3 bases</h1>
+<p class="lead">You don't need Niseko's famous address. Put your week in towns where buses, onsen, and dinner already work — then let the snow pick tomorrow's hill.</p>
+<figure style="margin:1.25rem 0;border:1px solid var(--border);border-radius:12px;overflow:hidden">
+  <img src="${gumroadHubWeekCover}" alt="JAPOW Hub Week field guide cover — powder, onsen, and beer" width="1200" height="675" loading="eager" style="width:100%;height:auto;display:block" />
+</figure>
+<h2>Three launch hubs (2026–27)</h2>
+<ul class="resorts">
+<li><strong>Hokkaido — Asahikawa</strong> — Dry inland cold. Small hills on rotation. A car-free week is realistic.</li>
+<li><strong>Nagano — Hakuba (Happo knot)</strong> — Alps by shuttle. Home hill by day, a different village's bath by night.</li>
+<li><strong>Niigata — Echigo-Yuzawa</strong> — Shinkansen as the spine. Station as base; that day's mountain is the outing.</li>
+</ul>
+<h2>What you get ($15)</h2>
+<ul class="resorts">
+<li><strong>Full HTML field guide</strong> — bookmark on your phone after purchase (detailed content is not indexed publicly).</li>
+<li><strong>Eat maps + hotel compare</strong> for each hub — plan lodging before you fly.</li>
+<li><strong>Pocket field PDFs</strong> for print / offline.</li>
+<li><strong>Nightly workflow</strong> with <a href="${site}/">japowsearch.com</a> once you are in Japan — pick tomorrow at 9pm, not at the airport.</li>
+</ul>
+<p>Free updates through May 31, 2027.</p>
+<a class="cta" href="${gumroadHubWeekBuy}" data-japow-gumroad-cta="hub_week_lp_primary">Buy on Gumroad — $15 →</a>
+<a class="cta cta-secondary" href="${hotelCompare}">Hotel compare (free tool)</a>
+<h2>After you buy</h2>
+<p>Gumroad sends a <strong>Start here</strong> page with your private full-guide link. Bookmark that page — it is not listed in search or the site menu.</p>
+<h2>Also on Gumroad</h2>
+<p>Same product on the JapowSearch storefront: <a href="https://japowsearch.gumroad.com/l/cxpywl">japowsearch.gumroad.com/l/cxpywl</a></p>
 </main>
 ${siteFooter()}
 </div>
@@ -419,6 +510,7 @@ function hubPage(hub) {
 <main>
 <h1>${meta.name} hub — where to stay</h1>
 <p class="lead">${meta.summary}</p>
+<p style="margin-bottom:1rem;color:var(--dim);font-size:.95rem">Planning a full 7-night inbound week? See the <a href="${hubWeekLp}">Hub Week field guide</a> — $15 on Gumroad.</p>
 <a class="cta" href="${compareUrl}">Compare hotels · enter dates once →</a>
 <a class="cta cta-secondary" href="${meta.powderLink}">Powder ranking for ${meta.name} →</a>
 <h2>Guide shortlist</h2>
@@ -462,8 +554,10 @@ function hubsIndexPage() {
 <main>
 <h1>Powder hub hotels</h1>
 <p class="lead">Three hubs for inbound powder weeks — compare the guide shortlist on one dated search page.</p>
+<p style="margin-bottom:1.25rem;color:var(--dim);font-size:.95rem"><a href="${hubWeekLp}">Hub Week field guide</a> — 7-night bases in Hokkaido, Nagano, and Niigata ($15).</p>
 <div class="grid">${cards}</div>
 <a class="cta" href="${hotelCompare}">Open hotel compare tool</a>
+<a class="cta cta-secondary" href="${hubWeekLp}">Hub Week guide overview</a>
 </main>
 ${siteFooter()}
 </div>
@@ -545,6 +639,7 @@ function buildSitemap() {
     { loc: hotelCompare, priority: "0.85", changefreq: "weekly" },
     { loc: `${site}/hubs/`, priority: "0.85", changefreq: "weekly" },
     { loc: `${site}/guides/`, priority: "0.8", changefreq: "weekly" },
+    { loc: hubWeekLp, priority: "0.88", changefreq: "monthly" },
     { loc: `${site}/regions/`, priority: "0.85", changefreq: "weekly" },
     { loc: `${site}/faq.html`, priority: "0.7", changefreq: "monthly" },
     { loc: `${site}/privacy.html`, priority: "0.3", changefreq: "yearly" },
@@ -644,6 +739,21 @@ function assertIndexSignals() {
   if (hub.includes('hreflang="ja" href="https://japowsearch.com/"')) {
     throw new Error("hub pages must not advertise the homepage as a JA translation");
   }
+  const buyerGuidePath = path.join(root, "guide", "hsgcvg2cv79dy4pv9djka363", "index.html");
+  const buyerGuide = fs.readFileSync(buyerGuidePath, "utf8");
+  if (!/<meta\s+name="robots"\s+content="[^"]*noindex/i.test(buyerGuide)) {
+    throw new Error("purchaser full guide must keep noindex in robots meta");
+  }
+  if (sitemap.includes("hsgcvg2cv79dy4pv9djka363")) {
+    throw new Error("sitemap must not list the purchaser full-guide path");
+  }
+  const hubWeek = fs.readFileSync(path.join(root, "guide", "hub-week", "index.html"), "utf8");
+  if (/<meta\s+name="robots"\s+content="[^"]*noindex/i.test(hubWeek)) {
+    throw new Error("hub-week sales LP must remain indexable");
+  }
+  if (!sitemap.includes(`<loc>${hubWeekLp}</loc>`)) {
+    throw new Error("sitemap.xml must list the hub-week sales LP");
+  }
 }
 
 function writePrivacyPage() {
@@ -722,6 +832,10 @@ async function main() {
   fs.mkdirSync(guidesDir, { recursive: true });
   fs.writeFileSync(path.join(guidesDir, "index.html"), guidesIndexPage(registryResorts), "utf8");
 
+  const hubWeekDir = path.join(root, "guide", "hub-week");
+  fs.mkdirSync(hubWeekDir, { recursive: true });
+  fs.writeFileSync(path.join(hubWeekDir, "index.html"), hubWeekSalesPage(), "utf8");
+
   fs.writeFileSync(path.join(root, "faq.html"), faqPage(), "utf8");
   fs.writeFileSync(path.join(root, "about.html"), aboutPage(), "utf8");
   fs.writeFileSync(path.join(root, "affiliate-disclosure.html"), affiliateDisclosurePage(), "utf8");
@@ -731,7 +845,7 @@ async function main() {
   assertIndexSignals();
 
   console.log(
-    `Generated ${regions.length} region pages, 3 hub pages, guides index (${registryResorts.length} resorts), about, disclosure, privacy, sitemap.xml, redirect stubs`,
+    `Generated ${regions.length} region pages, 3 hub pages, hub-week sales LP, guides index (${registryResorts.length} resorts), about, disclosure, privacy, sitemap.xml, redirect stubs`,
   );
 }
 
