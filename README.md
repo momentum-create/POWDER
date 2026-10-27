@@ -17,7 +17,7 @@
 |--------|------|
 | 予報（降雪・風・気温） | [Open-Meteo](https://open-meteo.com/) |
 | 積雪観測・降雪タイル | [気象庁](https://www.jma.go.jp/) |
-| 地図 | [OpenStreetMap](https://www.openstreetmap.org/copyright) · [CARTO](https://carto.com/attributions/) |
+| 地図 | [国土地理院](https://maps.gsi.go.jp/development/ichiran.html) |
 | ゲレンデ名・座標等 | リポジトリ内 `data/`（手動・スクリプト整備） |
 
 第三者データの利用・再配布は各提供元の条件に従います。詳細は各 HTML フッターも参照。

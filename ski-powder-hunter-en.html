@@ -527,6 +527,8 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
 .view-map .main{position:relative}
 .map-stage{flex:1;min-width:0;min-height:0;position:relative;background:#0d1e33}
 #map{position:absolute;inset:0;width:100%;height:100%;background:#0d1e33;z-index:0}
+/* GSI pale tiles inverted to keep the dark UI (CARTO dark_all requires an API key since 2026-09-25) */
+.basemap-gsi{filter:invert(1) hue-rotate(180deg) brightness(.92) contrast(.95) saturate(.4)}
 .leaflet-popup-content-wrapper{background:var(--navy-mid)!important;border:1px solid var(--border)!important;border-radius:14px!important;box-shadow:0 8px 32px rgba(0,0,0,.6)!important;color:var(--text)!important;position:relative}
 .leaflet-popup-tip{background:var(--navy-mid)!important}
 .leaflet-popup-content{margin:12px 14px!important;min-width:220px}
@@ -2035,7 +2037,7 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
   <div class="resort-list" id="resort-list"></div>
   <footer class="site-footer" id="site-footer">
     <p class="site-footer__disclaimer">For reference and trip planning only. Official forecasts, resort sites, and on-site judgment take priority. Use at your own risk.</p>
-    <p class="site-footer__sources">Data: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> · <a href="https://www.jma.go.jp/" target="_blank" rel="noopener">JMA</a> (snow, tiles) · <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> · <a href="https://carto.com/attributions/" target="_blank" rel="noopener">CARTO</a></p>
+    <p class="site-footer__sources">Data: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> · <a href="https://www.jma.go.jp/" target="_blank" rel="noopener">JMA</a> (snow, tiles) · <a href="https://maps.gsi.go.jp/development/ichiran.html" target="_blank" rel="noopener">GSI Japan</a></p>
     <p class="site-footer__links"><a href="about.html">About</a> · <a href="tools/hotel-compare/">Hotels</a> · <a href="guides/">Guides</a> · <a href="affiliate-disclosure.html">Affiliate</a> · <a href="privacy.html">Privacy</a> · <a href="https://github.com/momentum-create/POWDER" target="_blank" rel="noopener">GitHub</a></p>
     <p class="site-footer__links">By region: <a href="regions/hokkaido.html">Hokkaido</a> · <a href="regions/tohoku.html">Tohoku</a> · <a href="regions/niigata.html">Niigata</a> · <a href="regions/nagano.html">Nagano</a> · <a href="regions/chubu.html">Chubu</a> · <a href="regions/kanto.html">Kanto</a> · <a href="regions/kansai.html">Kansai</a> · <a href="regions/chugoku.html">Chugoku &amp; Shikoku</a> · <a href="hubs/asahikawa.html">Asahikawa hotels</a> · <a href="hubs/hakuba.html">Hakuba hotels</a> · <a href="hubs/yuzawa.html">Yuzawa hotels</a></p>
   </footer>
@@ -2050,7 +2052,7 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
 <button type="button" id="map-zoom-in" aria-label="Zoom in">+</button>
 <button type="button" id="map-zoom-out" aria-label="Zoom out">−</button>
 </div>
-<p class="map-attrib">Leaflet · OSM · CARTO</p>
+<p class="map-attrib">Leaflet · GSI</p>
 </div>
 
 <div class="map-overlay">
@@ -4838,8 +4840,11 @@ map.on("zoomend moveend", function(){
   }
 });
 L.control.zoom({position:"bottomright"}).addTo(map);
-L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",{
-  attribution:"&copy; OpenStreetMap &copy; CARTO",subdomains:"abcd",maxZoom:17
+L.tileLayer("https://cyberjapandata.gsi.go.jp/xyz/pale/{z}/{x}/{y}.png",{
+  attribution:'<a href="https://maps.gsi.go.jp/development/ichiran.html" target="_blank" rel="noopener">GSI Japan</a>',
+  maxZoom:18,
+  maxNativeZoom:18,
+  className:"basemap-gsi"
 }).addTo(map);
 
 const JMA_SNOW_CONFIG = {

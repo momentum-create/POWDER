@@ -530,6 +530,8 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
 .view-map .main{position:relative}
 .map-stage{flex:1;min-width:0;min-height:0;position:relative;background:#0d1e33}
 #map{position:absolute;inset:0;width:100%;height:100%;background:#0d1e33;z-index:0}
+/* GSI pale tiles inverted to keep the dark UI (CARTO dark_all requires an API key since 2026-09-25) */
+.basemap-gsi{filter:invert(1) hue-rotate(180deg) brightness(.92) contrast(.95) saturate(.4)}
 .leaflet-popup-content-wrapper{background:var(--navy-mid)!important;border:1px solid var(--border)!important;border-radius:14px!important;box-shadow:0 8px 32px rgba(0,0,0,.6)!important;color:var(--text)!important;position:relative}
 .leaflet-popup-tip{background:var(--navy-mid)!important}
 .leaflet-popup-content{margin:12px 14px!important;min-width:220px}
@@ -2266,7 +2268,7 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
   <div class="resort-list" id="resort-list"></div>
   <footer class="site-footer" id="site-footer">
     <p class="site-footer__disclaimer">本サービスは娯楽・情報整理目的の参考表示です。公式予報・リゾート公式・現地判断を優先してください。利用は自己責任です。</p>
-    <p class="site-footer__sources">データ出典: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> · <a href="https://www.jma.go.jp/" target="_blank" rel="noopener">気象庁</a>（積雪・タイル） · <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> · <a href="https://carto.com/attributions/" target="_blank" rel="noopener">CARTO</a></p>
+    <p class="site-footer__sources">データ出典: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> · <a href="https://www.jma.go.jp/" target="_blank" rel="noopener">気象庁</a>（積雪・タイル） · <a href="https://maps.gsi.go.jp/development/ichiran.html" target="_blank" rel="noopener">国土地理院</a></p>
     <p class="site-footer__links"><a href="about.html">About</a> · <a href="tools/hotel-compare/">Hotels</a> · <a href="guides/">Guides</a> · <a href="affiliate-disclosure.html">Affiliate</a> · <a href="privacy.html">プライバシー</a> · <a href="https://github.com/momentum-create/POWDER" target="_blank" rel="noopener">GitHub</a></p>
     <p class="site-footer__links">エリア別: <a href="regions/hokkaido.html">北海道</a> · <a href="regions/tohoku.html">東北</a> · <a href="regions/niigata.html">新潟</a> · <a href="regions/nagano.html">長野</a> · <a href="regions/chubu.html">中部</a> · <a href="regions/kanto.html">関東</a> · <a href="regions/kansai.html">関西</a> · <a href="regions/chugoku.html">中国・四国</a> · <a href="hubs/asahikawa.html">旭川の宿</a> · <a href="hubs/hakuba.html">白馬の宿</a> · <a href="hubs/yuzawa.html">湯沢の宿</a></p>
   </footer>
@@ -2281,7 +2283,7 @@ header .header-inner{display:flex;align-items:center;justify-content:space-betwe
 <button type="button" id="map-zoom-in" aria-label="ズームイン">+</button>
 <button type="button" id="map-zoom-out" aria-label="ズームアウト">−</button>
 </div>
-<p class="map-attrib">Leaflet · OSM · CARTO</p>
+<p class="map-attrib">Leaflet · 国土地理院</p>
 </div>
 
 <div class="map-overlay">
@@ -5056,8 +5058,11 @@ map.on("zoomend moveend", function(){
   }
 });
 L.control.zoom({position:"bottomright"}).addTo(map);
-L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",{
-  attribution:"&copy; OpenStreetMap &copy; CARTO",subdomains:"abcd",maxZoom:17
+L.tileLayer("https://cyberjapandata.gsi.go.jp/xyz/pale/{z}/{x}/{y}.png",{
+  attribution:'<a href="https://maps.gsi.go.jp/development/ichiran.html" target="_blank" rel="noopener">国土地理院</a>',
+  maxZoom:18,
+  maxNativeZoom:18,
+  className:"basemap-gsi"
 }).addTo(map);
 
 const JMA_SNOW_CONFIG = {
