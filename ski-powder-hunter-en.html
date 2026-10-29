@@ -2303,7 +2303,7 @@ jmaMeshSampleCanvas.width = 256;
 jmaMeshSampleCanvas.height = 256;
 let elevationSnowFactors = null;
 const JMA_PREV_SNOW_RULE_TITLE_JA = "気象庁の1時間降水量(㎜)と気温(℃)から降雪相当(cm)を推計。4℃以上は降雨のみ、0〜4℃は線形補間、0℃以下は1mm降水≈1cm新雪相当。";
-const JMA_PREV_SNOW_RULE_TITLE_EN = "JMA hourly precipitation (mm) and temperature (°C) → snow-equivalent (cm): no snow at ≥4°C, linear blend 0–4°C, at ≤0°C ~10:1 mm-to-cm.";
+const JMA_PREV_SNOW_RULE_TITLE_EN = "JMA hourly precipitation (mm) and temperature (°C) → snow-equivalent (cm): no snow at ≥4°C, linear blend 0–4°C, at ≤0°C 1 mm of precipitation ≈ 1 cm of fresh snow.";
 let jmaPrevDayMeta = null;
 
 function jmaHourlyPrecipTempToSnowCm(precipMm, tempC){
@@ -2318,7 +2318,7 @@ function jmaHourlyPrecipTempToSnowCm(precipMm, tempC){
   let snowFrac = 1;
   if(t>=rainMaxC) snowFrac = 0;
   else if(t>snowMinC) snowFrac = (rainMaxC-t)/(rainMaxC-snowMinC);
-  return p*10*snowFrac;
+  return p*snowFrac;
 }
 function sumJmaPrevSnowHourRange(precipArr, tempCArr, fromH, toHEx){
   if(!Array.isArray(precipArr)||!Array.isArray(tempCArr)) return null;

@@ -1,6 +1,6 @@
 {
   "calendar_day_jst": null,
   "rule_note_ja": "気象庁の1時間降水量（㎜）と気温（℃）から、降雪として堆積する割合を気温で補正して降雪相当（cm）に換算します（気温4℃以上は降雨のみ、0〜4℃は線形補間、0℃以下は降水を雪に換算 1mm≈1cm）。",
-  "rule_note_en": "From JMA hourly precipitation (mm) and air temperature (°C): snow-equivalent depth (cm) uses a temperature factor (liquid only at ≥4°C, linear 0–4°C, snow at ≤0°C with ~10:1 mm-to-cm).",
+  "rule_note_en": "From JMA hourly precipitation (mm) and air temperature (°C): snow-equivalent depth (cm) uses a temperature factor (liquid only at ≥4°C, linear 0–4°C, snow at ≤0°C with 1 mm of precipitation ≈ 1 cm of fresh snow).",
   "stations": {}
 }
