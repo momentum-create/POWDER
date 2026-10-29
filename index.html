@@ -2418,7 +2418,7 @@ function jmaHourlyPrecipTempToSnowCm(precipMm, tempC){
   let snowFrac = 1;
   if(t>=rainMaxC) snowFrac = 0;
   else if(t>snowMinC) snowFrac = (rainMaxC-t)/(rainMaxC-snowMinC);
-  return p*10*snowFrac;
+  return p*snowFrac;
 }
 function sumJmaPrevSnowHourRange(precipArr, tempCArr, fromH, toHEx){
   if(!Array.isArray(precipArr)||!Array.isArray(tempCArr)) return null;
